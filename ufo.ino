@@ -10,6 +10,11 @@
   *  connect to SSID huzzah, and call http://192.168.4.1/api?ssid=<ssid>&pwd=<password> to set new SSID/PASSWORD 
   *  TODO: WebUI doesnt load properly when connected in AP mode
   *        maybe because of "#define MAX_SOCK_NUM 4" in ethernet code?
+  *        
+  *        
+  * NOTE       
+  *   WHEN Development OTA is enabled then the access point doesnt work properly HTTPserver accessing the SPIFFS fails/stucks
+  *        
   */
 
 #include <ESP8266WiFi.h>
@@ -21,9 +26,10 @@
 #include <Wire.h>
 #include <FS.h>
 #include <Adafruit_NeoPixel.h>
+#include <math.h>
 
-#define DOTSTAR // if defined, DotStar LED strip code is enabled
-#define OTA // if defined, Arduino IDE based OTA is enabled
+//#define DOTSTAR // if defined, DotStar LED strip code is enabled
+//#define OTA // if defined, Arduino IDE based OTA is enabled
 
 #define FIRMWARE_VERSION "2016.02.09 experimental"
 
@@ -242,6 +248,36 @@ void apiHandler() {
   digitalWrite ( PIN_ONBOARDLED, 0 );
 }
 
+void generateHandler() {
+  digitalWrite ( PIN_ONBOARDLED, 1 );
+  if (server.hasArg("size")) {
+    Serial.println("size arg found" + server.arg("size"));
+    long bytes = server.arg("size").toInt();
+    String top = "<html><header>Generator</header><body>sending " + String(bytes) + " bytes of additional payload.<p>";
+    String end = "</body></html>";
+    server.setContentLength(bytes+top.length()+end.length());
+    server.send(200);
+    server.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
+    String chunk = "";
+    server.sendContent(top);
+    String a = String("a");
+    while (bytes > 0) {
+      chunk = String("");
+      long chunklen = bytes<4096?bytes:4096;
+      while (chunk.length() <= chunklen) {
+        chunk += a;
+      }
+      server.sendContent(chunk);
+      bytes-=chunklen;
+    }
+    server.sendContent(end);
+  }  
+  
+  digitalWrite ( PIN_ONBOARDLED, 0 );
+}
+
+
+
 // initialization routines
 void setup ( void ) {
   // setup neopixel
@@ -285,7 +321,7 @@ void setup ( void ) {
     // default IP address for Access Point is 192.168.4.1
     //WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0)); // IP, gateway, netmask
   }
- <
+ 
   WiFi.begin(); // load SSID and PWD from internal memory
   Serial.println ( "" );
 
@@ -338,6 +374,7 @@ void setup ( void ) {
   #define STATICFILES_CACHECONTROL "private, max-age=0, no-cache, no-store"
   server.on ( "/api", apiHandler );
   server.on ( "/info", infoHandler );
+  server.on ( "/gen", generateHandler );
   server.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
   server.serveStatic("/test.html", SPIFFS, "/test.html", STATICFILES_CACHECONTROL);
   server.serveStatic("/app.js", SPIFFS, "/app.js", STATICFILES_CACHECONTROL);
