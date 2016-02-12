@@ -8,13 +8,18 @@
  /* NOTE  
   *  ESP8266 stores last set SSID and PWD in reserved flash area 
   *  connect to SSID huzzah, and call http://192.168.4.1/api?ssid=<ssid>&pwd=<password> to set new SSID/PASSWORD 
-  *  TODO: WebUI doesnt load properly when connected in AP mode
-  *        maybe because of "#define MAX_SOCK_NUM 4" in ethernet code?
   *        
   *        
   * NOTE       
   *   WHEN Development OTA is enabled then the access point doesnt work properly HTTPserver accessing the SPIFFS fails/stucks
   *        
+  *        
+  * TODO       
+  *     Web contents should provide   
+  *     1) get quickly started by configuring WIFI
+  *     2) activate some demo scenarios (showcase fancy illumination patterns)
+  *     3) providing help about available API calls
+  *     4) firmware updates (load from github or upload to device? or both?)
   */
 
 #include <ESP8266WiFi.h>
