@@ -33,60 +33,35 @@
 #include <Adafruit_NeoPixel.h>
 #include <math.h>
 
-//#define DOTSTAR // if defined, DotStar LED strip code is enabled
 //#define OTA // if defined, Arduino IDE based OTA is enabled
 
-#define FIRMWARE_VERSION "2016.02.09 experimental"
+#define FIRMWARE_VERSION "2016.02.25 experimental"
 
 boolean debug = true;
 const char *host = "huzzah";
 
 // ESP8266 Huzzah Pin usage
-#define PIN_NEOPIXEL 5
+#define PIN_NEOPIXEL_LOGO 2
+#define PIN_NEOPIXEL_LOWERRING 4
+#define PIN_NEOPIXEL_UPPERRING 5
 #define PIN_ONBOARDLED 13
-#define PIN_FACTORYRESET 2
+#define PIN_FACTORYRESET 15
 
-Adafruit_NeoPixel neopixel = Adafruit_NeoPixel(7, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
-boolean centerpixel = false;
-boolean centerpixelred = false;
-boolean centerpixelgreen = false;
+
+Adafruit_NeoPixel neopixel_logo = Adafruit_NeoPixel(4, PIN_NEOPIXEL_LOGO, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel neopixel_lowerring = Adafruit_NeoPixel(15, PIN_NEOPIXEL_LOWERRING, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel neopixel_upperring = Adafruit_NeoPixel(15, PIN_NEOPIXEL_UPPERRING, NEO_GRB + NEO_KHZ800);
+boolean logo = true;
+boolean logored = false;
+boolean logogreen = false;
 byte whirlr = 255;
 byte whirlg = 255;
 byte whirlb = 255;
 boolean whirl = false;
 
-
-//****************************** DOTSTAR **************************************
-#include <Adafruit_DotStar.h>
-#include <SPI.h>         // COMMENT OUT THIS LINE FOR GEMMA OR TRINKET
-#define DOTSTAR_NUMPIXELS 150 // Number of LEDs in strip
-#define DOTSTAR_DATAPIN    15
-#define DOTSTAR_CLOCKPIN   4
-#if defined(DOTSTAR)
-  Adafruit_DotStar strip = Adafruit_DotStar(
-    DOTSTAR_NUMPIXELS, DOTSTAR_DATAPIN, DOTSTAR_CLOCKPIN, DOTSTAR_BRG); 
-    // note: using Hardware SPI it is a little faster
-    // Adafruit_DotStar strip = Adafruit_DotStar(DOTSTAR_NUMPIXELS, DOTSTAR_BRG);
-#endif
-
 ESP8266WebServer server ( 80 );
 
 
-// calculate rainbow colors
-// Input a value 0 to 255 to get a color value.
-// The colours are a transition r - g - b - back to r.
-uint32_t Wheel(byte WheelPos) {
-  WheelPos = 255 - WheelPos;
-  if(WheelPos < 85) {
-   return Adafruit_NeoPixel::Color(255 - WheelPos * 3, 0, WheelPos * 3);
-  } else if(WheelPos < 170) {
-    WheelPos -= 85;
-   return Adafruit_NeoPixel::Color(0, WheelPos * 3, 255 - WheelPos * 3);
-  } else {
-   WheelPos -= 170;
-   return Adafruit_NeoPixel::Color(WheelPos * 3, 255 - WheelPos * 3, 0);
-  }
-}
 
 //format bytes
 String formatBytes(size_t bytes){
@@ -146,33 +121,6 @@ void handleNewWifiSettings() {
 
 
 
-#if defined(DOTSTAR)
-  // Runs 3 LEDs at a time along strip, cycling through red, green and blue.
-  // This requires about 200 mA for all the 'on' pixels + 1 mA per 'off' pixel.
-  int      head  = 0, tail = -3; // Index of first 'on' and 'off' pixels
-  uint32_t color = 0xFF0000;      // 'On' color (starts red)
-
-  void runDotStar() {
-    /**strip.setPixelColor(head, color); // 'On' pixel at head
-    strip.setPixelColor(tail, 0);     // 'Off' pixel at tail
-    strip.show();                     // Refresh strip
-    delay(20);                        // Pause 20 milliseconds (~50 FPS)
-  
-    if(++head >= DOTSTAR_NUMPIXELS) {         // Increment head index.  Off end of strip?
-      head = 0;                       //  Yes, reset head index to start
-      if((color >>= 8) == 0)          //  Next color (R->G->B) ... past blue now?
-        color = 0xFF0000;             //   Yes, reset to red
-    }
-    if(++tail >= DOTSTAR_NUMPIXELS) tail = 0; // Increment, reset tail index**/
-    for (int i = 0; i < DOTSTAR_NUMPIXELS; i++) {
-      strip.setPixelColor(0, 0x000000);     // 'Off' pixel at tail
-    }
-    strip.setPixelColor(0, 0xFF0000);     
-    strip.setPixelColor(10, 0x00FF00);     
-    strip.show();                     // Refresh strip
-  }
-#endif
-
 void infoHandler() {
   digitalWrite ( PIN_ONBOARDLED, 1 );
   
@@ -202,18 +150,18 @@ void apiHandler() {
     Serial.println("LED arg found" + server.arg("led"));
     if (server.arg("led").equals("on")) {
       Serial.println("lets turn led on");
-      centerpixel = true;
+      logo = true;
     } else if (server.arg("led").equals("red")) {
       Serial.println("lets turn led on");
-      centerpixelred = true;
+      logored = true;
     } else if (server.arg("led").equals("green")) {
       Serial.println("lets turn led on");
-      centerpixelgreen = true;
+      logogreen = true;
     } else {
       Serial.println("lets turn led off");
-      centerpixel = false;
-      centerpixelgreen = false;
-      centerpixelred = false;
+      logo = false;
+      logogreen = false;
+      logored = false;
     }
   }
   if (server.hasArg("whirl")) {
@@ -286,15 +234,15 @@ void generateHandler() {
 // initialization routines
 void setup ( void ) {
   // setup neopixel
-  neopixel.begin();
-  neopixel.clear();
-  neopixel.show();
-
-  // Dotstar strip.begin();
-  #if defined(DOTSTAR)
-    strip.begin(); // Initialize pins for output
-    strip.show();  // Turn all LEDs off ASAP
-  #endif
+  neopixel_logo.begin();
+  neopixel_logo.clear();
+  neopixel_logo.show();
+  neopixel_lowerring.begin();
+  neopixel_lowerring.clear();
+  neopixel_lowerring.show();
+  neopixel_upperring.begin();
+  neopixel_upperring.clear();
+  neopixel_upperring.show();
 
   // checking availability of serial connection
   int serialtimeout = 5000; //ms
@@ -451,17 +399,31 @@ void loop ( void ) {
     ArduinoOTA.handle();
   #endif
 
-  // adjust centerpixel
-  if (centerpixel) {
-    if (tick % 50 == 0) {
-      wheelcolor++;
-    }
-    if (centerpixelred)  neopixel.setPixelColor(0, 255, 0, 0); 
-    else if (centerpixelgreen) neopixel.setPixelColor(0, 0, 255, 0); 
-    else neopixel.setPixelColor(0, Wheel(wheelcolor));
+  // adjust logo colors
+  if (logored) {
+    neopixel_logo.setPixelColor(0, 255, 0, 0); 
+    neopixel_logo.setPixelColor(1, 255, 0, 0); 
+    neopixel_logo.setPixelColor(2, 255, 0, 0); 
+    neopixel_logo.setPixelColor(3, 255, 0, 0); 
+  } else if (logogreen) {
+    neopixel_logo.setPixelColor(0, 0, 255, 0); 
+    neopixel_logo.setPixelColor(1, 0, 255, 0); 
+    neopixel_logo.setPixelColor(2, 0, 255, 0); 
+    neopixel_logo.setPixelColor(3, 0, 255, 0); 
   } else {
-    neopixel.setPixelColor(0, 0, 0, 0);
+    neopixel_logo.setPixelColor(0, 190, 223, 42); // north-lime BEDF2A
+    neopixel_logo.setPixelColor(1, 125, 197, 64); // east-green 7DC540
+    neopixel_logo.setPixelColor(2, 133, 68, 179); // south-purple 8544B3
+    neopixel_logo.setPixelColor(3, 0, 166, 251); // west-blue 00A6FB
   }
+
+  // adjust logo brightness (on/off right now)
+  if (logo) {
+    neopixel_logo.setBrightness(255);
+  } else {
+    neopixel_logo.setBrightness(0);
+  }
+  neopixel_logo.show();
 
   if (whirl) {
     byte p;
@@ -483,23 +445,19 @@ void loop ( void ) {
         g = whirlg;
         b = whirlb;
       }
-      neopixel.setPixelColor((p % 6)+1, r, g, b);
+      neopixel_upperring.setPixelColor((p % 15), r, g, b);
     }
-    if (tick % 200 == 0) {
+    if (tick % 50 == 0) {
       whirlpos++;
     }
   } else {
-    for (byte i = 1; i<7; i++) {
-      neopixel.setPixelColor(i, 0, 0, 0);
+    for (byte i = 0; i<15; i++) {
+      neopixel_upperring.setPixelColor(i, 0, 0, 0);
     }
   }
 
-  neopixel.show();
-
-  #if defined(DOTSTAR)
-    runDotStar();
-  #endif  
-
+  neopixel_upperring.show();
+  neopixel_lowerring.show();
 }
 
 
