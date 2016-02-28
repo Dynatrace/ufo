@@ -7,3 +7,6 @@ the idea is that people can print their own ufo and all they need is to order an
 Prints have been tested so far with:
 * makerbot replicator 5th generation
 * ultimaker 2+ (coming soon)
+
+Useful 3D Print guide:
+http://www.matterhackers.com/articles/how-to-succeed-when-printing-in-pla
