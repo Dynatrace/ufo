@@ -1,7 +1,7 @@
 /*
  * Requires Arduino IDE 1.6.7 or later for running OTA updates. 
  * OTA update requires Python 2.7, OTA IDE plugin, ...  http://esp8266.github.io/Arduino/versions/2.1.0-rc2/doc/ota_updates/ota_updates.html#arduino-ide
- * Adafruit Huzzah ESP8266-E12, 4MB flash, uploads with 3MB SPIFFS (3MB filesystem of total 4MB)
+ * Adafruit Huzzah ESP8266-E12, 4MB flash, uploads with 3MB SPIFFS (3MB filesystem of total 4MB) -- note that SPIFFS upload packages up everything from the "data" folder and uploads it via serial (same procedure as uploading sketch) or OTA. however, OTA is disabled by default
  * Use Termite serial terminal software for debugging
  */
 
@@ -10,9 +10,6 @@
   *  connect to SSID huzzah, and call http://192.168.4.1/api?ssid=<ssid>&pwd=<password> to set new SSID/PASSWORD 
   *        
   *        
-  * NOTE       
-  *   WHEN Development OTA is enabled then the access point doesnt work properly HTTPserver accessing the SPIFFS fails/stucks
-  *        
   *        
   * TODO       
   *     Web contents should provide   
@@ -20,37 +17,42 @@
   *     2) activate some demo scenarios (showcase fancy illumination patterns)
   *     3) providing help about available API calls
   *     4) firmware updates (load from github or upload to device? or both?)
+  *     5) smartconfig https://tzapu.com/esp8266-smart-config-esp-touch-arduino-ide/
+  *     6) see also https://github.com/tzapu/WiFiManager/blob/master/WiFiManager.cpp how others deal with Wifi config
+  *     7) switch to fastlib for neopixels?
   */
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
-#include <ArduinoOTA.h>
+#include <ESP8266HTTPUpdateServer.h>
+//#include <ESP8266mDNS.h>
+//#include <WiFiUdp.h>
+//#include <ArduinoOTA.h>
 #include <Wire.h>
 #include <FS.h>
 #include <Adafruit_NeoPixel.h>
 #include <math.h>
 
-//#define OTA // if defined, Arduino IDE based OTA is enabled
-
-#define FIRMWARE_VERSION "2016.02.25 experimental"
+#define FIRMWARE_VERSION "2016.02.28 experimental"
 
 boolean debug = true;
-const char *host = "huzzah";
+#define DEFAULT_HOSTNAME "ufo"
+#define DEFAULT_APSSID "ufo"
+#define DEFAULT_SSID "ufo"
+#define DEFAULT_PWD "ufo"
 
 // ESP8266 Huzzah Pin usage
 #define PIN_NEOPIXEL_LOGO 2
 #define PIN_NEOPIXEL_LOWERRING 4
 #define PIN_NEOPIXEL_UPPERRING 5
-#define PIN_ONBOARDLED 13
 #define PIN_FACTORYRESET 15
 
 
 Adafruit_NeoPixel neopixel_logo = Adafruit_NeoPixel(4, PIN_NEOPIXEL_LOGO, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel neopixel_lowerring = Adafruit_NeoPixel(15, PIN_NEOPIXEL_LOWERRING, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel neopixel_upperring = Adafruit_NeoPixel(15, PIN_NEOPIXEL_UPPERRING, NEO_GRB + NEO_KHZ800);
+
 boolean logo = true;
 boolean logored = false;
 boolean logogreen = false;
@@ -59,9 +61,266 @@ byte whirlg = 255;
 byte whirlb = 255;
 boolean whirl = false;
 
-ESP8266WebServer server ( 80 );
+ESP8266WebServer        httpServer ( 80 );
+ESP8266HTTPUpdateServer httpUpdater(debug);
+
+const char* indexHtml = R"indexhtml(<html>
+
+    <head>
+        <meta charset='utf-8' />
+        <meta name='format-detection' content='telephone=no' />
+        <meta name='viewport' content='user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height' />
+
+        <link rel='stylesheet' href='phonon.min.css' />
+        <title>Huzzah Test</title>
+    </head>
+  <body>
+     
+        <!-- Panel tags go here -->
+    <div id="wifisettings" class="panel-full">
+            <header class="header-bar">
+                <button class="btn pull-right icon icon-close" data-panel-close="true"></button>
+                <div class="center">
+                    <h1 class="title">Wifi Settings</h1>
+                </div>
+            </header> 
+            <div class="content">
+        <span> TODO: Please not this mac address <macaddress> for later lookup of IP address in DHCP table or for assigning a fixed IP address through DHCP </span>
+        <input type="text" placeholder="SSID" id="ssid">
+        <input type="password" placeholder="********" id="wifipwd">
+        <button id="submitwifisettings" class="btn fit-parent primary">Apply WIFI setting</button>
+      </div>
+    </div>
+
+        <!-- Side Panel tags go here -->
+
+        <!-- Notification tags go here -->
+
+        <!-- Dialog tags go here -->
 
 
+        <!-- the home page is the default one. This page does not require to call its content because we define on its tag.-->
+       <home data-page="true">
+            <header class="header-bar">
+                <div class="center">
+                    <h1 class="title">Huzzah Test</h1>
+                </div>
+        <button class="btn pull-right icon icon-settings" data-panel-id="wifisettings"></button>
+
+            </header>
+
+            <div class="content">
+          <ul class="list">
+          <li class="divider">IoT Actions</li>
+          <li>
+            <span class="padded-list">LED</span>
+              <button class="btn btn-flat primary pull-right" data-api="led=off" id="led1off">Off</button>
+            <button class="btn btn-flat primary pull-right" data-api="led=on" id="led1on">On</button>
+          </li> 
+          <li>
+            <span class="padded-list">WHIRL</span>
+              <button class="btn btn-flat primary pull-right" data-api="whirl=off" id="whirloff">Off</button>
+            <button class="btn btn-flat primary pull-right" data-api="whirl=on" id="whirlon">On</button>
+          </li>
+          <li>
+            <span class="padded-list">WHIRL COLOR</span>
+              <button class="btn btn-flat negative pull-right" data-api="whirl=r" id="whirlred">R</button>
+            <button class="btn btn-flat positive pull-right" data-api="whirl=g" id="whirlgreen">G</button>
+          </li>
+          <li>
+            <a href="#!pageinfo" class="padded-list">Info</a>
+          </li>
+        </ul> 
+ 
+
+      </div>
+
+        </home>
+
+        <!-- for the second page, Phonon will load its content. --> 
+        <pageinfo data-page="true">
+          <header class="header-bar">
+        <button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
+        <div class="center">
+          <h1 class="title">Info</h1>
+        </div>
+      </header>
+      <div class="content">
+        <ul class="list">
+          <li class="divider">System</li>
+          <!-- TODO class=pull-right doesnt work for wider strings -->
+          <li class="padded-list">Heap: <span class="pull-right" id="infoheap">-</span></li>
+          <li class="padded-list">Firmware: <span id="infofirmwareversion">-</span></li>
+          <li class="divider">Network</li>
+          <li class="padded-list">SSID: <span id="infossid">-</span></li>
+          <li class="padded-list">IP: <span id="infoipaddress">-</span></li>
+          <li class="padded-list">Subnetmask: <span id="infoipsubnetmask">-</span></li>
+          <li class="padded-list">Gateway: <span id="infoipgateway">-</span></li>
+          <li class="padded-list">DNS: <span id="infoipdns">-</span></li>
+          <li class="padded-list">Hostname: <span id="infohostname">-</span></li>
+          <li class="padded-list">Macaddress: <span id="infomacaddress">-</span></li>
+          <li class="padded-list">Wifi autoconnect: <span id="infowifiautoconnect">-</span></li>          <li class="divider">Accesspoint</li>
+          <li class="padded-list">IP: <span id="infoapipaddress">-</span></li>
+          <li class="padded-list">Connected stations: <span id="infoapconnectedstations">-</span></li>
+        </ul>
+      </div> 
+    </pageinfo>
+
+        <!-- scripts -->
+        <script src="phonon.min.js"></script>
+
+        <!-- our app config -->
+        <!-- <script src="app.js"></script> -->
+    <script>
+      phonon.options({
+        navigator: {
+          defaultPage: 'home',
+          animatePages: true,
+          enableBrowserBackButton: true
+          //templateRootDirectory: ''
+        },
+        i18n: null // for this example, we do not use internationalization
+      });
+
+
+      var app = phonon.navigator();
+
+      /**
+       * The activity scope is not mandatory.
+       * For the home page, we do not need to perform actions during
+       * page events such as onCreate, onReady, etc
+      */
+      app.on({page: 'home', preventClose: false, content: null} , function(activity) {
+
+        var onWifiSettingsSubmit = function(evt) {
+          var target = evt.target;
+          //action = 'ok';
+
+          /**if(target.getAttribute('data-order') === 'order') {
+            phonon.alert('Thank you for your order!', 'Dear customer');
+
+          } else {
+            phonon.alert('Your order has been canceled.', 'Dear customer');
+          }**/
+          //phonon.alert('You have successfully submitted!', "begin_"+ document.querySelector('#ssid').value + "_end");
+          //phonon.ajax()
+          
+          /** xmlhttp=new XMLHttpRequest();
+          xmlhttp.onreadystatechange=function()
+          {
+            if (xmlhttp.readyState==4 && xmlhttp.status==200)
+            {
+              phonon.alert('Http response: ', "http_"+ xmlhttp.responseText + "_end");
+              //document.getElementById("sicherheitshinweise").innerHTML=xmlhttp.responseText;
+            }
+          }
+          xmlhttp.open("GET","semmelhuber?ssid="+document.querySelector('#ssid').value,true);
+          xmlhttp.send();
+          **/
+          
+          var req = phonon.ajax({
+            method: 'GET',
+            url: 'api?ssid=' + document.querySelector('#ssid').value + '&pwd=' + document.querySelector('#wifipwd').value,
+            //crossDomain: false,
+            dataType: 'json',
+            //contentType: '',
+            //data: {'ssid': document.querySelector('#ssid').value, 'pwd': document.querySelector('#wifipwd').value}, 
+            //data: { 'key1': 'val1', 'key2': 'val2'},
+            //timeout: 5000,
+            success: function(res, xhr) {
+              console.log(res);
+            },
+            
+            error: function(res, flagError, xhr) {
+              console.error(flagError);
+              console.log(res);
+            }
+          }); 
+
+        }; 
+        
+        
+        var onApi = function(evt) {
+          var target = evt.target;
+          var apicall = target.getAttribute('data-api');
+          console.log(apicall);
+
+          var req = phonon.ajax({
+            method: 'GET',
+            url: 'api?'+apicall,
+            dataType: 'json',
+            //contentType: '',
+            //data: {'ssid': document.querySelector('#ssid').value, 'pwd': document.querySelector('#wifipwd').value}, 
+            //data: { 'key1': 'val1', 'key2': 'val2'},
+            //timeout: 5000,
+            success: function(res, xhr) {
+              console.log(res);
+            },
+            
+            error: function(res, flagError, xhr) {
+              console.error(flagError);
+              console.log(res);
+            }
+          }); 
+
+        }; 
+
+        activity.onCreate(function() {
+          document.querySelector('#submitwifisettings').on('tap', onWifiSettingsSubmit);
+          document.querySelector('#led1on').on('tap', onApi);
+          document.querySelector('#led1off').on('tap', onApi);
+          document.querySelector('#whirlon').on('tap', onApi);
+          document.querySelector('#whirloff').on('tap', onApi);
+          document.querySelector('#whirlred').on('tap', onApi);
+          document.querySelector('#whirlgreen').on('tap', onApi);
+        }) 
+      });
+
+      document.on('pageopened', function(evt) {
+        console.log(evt.detail.page + ' is opened');
+        if (evt.detail.page == "pageinfo") {
+          
+            var req = phonon.ajax({
+            method: 'GET',
+            url: 'info',
+            //crossDomain: false,
+            dataType: 'text/json',
+            success: function(res, xhr) {
+              console.log(xhr.response);
+              var result = JSON.parse(xhr.response);
+              document.getElementById('infossid').innerHTML = result.ssid;
+              document.getElementById('infoipaddress').innerHTML = result.ipaddress;
+              document.getElementById('infoheap').innerHTML = result.heap;
+              document.getElementById('infoipgateway').innerHTML = result.ipgateway;
+              document.getElementById('infoipdns').innerHTML = result.ipdns;
+              document.getElementById('infoipsubnetmask').innerHTML = result.ipsubnetmask;
+              document.getElementById('infomacaddress').innerHTML = result.macaddress;
+              document.getElementById('infohostname').innerHTML = result.hostname;
+              document.getElementById('infoapipaddress').innerHTML = result.apipaddress;
+              document.getElementById('infoapconnectedstations').innerHTML = result.apconnectedstations;
+              document.getElementById('infowifiautoconnect').innerHTML = result.wifiautoconnect;
+              document.getElementById('infofirmwareversion').innerHTML = result.firmwareversion;
+            },
+            error: function(res, flagError, xhr) {
+              console.error(flagError);
+              console.log(res);
+            }
+          }); 
+        }
+      });
+
+      app.on({page: 'pageinfo', preventClose: false, content: null} , function(activity) {
+      });
+    </script>
+
+
+    <script>
+    // Let's go!
+    app.start();
+          
+    </script>
+</body>
+</html>)indexhtml";
 
 //format bytes
 String formatBytes(size_t bytes){
@@ -78,22 +337,20 @@ String formatBytes(size_t bytes){
 
 // HTTP not found response
 void handleNotFound() {
-	digitalWrite ( PIN_ONBOARDLED, 0 );
 	String message = "ESP8266 File Not Found\n\n";
 	message += "URI: ";
-	message += server.uri();
+	message += httpServer.uri();
 	message += "\nMethod: ";
-	message += ( server.method() == HTTP_GET ) ? "GET" : "POST";
+	message += ( httpServer.method() == HTTP_GET ) ? "GET" : "POST";
 	message += "\nArguments: ";
-	message += server.args();
+	message += httpServer.args();
 	message += "\n";
 
-	for ( uint8_t i = 0; i < server.args(); i++ ) {
-		message += " " + server.argName ( i ) + ": " + server.arg ( i ) + "\n";
+	for ( uint8_t i = 0; i < httpServer.args(); i++ ) {
+		message += " " + httpServer.argName ( i ) + ": " + httpServer.arg ( i ) + "\n";
 	}
 
-	server.send ( 404, "text/plain", message );
-	digitalWrite ( PIN_ONBOARDLED, 0 );
+	httpServer.send ( 404, "text/plain", message );
 } 
 
 
@@ -102,27 +359,62 @@ void handleNotFound() {
 boolean newWifi = false;;
 String newWifiSSID;
 String newWifiPwd;
+String newWifiHostname;
 
 void handleNewWifiSettings() {
    if (newWifi) {
        //wifi_station_disconnect(); // not sure this disconnect is needed
+       WiFi.disconnect();
        WiFi.persistent(true);
-       WiFi.mode(WIFI_AP_STA);
-       WiFi.begin(newWifiSSID.c_str(), newWifiPwd.c_str() );
-       Serial.println("New Wifi settings: " + newWifiSSID + " / " + newWifiPwd);
-       newWifi = false;
+
+       // if SSID is given, also update wifi credentials
+       if (newWifiSSID.length()) {
+          WiFi.mode(WIFI_STA);
+          WiFi.begin(newWifiSSID.c_str(), newWifiPwd.c_str() );
+       } 
+       //newWifi = false;
        //newWifiPwd = String();
        //newWifiSSID = String();
-       Serial.println("Restarting....");
-       Serial.flush();
+       //newWifiHostname = String();
+       if (debug) {
+         Serial.println("New Wifi settings: " + newWifiSSID + " / " + newWifiPwd);
+         Serial.println("Restarting....");
+         Serial.flush();
+       }
        ESP.restart();
    }
 }
 
+// Handle Factory reset and enable Access Point mode to enable configuration
+void handleFactoryReset() {
+  if (digitalRead(PIN_FACTORYRESET)) {
+    if (millis() < 10000) {  // ignore reset button during first 10 seconds of reboot to avoid looping resets due to fast booting of ESP8266
+      return;
+    }
+    if (debug) {
+      Serial.println("*********FACTORYRESET***********");
+      WiFi.printDiag(Serial); 
+    }
+    WiFi.disconnect(true); //delete old config
+    WiFi.persistent(true);
+    //WiFi.mode(WIFI_AP_STA);
+    WiFi.mode(WIFI_AP);
+    // default IP address for Access Point is 192.168.4.1
+    WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0)); // IP, gateway, netmask
 
+    WiFi.softAP(DEFAULT_APSSID); // default is open Wifi
+    WiFi.begin(DEFAULT_SSID, DEFAULT_PWD);
+    if (debug) {
+      Serial.println("New Wifi client SSID: " + String(DEFAULT_SSID) + " pass: " + String(DEFAULT_PWD));
+      Serial.println("New Access point SSID: " + String(DEFAULT_APSSID));
+      Serial.println("Restarting....");
+      WiFi.printDiag(Serial); 
+      Serial.flush();
+    }    
+  }
+}
 
 void infoHandler() {
-  digitalWrite ( PIN_ONBOARDLED, 1 );
   
   String json = "{";
   json += "\"heap\":\""+String(ESP.getFreeHeap())+"\"";
@@ -138,23 +430,21 @@ void infoHandler() {
   json += ", \"wifiautoconnect\":\""+String(WiFi.getAutoConnect())+"\"";
   json += ", \"firmwareversion\":\""+String(FIRMWARE_VERSION)+"\"";
   json += "}";
-  server.send(200, "text/json", json);
-  server.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
+  httpServer.send(200, "text/json", json);
+  httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
   json = String();
-  digitalWrite ( PIN_ONBOARDLED, 0 );
 }
 
 void apiHandler() {
-  digitalWrite ( PIN_ONBOARDLED, 1 );
-  if (server.hasArg("led")) {
-    Serial.println("LED arg found" + server.arg("led"));
-    if (server.arg("led").equals("on")) {
+  if (httpServer.hasArg("led")) {
+    Serial.println("LED arg found" + httpServer.arg("led"));
+    if (httpServer.arg("led").equals("on")) {
       Serial.println("lets turn led on");
       logo = true;
-    } else if (server.arg("led").equals("red")) {
+    } else if (httpServer.arg("led").equals("red")) {
       Serial.println("lets turn led on");
       logored = true;
-    } else if (server.arg("led").equals("green")) {
+    } else if (httpServer.arg("led").equals("green")) {
       Serial.println("lets turn led on");
       logogreen = true;
     } else {
@@ -164,9 +454,9 @@ void apiHandler() {
       logored = false;
     }
   }
-  if (server.hasArg("whirl")) {
-    Serial.println("WHIRL arg found" + server.arg("whirl"));
-    String ws = server.arg("whirl");
+  if (httpServer.hasArg("whirl")) {
+    Serial.println("WHIRL arg found" + httpServer.arg("whirl"));
+    String ws = httpServer.arg("whirl");
     if (ws.equals("r")) {
       whirlr = 255; whirlg=0; whirlb=0;
       whirl = true;
@@ -190,29 +480,31 @@ void apiHandler() {
   }
 
   // note its required to provide both arguments SSID and PWD
-  if (server.hasArg("ssid") && server.hasArg("pwd")) {
+  if (httpServer.hasArg("ssid") && httpServer.hasArg("pwd")) {
     newWifi = true;
-    newWifiSSID = server.arg("ssid");
-    newWifiPwd = server.arg("pwd");
+    newWifiSSID = httpServer.arg("ssid");
+    newWifiPwd = httpServer.arg("pwd");
   } 
+  if (httpServer.hasArg("hostname")) {
+    newWifi = true;
+    newWifiHostname = httpServer.arg("hostname");
+  }
 
-  server.send(200);
-  server.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
-  digitalWrite ( PIN_ONBOARDLED, 0 );
+  httpServer.send(200);
+  httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
 }
 
 void generateHandler() {
-  digitalWrite ( PIN_ONBOARDLED, 1 );
-  if (server.hasArg("size")) {
-    Serial.println("size arg found" + server.arg("size"));
-    long bytes = server.arg("size").toInt();
+  if (httpServer.hasArg("size")) {
+    Serial.println("size arg found" + httpServer.arg("size"));
+    long bytes = httpServer.arg("size").toInt();
     String top = "<html><header>Generator</header><body>sending " + String(bytes) + " bytes of additional payload.<p>";
     String end = "</body></html>";
-    server.setContentLength(bytes+top.length()+end.length());
-    server.send(200);
-    server.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
+    httpServer.setContentLength(bytes+top.length()+end.length());
+    httpServer.send(200);
+    httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
     String chunk = "";
-    server.sendContent(top);
+    httpServer.sendContent(top);
     String a = String("a");
     while (bytes > 0) {
       chunk = String("");
@@ -220,19 +512,86 @@ void generateHandler() {
       while (chunk.length() <= chunklen) {
         chunk += a;
       }
-      server.sendContent(chunk);
+      httpServer.sendContent(chunk);
       bytes-=chunklen;
     }
-    server.sendContent(end);
+    httpServer.sendContent(end);
   }  
-  
-  digitalWrite ( PIN_ONBOARDLED, 0 );
 }
 
+void WiFiEvent(WiFiEvent_t event) {
+  if(debug) {
+    switch(event) {
+        case WIFI_EVENT_STAMODE_GOT_IP:
+            Serial.println("WiFi connected. IP address: " + String(WiFi.localIP().toString()) + " hostname: "+ WiFi.hostname() + "  SSID: " + WiFi.SSID());
+            break;
+        case WIFI_EVENT_STAMODE_DISCONNECTED:
+            Serial.println("WiFi client lost connection");
+            break;
+        case WIFI_EVENT_STAMODE_CONNECTED:
+            Serial.println("WiFi client connected");
+            break;
+        case WIFI_EVENT_STAMODE_AUTHMODE_CHANGE:
+            Serial.println("WiFi client authentication mode changed.");
+            break;
+        //case WIFI_STAMODE_DHCP_TIMEOUT:                             THIS IS A NEW CONSTANT ENABLE WITH UPDATED SDK
+          //  Serial.println("WiFi client DHCP timeout reached.");
+            //break;
+        case WIFI_EVENT_SOFTAPMODE_STACONNECTED:
+            Serial.println("WiFi accesspoint: new client connected");
+            break;
+        case WIFI_EVENT_SOFTAPMODE_STADISCONNECTED:
+            Serial.println("WiFi accesspoint: client disconnected.");
+            break;
+        case WIFI_EVENT_SOFTAPMODE_PROBEREQRECVED:
+            //Serial.println("WiFi accesspoint: probe request received.");
+            break; 
+      }
+  }
+}
 
+void printSpiffsContents() {
+  if (debug)
+  {
+    Dir dir = SPIFFS.openDir("/");
+    while (dir.next()) {    
+      String fileName = dir.fileName();
+      size_t fileSize = dir.fileSize();
+      Serial.printf("FS File: %s, size: %s\n", fileName.c_str(), formatBytes(fileSize).c_str());
+    }
+    Serial.printf("\n");
+  }
+}
+
+void setupSerial() {
+  // checking availability of serial connection
+  int serialtimeout = 5000; //ms
+  Serial.begin ( 115200 );
+  while(!Serial) {
+    if (serialtimeout >0) {
+      serialtimeout -= 50; 
+    } else { 
+      debug = false;
+      break;
+    }
+    delay(50);
+  }
+
+  if (debug) {
+    Serial.println("");
+    Serial.println("");
+    Serial.println("");
+    Serial.println("Welcome to Dynatrace ufo!");
+    Serial.println("Resetinfo: " + ESP.getResetInfo());
+  }
+}
 
 // initialization routines
 void setup ( void ) {
+  setupSerial();
+
+  pinMode(PIN_FACTORYRESET, INPUT); //, INPUT_PULLUP); use INPUT_PULLUP in case we put reset to ground; currently reset is doing a 3V signal
+
   // setup neopixel
   neopixel_logo.begin();
   neopixel_logo.clear();
@@ -244,145 +603,54 @@ void setup ( void ) {
   neopixel_upperring.clear();
   neopixel_upperring.show();
 
-  // checking availability of serial connection
-  int serialtimeout = 5000; //ms
-  while(!Serial) {
-    if (serialtimeout >0) {
-      serialtimeout -= 50; 
-    } else { 
-      debug = false;
-      break;
-    }
-    delay(50);
-  }
-
-  Serial.begin ( 115200 );
-
-  if (debug) {
-    Serial.print("GPIO4: "); Serial.println(digitalRead(PIN_FACTORYRESET));
-  }
-  
-  pinMode(PIN_FACTORYRESET, INPUT_PULLUP);
-
-  // Handle Factory reset and enable Access Point mode to enable configuration
-  if (!digitalRead(PIN_FACTORYRESET)) {
-    Serial.println("*********FACTORYRESET***********");
-    //WiFi.persistent(true);
-    //WiFi.mode(WIFI_AP_STA);
-    WiFi.mode(WIFI_AP);
-    //WiFi.hostname("huzzah");
-    // default IP address for Access Point is 192.168.4.1
-    //WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0)); // IP, gateway, netmask
-  }
- 
-  WiFi.begin(); // load SSID and PWD from internal memory
-  Serial.println ( "" );
-
-
-  // Wait for connection
-  int wifiretries = 30; // 30*500ms = 15 seconds
-  while ( WiFi.status() != WL_CONNECTED ) {
-    delay ( 500 );
-    Serial.print ( "." );
-    if (!wifiretries) 
-      break;
-    wifiretries--;
-  }
-
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println ( "" );
-    Serial.print ( "Connected to " );
-    Serial.println ( WiFi.SSID() );
-    Serial.print ( "IP address: " );
-    Serial.println ( WiFi.localIP() );
-  
-    if ( MDNS.begin ( "esp8266" ) ) { // Arduino IDE searches for that MDNS name
-      Serial.println ( "MDNS responder started" );
-    }
-  } else {
-    WiFi.disconnect();
-    Serial.println("Could not connect to SSID: " +  String(WiFi.SSID()));
-    Serial.println("Please connect your smartphone or wifi-enabled device to SSID: huzzah IP: 192.168.4.1");
-  }
-
-  // Launch Access Point
-  
-  WiFi.softAP("huzzah");
-  Serial.println("Access Point IP Address: " + WiFi.softAPIP().toString());
-  
   // initialize ESP8266 file system
   SPIFFS.begin();
-  if (debug)
-  {
-    Dir dir = SPIFFS.openDir("/");
-    while (dir.next()) {    
-      String fileName = dir.fileName();
-      size_t fileSize = dir.fileSize();
-      Serial.printf("FS File: %s, size: %s\n", fileName.c_str(), formatBytes(fileSize).c_str());
+  printSpiffsContents();
+
+  // initialize Wifi based on stored config
+  WiFi.onEvent(WiFiEvent);
+  WiFi.hostname(DEFAULT_HOSTNAME); // note, the hostname is not persisted in the ESP config like the SSID. so it needs to be set every time WiFi is started
+  WiFi.begin(); // load SSID and PWD from internal memory
+  if (debug) {
+    Serial.println("Connecting to Wifi SSID: " + WiFi.SSID() + " as host "+ WiFi.hostname());
+    if (WiFi.getMode() > 1) {
+      Serial.println("Access Point IP address: " + WiFi.softAPIP().toString());
     }
-    Serial.printf("\n");
+    //WiFi.printDiag(Serial);
   }
 
   // setup all web server routes; make sure to use / last
   #define STATICFILES_CACHECONTROL "private, max-age=0, no-cache, no-store"
-  server.on ( "/api", apiHandler );
-  server.on ( "/info", infoHandler );
-  server.on ( "/gen", generateHandler );
-  server.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
-  server.serveStatic("/test.html", SPIFFS, "/test.html", STATICFILES_CACHECONTROL);
-  server.serveStatic("/app.js", SPIFFS, "/app.js", STATICFILES_CACHECONTROL);
-  server.serveStatic("/phonon.css", SPIFFS, "/phonon.min.css", STATICFILES_CACHECONTROL);
-  server.serveStatic("/phonon.js", SPIFFS, "/phonon.min.js", STATICFILES_CACHECONTROL);
-  server.serveStatic("/fonts/material-design-icons.eot", SPIFFS, "/fonts/mdi.eot", STATICFILES_CACHECONTROL);
-  server.serveStatic("/fonts/material-design-icons.svg", SPIFFS, "/fonts/mdi.svg", STATICFILES_CACHECONTROL);
-  server.serveStatic("/fonts/material-design-icons.ttf", SPIFFS, "/fonts/mdi.ttf", STATICFILES_CACHECONTROL);
-  server.serveStatic("/fonts/material-design-icons.woff", SPIFFS, "/fonts/mdi.woff", STATICFILES_CACHECONTROL);
-  server.serveStatic("/", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
-  //server.on ( "/", HTTP_GET, handleRoot );
-  /*server.on ( "/test.svg", drawGraph );
-  server.on ( "/inline", []() {
-    server.send ( 200, "text/plain", "this works as well" );
+  httpServer.on ( "/api", apiHandler );
+  httpServer.on ( "/info", infoHandler );
+  httpServer.on ( "/gen", generateHandler );
+  httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/test.html", SPIFFS, "/test.html", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/app.js", SPIFFS, "/app.js", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/phonon.css", SPIFFS, "/phonon.min.css", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/phonon.js", SPIFFS, "/phonon.min.js", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/fonts/material-design-icons.eot", SPIFFS, "/fonts/mdi.eot", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/fonts/material-design-icons.svg", SPIFFS, "/fonts/mdi.svg", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/fonts/material-design-icons.ttf", SPIFFS, "/fonts/mdi.ttf", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/fonts/material-design-icons.woff", SPIFFS, "/fonts/mdi.woff", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
+  //httpServer.on ( "/", HTTP_GET, handleRoot );
+  /*httpServer.on ( "/test.svg", drawGraph );
+  httpServer.on ( "/inline", []() {
+    httpServer.send ( 200, "text/plain", "this works as well" );
   } );*/
-  server.onNotFound ( handleNotFound );
-  server.begin();
-  Serial.println ( "HTTP server started" );
+  httpServer.onNotFound ( handleNotFound );
 
-  #if defined(OTA)
-   // Port defaults to 8266
-    // ArduinoOTA.setPort(8266);
-  
-    // Hostname defaults to esp8266-[ChipID]
-    // ArduinoOTA.setHostname("myesp8266");
-  
-    // No authentication by default
-    // ArduinoOTA.setPassword((const char *)"123");
+  // register firmware update HTTP server: 
+  //    To upload through terminal you can use: curl -F "image=@ufo.ino.bin" ufo.local/update  
+  //    Windows power shell use DOESNT WORK YET: wget -Method POST -InFile ufo.ino.bin -Uri ufo.local/update   
+  httpUpdater.setup(&httpServer); // this adds the URI "./update" to the http server
+  if (debug) {
+    Serial.println("HTTPUpdateServer ready! Open http://" + String(WiFi.hostname()) + ".local/update in your browser");
+  }
 
-    ArduinoOTA.onStart([]() {
-      Serial.println("Start");
-    });
-    ArduinoOTA.onEnd([]() {
-      Serial.println("\nEnd");
-    });
-    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-    });
-    ArduinoOTA.onError([](ota_error_t error) {
-      Serial.printf("Error[%u]: ", error);
-      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-      else if (error == OTA_END_ERROR) Serial.println("End Failed");
-    });
-    ArduinoOTA.begin();
-  #endif //OTA
-  
-  Serial.println("Ready");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
- 
-  pinMode ( PIN_ONBOARDLED, OUTPUT );
-  digitalWrite ( PIN_ONBOARDLED, LOW );
+  // start webserver
+  httpServer.begin();
 }
 
 
@@ -393,11 +661,10 @@ byte wheelcolor = 0;
 void loop ( void ) {
   tick++;
 
+  handleFactoryReset();
   handleNewWifiSettings();
-  server.handleClient();
-  #if defined(OTA)
-    ArduinoOTA.handle();
-  #endif
+  httpServer.handleClient();
+  yield();
 
   // adjust logo colors
   if (logored) {
@@ -423,7 +690,9 @@ void loop ( void ) {
   } else {
     neopixel_logo.setBrightness(0);
   }
+  yield();
   neopixel_logo.show();
+  yield();
 
   if (whirl) {
     byte p;
@@ -446,6 +715,7 @@ void loop ( void ) {
         b = whirlb;
       }
       neopixel_upperring.setPixelColor((p % 15), r, g, b);
+      neopixel_lowerring.setPixelColor((p % 15), r, g, b);
     }
     if (tick % 50 == 0) {
       whirlpos++;
@@ -453,11 +723,15 @@ void loop ( void ) {
   } else {
     for (byte i = 0; i<15; i++) {
       neopixel_upperring.setPixelColor(i, 0, 0, 0);
+      neopixel_lowerring.setPixelColor(i, 0, 0, 0);
     }
   }
 
+  yield();
   neopixel_upperring.show();
+  yield();
   neopixel_lowerring.show();
+
 }
 
 
