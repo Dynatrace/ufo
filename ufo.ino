@@ -22,10 +22,12 @@
   *     7) switch to fastlib for neopixels?
   */
 
+boolean debug = true;
+#define DEBUG_ESP_HTTP_SERVER
+
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-#include <ESP8266HTTPUpdateServer.h>
 //#include <ESP8266mDNS.h>
 //#include <WiFiUdp.h>
 //#include <ArduinoOTA.h>
@@ -33,10 +35,11 @@
 #include <FS.h>
 #include <Adafruit_NeoPixel.h>
 #include <math.h>
+#include <StreamString.h>
 
 #define FIRMWARE_VERSION "2016.02.28 experimental"
 
-boolean debug = true;
+
 #define DEFAULT_HOSTNAME "ufo"
 #define DEFAULT_APSSID "ufo"
 #define DEFAULT_SSID "ufo"
@@ -62,8 +65,8 @@ byte whirlb = 255;
 boolean whirl = false;
 
 ESP8266WebServer        httpServer ( 80 );
-ESP8266HTTPUpdateServer httpUpdater(debug);
 
+/*
 const char* indexHtml = R"indexhtml(<html>
 
     <head>
@@ -175,6 +178,11 @@ const char* indexHtml = R"indexhtml(<html>
              <input type='file' name='update'> 
              <input type='submit' value='Update'> 
           </form> 
+          <div class="input-wrapper">
+              <input class="with-label" type="file" name="update" id="firmwarefilename">
+              <label class="floating-label" for="firmwarefilename">ufo.ino.bin</label>
+              <input class="with-label" type="submit" value="Update">
+          </div>          
         </div> 
       </pagefirmwareupdate>
 
@@ -197,38 +205,13 @@ const char* indexHtml = R"indexhtml(<html>
 
       var app = phonon.navigator();
 
-      /**
-       * The activity scope is not mandatory.
-       * For the home page, we do not need to perform actions during
-       * page events such as onCreate, onReady, etc
-      */
+
       app.on({page: 'home', preventClose: false, content: null} , function(activity) {
 
         var onWifiSettingsSubmit = function(evt) {
           var target = evt.target;
           //action = 'ok';
 
-          /**if(target.getAttribute('data-order') === 'order') {
-            phonon.alert('Thank you for your order!', 'Dear customer');
-
-          } else {
-            phonon.alert('Your order has been canceled.', 'Dear customer');
-          }**/
-          //phonon.alert('You have successfully submitted!', "begin_"+ document.querySelector('#ssid').value + "_end");
-          //phonon.ajax()
-          
-          /** xmlhttp=new XMLHttpRequest();
-          xmlhttp.onreadystatechange=function()
-          {
-            if (xmlhttp.readyState==4 && xmlhttp.status==200)
-            {
-              phonon.alert('Http response: ', "http_"+ xmlhttp.responseText + "_end");
-              //document.getElementById("sicherheitshinweise").innerHTML=xmlhttp.responseText;
-            }
-          }
-          xmlhttp.open("GET","semmelhuber?ssid="+document.querySelector('#ssid').value,true);
-          xmlhttp.send();
-          **/
           
           var req = phonon.ajax({
             method: 'GET',
@@ -332,7 +315,7 @@ const char* indexHtml = R"indexhtml(<html>
           
     </script>
 </body>
-</html>)indexhtml";
+</html>)indexhtml"; */
 
 //format bytes
 String formatBytes(size_t bytes){
@@ -531,8 +514,59 @@ void generateHandler() {
   }  
 }
 
+void updatePostHandler() {
+
+
+    // handler for the /update form POST (once file upload finishes)
+    httpServer.sendHeader("Connection", "close");
+    httpServer.sendHeader("Access-Control-Allow-Origin", "*");
+    StreamString error;
+    if (Update.hasError()) {
+      Update.printError(error);
+    }
+    httpServer.send(200, "text/plain", (Update.hasError())?error:"OK - "+String(Update.size()) + " bytes transferred");
+    ESP.restart();
+}
+
+void updatePostUploadHandler() {
+  // handler for the file upload, get's the sketch bytes, and writes
+  // them through the Update object
+  HTTPUpload& upload = httpServer.upload();
+  if(upload.status == UPLOAD_FILE_START){
+    //WiFiUDP::stopAll(); needed for MDNS or the like?
+    if (debug) Serial.println("Update: " + upload.filename);
+    uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+    if(!Update.begin(maxSketchSpace)){//start with max available size
+      if (debug) Update.printError(Serial);
+    }
+  } else if(upload.status == UPLOAD_FILE_WRITE){
+    if (debug) Serial.print(".");
+    if(Update.write(upload.buf, upload.currentSize) != upload.currentSize){
+      if (debug) Update.printError(Serial);
+    }
+  } else if(upload.status == UPLOAD_FILE_END){
+    if(Update.end(true)){ //true to set the size to the current progress
+      if (debug) Serial.println("Update Success - uploaded: " + String(upload.totalSize) + ".... rebooting now!");
+    } else {
+      if (debug) Update.printError(Serial);
+    }
+    if (debug) Serial.setDebugOutput(false);
+  } else if(upload.status == UPLOAD_FILE_ABORTED){
+    Update.end();
+    if (debug) Serial.println("Update was aborted");
+  }
+  yield();
+}
+
+/*
 void indexHtmlHandler() {
     httpServer.send(200, "text/html", String(indexHtml));
+    httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
+}*/
+
+// handles GET request to "/update" and redirects to "index.html/#!pagefirmwareupdate"
+void updateHandler() {
+    httpServer.send(301, "text/html", "/#!pagefirmwareupdate");
     httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
 }
 
@@ -642,16 +676,20 @@ void setup ( void ) {
   httpServer.on ( "/api", apiHandler );
   httpServer.on ( "/info", infoHandler );
   httpServer.on ( "/gen", generateHandler );
-  //httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
   //httpServer.serveStatic("/test.html", SPIFFS, "/test.html", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/app.js", SPIFFS, "/app.js", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/phonon.min.css", SPIFFS, "/phonon.min.css", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/phonon.min.js", SPIFFS, "/phonon.min.js", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/fonts/material-design-icons.eot", SPIFFS, "/fonts/mdi.eot", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/fonts/material-design-icons.svg", SPIFFS, "/fonts/mdi.svg", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/fonts/material-design-icons.ttf", SPIFFS, "/fonts/mdi.ttf", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/fonts/material-design-icons.woff", SPIFFS, "/fonts/mdi.woff", STATICFILES_CACHECONTROL);
-  //httpServer.serveStatic("/", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
+  //httpServer.serveStatic("/app.js", SPIFFS, "/app.js", STATICFILES_CACHECONTROL);
+  //httpServer.serveStatic("/phonon.min.css", SPIFFS, "/phonon.min.css", STATICFILES_CACHECONTROL);
+  //httpServer.serveStatic("/phonon.min.js", SPIFFS, "/phonon.min.js", STATICFILES_CACHECONTROL);
+  //httpServer.serveStatic("/fonts/material-design-icons.eot", SPIFFS, "/fonts/mdi.eot", STATICFILES_CACHECONTROL);
+  //httpServer.serveStatic("/fonts/material-design-icons.svg", SPIFFS, "/fonts/mdi.svg", STATICFILES_CACHECONTROL);
+  //httpServer.serveStatic("/fonts/material-design-icons.ttf", SPIFFS, "/fonts/mdi.ttf", STATICFILES_CACHECONTROL);
+  //httpServer.serveStatic("/fonts/material-design-icons.woff", SPIFFS, "/fonts/mdi.woff", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("font.woff", SPIFFS, "font.woff", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("font.eot", SPIFFS, "font.eot", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("font.svg", SPIFFS, "font.svg", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("font.ttf", SPIFFS, "font.ttf", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
   //httpServer.on ( "/", HTTP_GET, handleRoot );
   /*httpServer.on ( "/test.svg", drawGraph );
   httpServer.on ( "/inline", []() {
@@ -662,13 +700,15 @@ void setup ( void ) {
   // register firmware update HTTP server: 
   //    To upload through terminal you can use: curl -F "image=@ufo.ino.bin" ufo.local/update  
   //    Windows power shell use DOESNT WORK YET: wget -Method POST -InFile ufo.ino.bin -Uri ufo.local/update   
-  httpUpdater.setup(&httpServer); // this adds the URI "./update" to the http server
+  //httpUpdater.setup(&httpServer); // this adds the URI "./update" to the http server
   if (debug) {
     Serial.println("HTTPUpdateServer ready! Open http://" + String(WiFi.hostname()) + ".local/update in your browser");
   }
 
-  httpServer.on("/", indexHtmlHandler);
-  httpServer.on("/update", HTTP_GET, indexHtmlHandler);
+  //httpServer.on("/", indexHtmlHandler);
+  //httpServer.on("/update", HTTP_GET, indexHtmlHandler);
+  httpServer.on("/update", HTTP_GET, updateHandler);
+  httpServer.on("/update", HTTP_POST, updatePostHandler, updatePostUploadHandler);
 
   // start webserver
   httpServer.begin();
