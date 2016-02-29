@@ -72,99 +72,111 @@ const char* indexHtml = R"indexhtml(<html>
         <meta name='viewport' content='user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height' />
 
         <link rel='stylesheet' href='phonon.min.css' />
-        <title>Huzzah Test</title>
+        <title>Dynatrace UFO</title>
     </head>
-  <body>
-     
-        <!-- Panel tags go here -->
-    <div id="wifisettings" class="panel-full">
-            <header class="header-bar">
-                <button class="btn pull-right icon icon-close" data-panel-close="true"></button>
-                <div class="center">
-                    <h1 class="title">Wifi Settings</h1>
-                </div>
-            </header> 
-            <div class="content">
-        <span> TODO: Please not this mac address <macaddress> for later lookup of IP address in DHCP table or for assigning a fixed IP address through DHCP </span>
-        <input type="text" placeholder="SSID" id="ssid">
-        <input type="password" placeholder="********" id="wifipwd">
-        <button id="submitwifisettings" class="btn fit-parent primary">Apply WIFI setting</button>
-      </div>
-    </div>
-
-        <!-- Side Panel tags go here -->
-
-        <!-- Notification tags go here -->
-
-        <!-- Dialog tags go here -->
-
-
-        <!-- the home page is the default one. This page does not require to call its content because we define on its tag.-->
-       <home data-page="true">
-            <header class="header-bar">
-                <div class="center">
-                    <h1 class="title">Huzzah Test</h1>
-                </div>
-        <button class="btn pull-right icon icon-settings" data-panel-id="wifisettings"></button>
-
-            </header>
-
-            <div class="content">
-          <ul class="list">
-          <li class="divider">IoT Actions</li>
-          <li>
-            <span class="padded-list">LED</span>
-              <button class="btn btn-flat primary pull-right" data-api="led=off" id="led1off">Off</button>
-            <button class="btn btn-flat primary pull-right" data-api="led=on" id="led1on">On</button>
-          </li> 
-          <li>
-            <span class="padded-list">WHIRL</span>
-              <button class="btn btn-flat primary pull-right" data-api="whirl=off" id="whirloff">Off</button>
-            <button class="btn btn-flat primary pull-right" data-api="whirl=on" id="whirlon">On</button>
-          </li>
-          <li>
-            <span class="padded-list">WHIRL COLOR</span>
-              <button class="btn btn-flat negative pull-right" data-api="whirl=r" id="whirlred">R</button>
-            <button class="btn btn-flat positive pull-right" data-api="whirl=g" id="whirlgreen">G</button>
-          </li>
-          <li>
-            <a href="#!pageinfo" class="padded-list">Info</a>
-          </li>
-        </ul> 
- 
-
-      </div>
-
-        </home>
-
-        <!-- for the second page, Phonon will load its content. --> 
-        <pageinfo data-page="true">
+    <body>
+       <!-- Panel tags go here -->
+      <div id="wifisettings" class="panel-full">
           <header class="header-bar">
-        <button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
-        <div class="center">
-          <h1 class="title">Info</h1>
+              <button class="btn pull-right icon icon-close" data-panel-close="true"></button>
+              <div class="center">
+                  <h1 class="title">Wifi Settings</h1>
+              </div>
+          </header> 
+          <div class="content">
+            <!--<span> TODO: Please not this mac address <macaddress> for later lookup of IP address in DHCP table or for assigning a fixed IP address through DHCP </span>-->
+            <input type="text" placeholder="SSID" id="ssid">
+            <input type="password" placeholder="********" id="wifipwd">
+            <button id="submitwifisettings" class="btn fit-parent primary">Apply WIFI setting</button>
+         </div>
+      </div>
+  
+      <!-- Side Panel tags go here -->
+  
+      <!-- Notification tags go here -->
+  
+      <!-- Dialog tags go here -->
+  
+  
+      <!-- the home page is the default one. This page does not require to call its content because we define on its tag.-->
+      <home data-page="true">
+         <header class="header-bar">
+            <div class="center">
+                <h1 class="title">Huzzah Test</h1>
+            </div>
+            <button class="btn pull-right icon icon-settings" data-panel-id="wifisettings"></button>
+         </header>
+         <div class="content">
+            <ul class="list">
+            <li class="divider">IoT Actions</li>
+            <li>
+              <span class="padded-list">LED</span>
+                <button class="btn btn-flat primary pull-right" data-api="led=off" id="led1off">Off</button>
+              <button class="btn btn-flat primary pull-right" data-api="led=on" id="led1on">On</button>
+            </li> 
+            <li>
+              <span class="padded-list">WHIRL</span>
+                <button class="btn btn-flat primary pull-right" data-api="whirl=off" id="whirloff">Off</button>
+              <button class="btn btn-flat primary pull-right" data-api="whirl=on" id="whirlon">On</button>
+            </li>
+            <li>
+              <span class="padded-list">WHIRL COLOR</span>
+                <button class="btn btn-flat negative pull-right" data-api="whirl=r" id="whirlred">R</button>
+              <button class="btn btn-flat positive pull-right" data-api="whirl=g" id="whirlgreen">G</button>
+            </li>
+            <li>
+              <a href="#!pageinfo" class="padded-list">Info</a>
+            </li>
+            <li>
+              <a href="#!pagefirmwareupdate" class="padded-list">Firmware update</a>
+            </li>
+          </ul> 
         </div>
-      </header>
-      <div class="content">
-        <ul class="list">
-          <li class="divider">System</li>
-          <!-- TODO class=pull-right doesnt work for wider strings -->
-          <li class="padded-list">Heap: <span class="pull-right" id="infoheap">-</span></li>
-          <li class="padded-list">Firmware: <span id="infofirmwareversion">-</span></li>
-          <li class="divider">Network</li>
-          <li class="padded-list">SSID: <span id="infossid">-</span></li>
-          <li class="padded-list">IP: <span id="infoipaddress">-</span></li>
-          <li class="padded-list">Subnetmask: <span id="infoipsubnetmask">-</span></li>
-          <li class="padded-list">Gateway: <span id="infoipgateway">-</span></li>
-          <li class="padded-list">DNS: <span id="infoipdns">-</span></li>
-          <li class="padded-list">Hostname: <span id="infohostname">-</span></li>
-          <li class="padded-list">Macaddress: <span id="infomacaddress">-</span></li>
-          <li class="padded-list">Wifi autoconnect: <span id="infowifiautoconnect">-</span></li>          <li class="divider">Accesspoint</li>
-          <li class="padded-list">IP: <span id="infoapipaddress">-</span></li>
-          <li class="padded-list">Connected stations: <span id="infoapconnectedstations">-</span></li>
-        </ul>
-      </div> 
-    </pageinfo>
+      </home>
+  
+      <!-- for the second page, Phonon will load its content. --> 
+      <pageinfo data-page="true">
+        <header class="header-bar">
+          <button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
+          <div class="center">
+            <h1 class="title">Info</h1>
+          </div>
+        </header>
+        <div class="content">
+          <ul class="list">
+            <li class="divider">System</li>
+            <!-- TODO class=pull-right doesnt work for wider strings -->
+            <li class="padded-list">Heap: <span class="pull-right" id="infoheap">-</span></li>
+            <li class="padded-list">Firmware: <span id="infofirmwareversion">-</span></li>
+            <li class="divider">Network</li>
+            <li class="padded-list">SSID: <span id="infossid">-</span></li>
+            <li class="padded-list">IP: <span id="infoipaddress">-</span></li>
+            <li class="padded-list">Subnetmask: <span id="infoipsubnetmask">-</span></li>
+            <li class="padded-list">Gateway: <span id="infoipgateway">-</span></li>
+            <li class="padded-list">DNS: <span id="infoipdns">-</span></li>
+            <li class="padded-list">Hostname: <span id="infohostname">-</span></li>
+            <li class="padded-list">Macaddress: <span id="infomacaddress">-</span></li>
+            <li class="padded-list">Wifi autoconnect: <span id="infowifiautoconnect">-</span></li>          <li class="divider">Accesspoint</li>
+            <li class="padded-list">IP: <span id="infoapipaddress">-</span></li>
+            <li class="padded-list">Connected stations: <span id="infoapconnectedstations">-</span></li>
+          </ul>
+        </div> 
+      </pageinfo>
+  
+      <pagefirmwareupdate data-page="true">
+        <header class="header-bar">
+          <button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
+          <div class="center">
+            <h1 class="title">Firmware upload</h1>
+          </div>
+        </header>
+        <div class="content">
+          <form method='POST' action='/update' enctype='multipart/form-data'> 
+             <input type='file' name='update'> 
+             <input type='submit' value='Update'> 
+          </form> 
+        </div> 
+      </pagefirmwareupdate>
 
         <!-- scripts -->
         <script src="phonon.min.js"></script>
@@ -519,6 +531,12 @@ void generateHandler() {
   }  
 }
 
+void indexHtmlHandler() {
+    httpServer.send(200, "text/html", String(indexHtml));
+    httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
+}
+
+
 void WiFiEvent(WiFiEvent_t event) {
   if(debug) {
     switch(event) {
@@ -624,16 +642,16 @@ void setup ( void ) {
   httpServer.on ( "/api", apiHandler );
   httpServer.on ( "/info", infoHandler );
   httpServer.on ( "/gen", generateHandler );
-  httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/test.html", SPIFFS, "/test.html", STATICFILES_CACHECONTROL);
+  //httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
+  //httpServer.serveStatic("/test.html", SPIFFS, "/test.html", STATICFILES_CACHECONTROL);
   httpServer.serveStatic("/app.js", SPIFFS, "/app.js", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/phonon.css", SPIFFS, "/phonon.min.css", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/phonon.js", SPIFFS, "/phonon.min.js", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/phonon.min.css", SPIFFS, "/phonon.min.css", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/phonon.min.js", SPIFFS, "/phonon.min.js", STATICFILES_CACHECONTROL);
   httpServer.serveStatic("/fonts/material-design-icons.eot", SPIFFS, "/fonts/mdi.eot", STATICFILES_CACHECONTROL);
   httpServer.serveStatic("/fonts/material-design-icons.svg", SPIFFS, "/fonts/mdi.svg", STATICFILES_CACHECONTROL);
   httpServer.serveStatic("/fonts/material-design-icons.ttf", SPIFFS, "/fonts/mdi.ttf", STATICFILES_CACHECONTROL);
   httpServer.serveStatic("/fonts/material-design-icons.woff", SPIFFS, "/fonts/mdi.woff", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
+  //httpServer.serveStatic("/", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
   //httpServer.on ( "/", HTTP_GET, handleRoot );
   /*httpServer.on ( "/test.svg", drawGraph );
   httpServer.on ( "/inline", []() {
@@ -648,6 +666,9 @@ void setup ( void ) {
   if (debug) {
     Serial.println("HTTPUpdateServer ready! Open http://" + String(WiFi.hostname()) + ".local/update in your browser");
   }
+
+  httpServer.on("/", indexHtmlHandler);
+  httpServer.on("/update", HTTP_GET, indexHtmlHandler);
 
   // start webserver
   httpServer.begin();
