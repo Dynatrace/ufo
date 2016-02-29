@@ -23,7 +23,7 @@
   */
 
 boolean debug = true;
-#define DEBUG_ESP_HTTP_SERVER
+#define DEBUG_ESP_HTTP_SERVER true
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -37,8 +37,7 @@ boolean debug = true;
 #include <math.h>
 #include <StreamString.h>
 
-#define FIRMWARE_VERSION "2016.02.28 experimental"
-
+#define FIRMWARE_VERSION __DATE__ " " __TIME__ 
 
 #define DEFAULT_HOSTNAME "ufo"
 #define DEFAULT_APSSID "ufo"
@@ -56,15 +55,22 @@ Adafruit_NeoPixel neopixel_logo = Adafruit_NeoPixel(4, PIN_NEOPIXEL_LOGO, NEO_GR
 Adafruit_NeoPixel neopixel_lowerring = Adafruit_NeoPixel(15, PIN_NEOPIXEL_LOWERRING, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel neopixel_upperring = Adafruit_NeoPixel(15, PIN_NEOPIXEL_UPPERRING, NEO_GRB + NEO_KHZ800);
 
+byte redcountUpperring = 5;
+byte redcountLowerring = 10;
+
 boolean logo = true;
 boolean logored = false;
 boolean logogreen = false;
 byte whirlr = 255;
 byte whirlg = 255;
 byte whirlb = 255;
-boolean whirl = false;
+boolean whirl = true;
+
 
 ESP8266WebServer        httpServer ( 80 );
+
+boolean wifiStationOK = false;
+boolean wifiAPisConnected = false;
 
 //format bytes
 String formatBytes(size_t bytes){
@@ -81,7 +87,7 @@ String formatBytes(size_t bytes){
 
 // HTTP not found response
 void handleNotFound() {
-	String message = "ESP8266 File Not Found\n\n";
+	String message = "File Not Found\n\n";
 	message += "URI: ";
 	message += httpServer.uri();
 	message += "\nMethod: ";
@@ -140,21 +146,21 @@ void handleFactoryReset() {
       WiFi.printDiag(Serial); 
     }
     WiFi.disconnect(true); //delete old config
+    WiFi.begin(DEFAULT_SSID, DEFAULT_PWD);
     WiFi.persistent(true);
     //WiFi.mode(WIFI_AP_STA);
     WiFi.mode(WIFI_AP);
     // default IP address for Access Point is 192.168.4.1
     WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0)); // IP, gateway, netmask
-
     WiFi.softAP(DEFAULT_APSSID); // default is open Wifi
-    WiFi.begin(DEFAULT_SSID, DEFAULT_PWD);
     if (debug) {
       Serial.println("New Wifi client SSID: " + String(DEFAULT_SSID) + " pass: " + String(DEFAULT_PWD));
       Serial.println("New Access point SSID: " + String(DEFAULT_APSSID));
       Serial.println("Restarting....");
       WiFi.printDiag(Serial); 
       Serial.flush();
-    }    
+    }  
+    ESP.restart();  
   }
 }
 
@@ -180,19 +186,19 @@ void infoHandler() {
 }
 
 void apiHandler() {
-  if (httpServer.hasArg("led")) {
-    Serial.println("LED arg found" + httpServer.arg("led"));
-    if (httpServer.arg("led").equals("on")) {
-      Serial.println("lets turn led on");
+  if (httpServer.hasArg("logo")) {
+    Serial.println("LED arg found" + httpServer.arg("logo"));
+    if (httpServer.arg("logo").equals("on")) {
+      Serial.println("lets turn logoed on");
       logo = true;
-    } else if (httpServer.arg("led").equals("red")) {
-      Serial.println("lets turn led on");
+    } else if (httpServer.arg("logo").equals("red")) {
+      Serial.println("lets turn logo on");
       logored = true;
-    } else if (httpServer.arg("led").equals("green")) {
-      Serial.println("lets turn led on");
+    } else if (httpServer.arg("logo").equals("green")) {
+      Serial.println("lets turn logo on");
       logogreen = true;
     } else {
-      Serial.println("lets turn led off");
+      Serial.println("lets turn logoed off");
       logo = false;
       logogreen = false;
       logored = false;
@@ -202,15 +208,16 @@ void apiHandler() {
     Serial.println("WHIRL arg found" + httpServer.arg("whirl"));
     String ws = httpServer.arg("whirl");
     if (ws.equals("r")) {
-      whirlr = 255; whirlg=0; whirlb=0;
+      redcountUpperring = 14;
+      redcountLowerring = 15;
       whirl = true;
       Serial.println("whirl red");      
     } else if (ws.equals("g")) {
-      whirlr = 0; whirlg=255; whirlb=0;
+      redcountUpperring = 0;
+      redcountLowerring = 1;
       whirl = true;
       Serial.println("whirl green");      
     } else if (ws.equals("b")) {
-      whirlr = 0; whirlg=0; whirlb=255;
       whirl = true;
       Serial.println("whirl blue");      
     } else if (ws.equals("off")) {
@@ -277,33 +284,77 @@ void updatePostHandler() {
     ESP.restart();
 }
 
+String parseFileName(String &path) {
+  String filename;
+  int lastIndex = path.lastIndexOf('\\');
+  if (lastIndex < 0) {
+    lastIndex = path.lastIndexOf('/');
+  } 
+  if (lastIndex > 0) {
+    filename = path.substring(lastIndex+1);
+  } else {
+    filename = path;
+  }
+
+  filename.toLowerCase();
+  return filename;
+}
+
+
+File uploadFile;
 void updatePostUploadHandler() {
   // handler for the file upload, get's the sketch bytes, and writes
   // them through the Update object
   HTTPUpload& upload = httpServer.upload();
-  if(upload.status == UPLOAD_FILE_START){
-    //WiFiUDP::stopAll(); needed for MDNS or the like?
-    if (debug) Serial.println("Update: " + upload.filename);
-    uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-    if(!Update.begin(maxSketchSpace)){//start with max available size
-      if (debug) Update.printError(Serial);
+  String filename = parseFileName(upload.filename);
+  
+  if (filename.endsWith(".bin")) { // handle firmware upload
+    if(upload.status == UPLOAD_FILE_START){
+      //WiFiUDP::stopAll(); needed for MDNS or the like?
+      if (debug) Serial.println("Update: " + upload.filename);
+      uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+      if(!Update.begin(maxSketchSpace)){//start with max available size
+        if (debug) Update.printError(Serial);
+      }
+    } else if(upload.status == UPLOAD_FILE_WRITE){
+      if (debug) Serial.print(".");
+      if(Update.write(upload.buf, upload.currentSize) != upload.currentSize){
+        if (debug) Update.printError(Serial);
+      }
+    } else if(upload.status == UPLOAD_FILE_END){
+      if(Update.end(true)){ //true to set the size to the current progress
+        if (debug) Serial.println("Update Success - uploaded: " + String(upload.totalSize) + ".... rebooting now!");
+      } else {
+        if (debug) Update.printError(Serial);
+      }
+      if (debug) Serial.setDebugOutput(false);
+    } else if(upload.status == UPLOAD_FILE_ABORTED){
+      Update.end();
+      if (debug) Serial.println("Update was aborted");
     }
-  } else if(upload.status == UPLOAD_FILE_WRITE){
-    if (debug) Serial.print(".");
-    if(Update.write(upload.buf, upload.currentSize) != upload.currentSize){
-      if (debug) Update.printError(Serial);
+  } else { // handle file upload
+    if(upload.status == UPLOAD_FILE_START){
+      if (debug) Serial.println("uploading to SPIFFS: /" + filename);
+      uploadFile = SPIFFS.open("/" + filename, "w");
+    } else if(upload.status == UPLOAD_FILE_WRITE){
+      if (debug) Serial.print(".");
+      if(uploadFile.write(upload.buf, upload.currentSize) != upload.currentSize){
+        if (debug) Serial.println("ERROR writing file " + String(uploadFile.name()) + "to SPIFFS.");
+        uploadFile.close();
+      }
+    } else if(upload.status == UPLOAD_FILE_END){
+      if(uploadFile.size() == upload.totalSize){ 
+        if (debug) Serial.println("Upload to SPIFFS Succeeded - uploaded: " + String(upload.totalSize) + ".... rebooting now!");
+      } else {
+        if (debug) Serial.println("Upload to SPIFFS FAILED: " + String(uploadFile.size()) + " bytes of " + String(upload.totalSize));
+      }
+      uploadFile.close();
+    } else if(upload.status == UPLOAD_FILE_ABORTED){
+      uploadFile.close();
+      if (debug) Serial.println("Upload to SPIFFS was aborted");
     }
-  } else if(upload.status == UPLOAD_FILE_END){
-    if(Update.end(true)){ //true to set the size to the current progress
-      if (debug) Serial.println("Update Success - uploaded: " + String(upload.totalSize) + ".... rebooting now!");
-    } else {
-      if (debug) Update.printError(Serial);
-    }
-    if (debug) Serial.setDebugOutput(false);
-  } else if(upload.status == UPLOAD_FILE_ABORTED){
-    Update.end();
-    if (debug) Serial.println("Update was aborted");
   }
+  
   yield();
 }
 
@@ -325,9 +376,11 @@ void WiFiEvent(WiFiEvent_t event) {
     switch(event) {
         case WIFI_EVENT_STAMODE_GOT_IP:
             Serial.println("WiFi connected. IP address: " + String(WiFi.localIP().toString()) + " hostname: "+ WiFi.hostname() + "  SSID: " + WiFi.SSID());
+            wifiStationOK = true;
             break;
         case WIFI_EVENT_STAMODE_DISCONNECTED:
             Serial.println("WiFi client lost connection");
+            wifiStationOK = false;            
             break;
         case WIFI_EVENT_STAMODE_CONNECTED:
             Serial.println("WiFi client connected");
@@ -339,11 +392,19 @@ void WiFiEvent(WiFiEvent_t event) {
           //  Serial.println("WiFi client DHCP timeout reached.");
             //break;
         case WIFI_EVENT_SOFTAPMODE_STACONNECTED:
-            Serial.println("WiFi accesspoint: new client connected");
+            Serial.println("WiFi accesspoint: new client connected. Clients: "  + String(WiFi.softAPgetStationNum()));
+             if (WiFi.softAPgetStationNum() > 0) {
+               wifiAPisConnected = true;
+             }
             break;
         case WIFI_EVENT_SOFTAPMODE_STADISCONNECTED:
-            Serial.println("WiFi accesspoint: client disconnected.");
-            break;
+            Serial.println("WiFi accesspoint: client disconnected. Clients: " + String(WiFi.softAPgetStationNum()));
+             if (WiFi.softAPgetStationNum() > 0) {
+               wifiAPisConnected = true;
+             } else {
+               wifiAPisConnected = false;
+             }
+             break;
         case WIFI_EVENT_SOFTAPMODE_PROBEREQRECVED:
             //Serial.println("WiFi accesspoint: probe request received.");
             break; 
@@ -382,7 +443,8 @@ void setupSerial() {
     Serial.println("");
     Serial.println("");
     Serial.println("");
-    Serial.println("Welcome to Dynatrace ufo!");
+    Serial.println("Welcome to Dynatrace UFO!");
+    Serial.println("Version: " FIRMWARE_VERSION);
     Serial.println("Resetinfo: " + ESP.getResetInfo());
   }
 }
@@ -415,7 +477,7 @@ void setup ( void ) {
   if (debug) {
     Serial.println("Connecting to Wifi SSID: " + WiFi.SSID() + " as host "+ WiFi.hostname());
     if (WiFi.getMode() > 1) {
-      Serial.println("Access Point IP address: " + WiFi.softAPIP().toString());
+      Serial.println("Access Point IP address: " + WiFi.softAPIP().toString() + " mode: " + String(WiFi.getMode()));
     }
     //WiFi.printDiag(Serial);
   }
@@ -428,16 +490,16 @@ void setup ( void ) {
   httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
   //httpServer.serveStatic("/test.html", SPIFFS, "/test.html", STATICFILES_CACHECONTROL);
   //httpServer.serveStatic("/app.js", SPIFFS, "/app.js", STATICFILES_CACHECONTROL);
-  //httpServer.serveStatic("/phonon.min.css", SPIFFS, "/phonon.min.css", STATICFILES_CACHECONTROL);
-  //httpServer.serveStatic("/phonon.min.js", SPIFFS, "/phonon.min.js", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/phonon.min.css", SPIFFS, "/phonon.min.css");
+  httpServer.serveStatic("/phonon.min.js", SPIFFS, "/phonon.min.js");
   //httpServer.serveStatic("/fonts/material-design-icons.eot", SPIFFS, "/fonts/mdi.eot", STATICFILES_CACHECONTROL);
   //httpServer.serveStatic("/fonts/material-design-icons.svg", SPIFFS, "/fonts/mdi.svg", STATICFILES_CACHECONTROL);
   //httpServer.serveStatic("/fonts/material-design-icons.ttf", SPIFFS, "/fonts/mdi.ttf", STATICFILES_CACHECONTROL);
   //httpServer.serveStatic("/fonts/material-design-icons.woff", SPIFFS, "/fonts/mdi.woff", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("font.woff", SPIFFS, "font.woff", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("font.eot", SPIFFS, "font.eot", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("font.svg", SPIFFS, "font.svg", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("font.ttf", SPIFFS, "font.ttf", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/font.woff", SPIFFS, "/font.woff", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/font.eot", SPIFFS, "/font.eot", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/font.svg", SPIFFS, "/font.svg", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/font.ttf", SPIFFS, "/font.ttf", STATICFILES_CACHECONTROL);
   httpServer.serveStatic("/", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
   //httpServer.on ( "/", HTTP_GET, handleRoot );
   /*httpServer.on ( "/test.svg", drawGraph );
@@ -463,6 +525,24 @@ void setup ( void ) {
   httpServer.begin();
 }
 
+void neopixelSetColor(Adafruit_NeoPixel &neopixel, byte r, byte g, byte b ) {
+  for (unsigned short i = 0; i < neopixel.numPixels(); i++) {
+    neopixel.setPixelColor(i, r, g, b);
+  }
+}
+
+void neopixelWhirlRed(Adafruit_NeoPixel &neopixel, byte redcount, byte whirlpos) {
+  unsigned short p;
+  for (unsigned short i = 0; i < neopixel.numPixels(); i++) {
+     p = whirlpos + i;
+     if (redcount > 0) {
+       neopixel.setPixelColor((p % neopixel.numPixels()), 255, 0, 0);
+       redcount--;
+     } else {
+       neopixel.setPixelColor((p % neopixel.numPixels()), 0, 255, 0);
+     }
+  }
+}
 
 unsigned int tick = 0;
 byte whirlpos = 0;
@@ -500,10 +580,18 @@ void loop ( void ) {
   } else {
     neopixel_logo.setBrightness(0);
   }
+ 
   yield();
   neopixel_logo.show();
+
+  neopixelWhirlRed(neopixel_upperring, redcountUpperring, whirlpos);
+  neopixelWhirlRed(neopixel_lowerring, redcountLowerring, whirlpos);
+  if (tick % 50 == 0) {
+     if (whirl) whirlpos++;
+  }
   yield();
 
+/*
   if (whirl) {
     byte p;
     byte r;
@@ -531,15 +619,36 @@ void loop ( void ) {
       whirlpos++;
     }
   } else {
-    for (byte i = 0; i<15; i++) {
-      neopixel_upperring.setPixelColor(i, 0, 0, 0);
-      neopixel_lowerring.setPixelColor(i, 0, 0, 0);
+      neopixelSetcolor(neopixel_upperring, 0, 0, 0);
+      neopixelSetcolor(neopixel_lowerring, 0, 0, 0);
+  }*/
+
+  // show AP mode in blue to tell user to configure WIFI; especially after RESET
+  // blinking alternatively in blue when no client is connected to AP; 
+  // binking both rings in blue when at least one client is connected to AP
+  if ((WiFi.getMode() == WIFI_AP) || (WiFi.getMode() == WIFI_AP_STA)) {
+    if(wifiAPisConnected && (tick % 1000 > 400)) {
+      neopixelSetColor(neopixel_upperring, 0, 0, 255);
+      neopixelSetColor(neopixel_lowerring, 0, 0, 255);
+    } else {
+      if (tick % 2000 > 1000) {
+        neopixelSetColor(neopixel_upperring, 0, 0, 255);
+        neopixelSetColor(neopixel_lowerring, 0, 0, 0);
+      } else {
+        neopixelSetColor(neopixel_lowerring, 0, 0, 255);
+        neopixelSetColor(neopixel_upperring, 0, 0, 0);
+      }
+    }
+  } else { // blink yellow while not connected to wifi when it should
+    if (!wifiStationOK && (tick % 1000 > 750)) {
+      neopixelSetColor(neopixel_upperring, 50, 50, 0);
+      neopixelSetColor(neopixel_lowerring, 50, 50, 0);
     }
   }
 
+  
   yield();
   neopixel_upperring.show();
-  yield();
   neopixel_lowerring.show();
 
 }
