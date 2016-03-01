@@ -66,11 +66,13 @@ byte whirlg = 255;
 byte whirlb = 255;
 boolean whirl = true;
 
+//boolean restart = false;
 
 ESP8266WebServer        httpServer ( 80 );
 
 boolean wifiStationOK = false;
 boolean wifiAPisConnected = false;
+long uploadSize = 0;
 
 //format bytes
 String formatBytes(size_t bytes){
@@ -113,10 +115,6 @@ String newWifiHostname;
 
 void handleNewWifiSettings() {
    if (newWifi) {
-       //wifi_station_disconnect(); // not sure this disconnect is needed
-       WiFi.disconnect();
-       WiFi.persistent(true);
-
        // if SSID is given, also update wifi credentials
        if (newWifiSSID.length()) {
           WiFi.mode(WIFI_STA);
@@ -131,7 +129,9 @@ void handleNewWifiSettings() {
          Serial.println("Restarting....");
          Serial.flush();
        }
-       ESP.restart();
+
+      ESP.restart();
+
    }
 }
 
@@ -145,22 +145,20 @@ void handleFactoryReset() {
       Serial.println("*********FACTORYRESET***********");
       WiFi.printDiag(Serial); 
     }
-    WiFi.disconnect(true); //delete old config
-    WiFi.begin(DEFAULT_SSID, DEFAULT_PWD);
-    WiFi.persistent(true);
-    //WiFi.mode(WIFI_AP_STA);
-    WiFi.mode(WIFI_AP);
+    WiFi.disconnect(false); //disconnect and disable station mode; delete old config
     // default IP address for Access Point is 192.168.4.1
-    WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0)); // IP, gateway, netmask
+    //WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0)); // IP, gateway, netmask -- NOT STORED TO FLASH!!
     WiFi.softAP(DEFAULT_APSSID); // default is open Wifi
+    WiFi.mode(WIFI_AP);
     if (debug) {
-      Serial.println("New Wifi client SSID: " + String(DEFAULT_SSID) + " pass: " + String(DEFAULT_PWD));
-      Serial.println("New Access point SSID: " + String(DEFAULT_APSSID));
+      Serial.println("Wifi client mode disable and reset to SSID: " + WiFi.SSID() + " pass: " + WiFi.psk());
+      Serial.println("Access point enabled at open Wifi SSID: " DEFAULT_APSSID);
       Serial.println("Restarting....");
       WiFi.printDiag(Serial); 
       Serial.flush();
     }  
-    ESP.restart();  
+    ESP.restart();
+
   }
 }
 
@@ -271,16 +269,25 @@ void generateHandler() {
 }
 
 void updatePostHandler() {
-
-
     // handler for the /update form POST (once file upload finishes)
-    httpServer.sendHeader("Connection", "close");
-    httpServer.sendHeader("Access-Control-Allow-Origin", "*");
+    //httpServer.sendHeader("Connection", "close");
+    //httpServer.sendHeader("Access-Control-Allow-Origin", "*");
     StreamString error;
     if (Update.hasError()) {
       Update.printError(error);
     }
-    httpServer.send(200, "text/plain", (Update.hasError())?error:"OK - "+String(Update.size()) + " bytes transferred");
+    String response = "<html>" 
+                        "<head>"  
+                          "<title>IU Webmaster redirect</title>"
+                          "<META http-equiv='refresh' content='10;URL=/'>"
+                        "</head>"  
+                        "<body>"
+                          "<center>";
+    response+=             (Update.hasError())?error:"Upload succeeded! " + String(uploadSize); 
+    response+=            " bytes transferred<p>Device is being rebooted. Redirecting to homepage in 10 seconds...</center>"  
+                        "</body>"  
+                      "</html>";
+    httpServer.send(200, "text/html", response);
     ESP.restart();
 }
 
@@ -322,6 +329,7 @@ void updatePostUploadHandler() {
         if (debug) Update.printError(Serial);
       }
     } else if(upload.status == UPLOAD_FILE_END){
+      uploadSize = Update.size();
       if(Update.end(true)){ //true to set the size to the current progress
         if (debug) Serial.println("Update Success - uploaded: " + String(upload.totalSize) + ".... rebooting now!");
       } else {
@@ -329,6 +337,7 @@ void updatePostUploadHandler() {
       }
       if (debug) Serial.setDebugOutput(false);
     } else if(upload.status == UPLOAD_FILE_ABORTED){
+      uploadSize = Update.size();
       Update.end();
       if (debug) Serial.println("Update was aborted");
     }
@@ -343,6 +352,7 @@ void updatePostUploadHandler() {
         uploadFile.close();
       }
     } else if(upload.status == UPLOAD_FILE_END){
+      uploadSize = upload.totalSize;
       if(uploadFile.size() == upload.totalSize){ 
         if (debug) Serial.println("Upload to SPIFFS Succeeded - uploaded: " + String(upload.totalSize) + ".... rebooting now!");
       } else {
@@ -350,6 +360,7 @@ void updatePostUploadHandler() {
       }
       uploadFile.close();
     } else if(upload.status == UPLOAD_FILE_ABORTED){
+      uploadSize = upload.totalSize;
       uploadFile.close();
       if (debug) Serial.println("Upload to SPIFFS was aborted");
     }
@@ -473,13 +484,13 @@ void setup ( void ) {
   // initialize Wifi based on stored config
   WiFi.onEvent(WiFiEvent);
   WiFi.hostname(DEFAULT_HOSTNAME); // note, the hostname is not persisted in the ESP config like the SSID. so it needs to be set every time WiFi is started
-  WiFi.begin(); // load SSID and PWD from internal memory
+  //WiFi.begin(); // always STARTS station mode!!! load SSID and PWD from internal memory
   if (debug) {
     Serial.println("Connecting to Wifi SSID: " + WiFi.SSID() + " as host "+ WiFi.hostname());
     if (WiFi.getMode() > 1) {
-      Serial.println("Access Point IP address: " + WiFi.softAPIP().toString() + " mode: " + String(WiFi.getMode()));
+      Serial.println("Access Point IP address: " + WiFi.softAPIP().toString());
     }
-    //WiFi.printDiag(Serial);
+    WiFi.printDiag(Serial);
   }
 
   // setup all web server routes; make sure to use / last
@@ -554,6 +565,7 @@ void loop ( void ) {
   handleFactoryReset();
   handleNewWifiSettings();
   httpServer.handleClient();
+
   yield();
 
   // adjust logo colors
@@ -650,7 +662,6 @@ void loop ( void ) {
   yield();
   neopixel_upperring.show();
   neopixel_lowerring.show();
-
 }
 
 
