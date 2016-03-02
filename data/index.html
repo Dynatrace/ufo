@@ -1,46 +1,21 @@
 <html>
-
     <head>
         <meta charset="utf-8" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
-
-        <link rel="stylesheet" href="phonon.min.css" />
+        <link rel="stylesheet" href="phonon-base.min.css" />
+        <link rel="stylesheet" href="lists.min.css" />
+        <link rel="stylesheet" href="forms.min.css" />
+		<link rel="stylesheet" href="icons.min.css" />
         <title>Dynatrace UFO</title>
     </head>
 	<body>
-     
-        <!-- Panel tags go here -->
-		<div id="wifisettings" class="panel-full">
-            <header class="header-bar">
-                <button class="btn pull-right icon icon-close" data-panel-close="true"></button>
-                <div class="center">
-                    <h1 class="title">Wifi Settings</h1>
-                </div>
-            </header> 
-            <div class="content">
-				<!--<span> TODO: Please not this mac address <macaddress> for later lookup of IP address in DHCP table or for assigning a fixed IP address through DHCP </span>-->
-				<input type="text" placeholder="SSID" id="ssid">
-				<input type="password" placeholder="********" id="wifipwd">
-				<button id="submitwifisettings" class="btn fit-parent primary">Apply WIFI setting</button>
-			</div>
-		</div>
-
-        <!-- Side Panel tags go here -->
-
-        <!-- Notification tags go here -->
-
-        <!-- Dialog tags go here -->
-
-
         <!-- the home page is the default one. This page does not require to call its content because we define on its tag.-->
        <home data-page="true">
             <header class="header-bar">
                 <div class="center">
                     <h1 class="title">Dynatrace UFO</h1>
                 </div>
-				<button class="btn pull-right icon icon-settings" data-panel-id="wifisettings"></button>
-
             </header>
 
             <div class="content">
@@ -146,7 +121,7 @@
 		
 
         <!-- scripts -->
-        <script src="phonon.min.js"></script>
+        <script src="phonon-core.min.js"></script>
 
         <!-- our app config -->
         <!-- <script src="app.js"></script> -->
@@ -174,28 +149,6 @@
 				var onWifiSettingsSubmit = function(evt) {
 					var target = evt.target;
 					//action = 'ok';
-
-					/**if(target.getAttribute('data-order') === 'order') {
-						phonon.alert('Thank you for your order!', 'Dear customer');
-
-					} else {
-						phonon.alert('Your order has been canceled.', 'Dear customer');
-					}**/
-					//phonon.alert('You have successfully submitted!', "begin_"+ document.querySelector('#ssid').value + "_end");
-					//phonon.ajax()
-					
-					/** xmlhttp=new XMLHttpRequest();
-					xmlhttp.onreadystatechange=function()
-					{
-						if (xmlhttp.readyState==4 && xmlhttp.status==200)
-						{
-							phonon.alert('Http response: ', "http_"+ xmlhttp.responseText + "_end");
-							//document.getElementById("sicherheitshinweise").innerHTML=xmlhttp.responseText;
-						}
-					}
-					xmlhttp.open("GET","semmelhuber?ssid="+document.querySelector('#ssid').value,true);
-					xmlhttp.send();
-					**/
 					
 					var req = phonon.ajax({
 						method: 'GET',

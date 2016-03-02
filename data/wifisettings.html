@@ -1,0 +1,57 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+        <link rel="stylesheet" href="phonon-base.min.css" />
+        <link rel="stylesheet" href="lists.min.css" />
+        <link rel="stylesheet" href="forms.min.css" />
+        <title>Dynatrace UFO</title>
+    </head>
+	<body>
+       <wifi data-page="true">
+            <header class="header-bar">
+                <div class="center">
+                    <h1 class="title">Dynatrace UFO - Configure WIFI</h1>
+                </div>
+            </header>
+			<div class="content">
+				<input type="text" placeholder="SSID" id="ssid">
+				<input type="password" placeholder="***" id="wifipwd">
+				<button id="submitwifisettings" class="btn fit-parent primary">Apply WIFI setting</button>
+			</div>
+        </wifi>
+        <!-- scripts -->
+        <script src="phonon-core.min.js"></script>
+        <!-- <script src="app.js"></script> -->
+		<script>
+			var app = phonon.navigator();
+			app.on({page: 'wifi', preventClose: false, content: null} , function(activity) {
+
+				var onWifiSettingsSubmit = function(evt) {
+					//var target = evt.target;
+					var req = phonon.ajax({
+						method: 'GET',
+						url: 'api?ssid=' + document.querySelector('#ssid').value + '&pwd=' + document.querySelector('#wifipwd').value,
+						dataType: 'json',
+						success: function(res, xhr) {
+							console.log(res);
+						},
+						error: function(res, flagError, xhr) {
+							console.error(flagError);
+							console.log(res);
+						}
+					}); 
+
+				}; 
+
+				activity.onCreate(function() {
+					document.querySelector('#submitwifisettings').on('tap', onWifiSettingsSubmit);
+				})
+			});
+
+			app.start();
+					
+		</script>
+</body>
+</html>
