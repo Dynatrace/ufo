@@ -64,6 +64,8 @@ Upload through serial (needed the first time; later firmware can be uploaded thr
 1. Once firmware is uploaded to the UFO, it starts an access point with SSID named "ufo". (if you cannot see the "ufo" SSID, click the WiFi reset button) - the UFO alternates a single blue ring
 2. Connect to the "ufo" Wifi and navigate to http://192.168.4.1 - once connected the UFO blinks with a second blue ring
 3. Configure WiFi settings so that the UFO connects to your WiFi (note, enterprise PEAP authentication is not yet available) - whenever the UFO is trying to connect to your WiFi, the UFO blinks yellow. So you can declare connection success when the yellow stopped blinking.
+NOTE: in case you have troubles using the Web UI for setting the WiFi config, you might have more success using the api directly:
+`http://192.168.4.1/api?ssid=<ssid>&pwd=<pwd>`
 4. Access the Web UI of the UFO as well as the REST interface /api    ***TODO FOR MORE***
 
 
