@@ -1,4 +1,4 @@
-#instructions to build the Dynatrace UFO
+#Instructions to build the Dynatrace UFO
 
 ##Print the 7 pieces in 5 batches
 
@@ -49,10 +49,12 @@ The Huzzah ESP8266 microcontroller is mounted on top of the downlight inlay and 
 ##Firmware
 FTDI cable
 Upload through serial (needed the first time; later firmware can be uploaded through the Web UI).
-### Upload firmware available on github
+
+###Upload firmware available on github
 1. TODO tooling
-2. TODO 
-### Build the firmware yourself
+2. TODO  asdf
+
+###Build the firmware yourself
 1. Install Arduino IDE 1.6.7 and in preferences dialog this board manager URL: `http://arduino.esp8266.com/stable/package_esp8266com_index.json`
 2. [compile and upload firmware through serial](https://learn.adafruit.com/adafruit-huzzah-esp8266-breakout/using-arduino-ide)
 3. TODO Uploading file system should not be required to make it simpler;
