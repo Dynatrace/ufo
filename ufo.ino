@@ -72,6 +72,7 @@ ESP8266WebServer        httpServer ( 80 );
 
 boolean wifiStationOK = false;
 boolean wifiAPisConnected = false;
+boolean wifiConfigMode;
 long uploadSize = 0;
 
 //format bytes
@@ -113,6 +114,19 @@ String newWifiSSID;
 String newWifiPwd;
 String newWifiHostname;
 
+void handleSmartConfig() {
+   if (wifiConfigMode) {
+      if (WiFi.smartConfigDone()) {
+         if (debug) {
+           Serial.println("SMARTCONFIG SUCCEEDED - New Wifi settings: " + WiFi.SSID() + " / " + WiFi.psk());
+           Serial.println("Restarting....");
+           Serial.flush();
+         }
+         ESP.restart();
+      }
+   }
+}
+
 void handleNewWifiSettings() {
    if (newWifi) {
        // if SSID is given, also update wifi credentials
@@ -149,10 +163,10 @@ void handleFactoryReset() {
     // default IP address for Access Point is 192.168.4.1
     //WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0)); // IP, gateway, netmask -- NOT STORED TO FLASH!!
     WiFi.softAP(DEFAULT_APSSID); // default is open Wifi
-    WiFi.mode(WIFI_AP);
+    //WiFi.mode(WIFI_AP);
     if (debug) {
-      Serial.println("Wifi client mode disable and reset to SSID: " + WiFi.SSID() + " pass: " + WiFi.psk());
-      Serial.println("Access point enabled at open Wifi SSID: " DEFAULT_APSSID);
+      Serial.println("Wifi reset to SSID: " + WiFi.SSID() + " pass: " + WiFi.psk());
+      Serial.println("Wifi config mode enabled: Access point enabled at open Wifi SSID: " DEFAULT_APSSID);
       Serial.println("Restarting....");
       WiFi.printDiag(Serial); 
       Serial.flush();
@@ -456,6 +470,8 @@ void setupSerial() {
     Serial.println("");
     Serial.println("Welcome to Dynatrace UFO!");
     Serial.println("Version: " FIRMWARE_VERSION);
+    Serial.println("Bootversion: " +String(ESP.getBootVersion()));
+    Serial.println("SDK Version: " +String(ESP.getSdkVersion()));
     Serial.println("Resetinfo: " + ESP.getResetInfo());
   }
 }
@@ -484,11 +500,14 @@ void setup ( void ) {
   // initialize Wifi based on stored config
   WiFi.onEvent(WiFiEvent);
   WiFi.hostname(DEFAULT_HOSTNAME); // note, the hostname is not persisted in the ESP config like the SSID. so it needs to be set every time WiFi is started
-  //WiFi.begin(); // always STARTS station mode!!! load SSID and PWD from internal memory
+  wifiConfigMode = WiFi.getMode() & WIFI_AP;
+  if (wifiConfigMode) 
+    WiFi.beginSmartConfig();
+
   if (debug) {
     Serial.println("Connecting to Wifi SSID: " + WiFi.SSID() + " as host "+ WiFi.hostname());
-    if (WiFi.getMode() > 1) {
-      Serial.println("Access Point IP address: " + WiFi.softAPIP().toString());
+    if (wifiConfigMode) {
+      Serial.println("WiFi Configuration Mode - Access Point IP address: " + WiFi.softAPIP().toString());
     }
     WiFi.printDiag(Serial);
   }
@@ -498,35 +517,31 @@ void setup ( void ) {
   httpServer.on ( "/api", apiHandler );
   httpServer.on ( "/info", infoHandler );
   httpServer.on ( "/gen", generateHandler );
-  httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
-  //httpServer.serveStatic("/test.html", SPIFFS, "/test.html", STATICFILES_CACHECONTROL);
+  //httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
   //httpServer.serveStatic("/app.js", SPIFFS, "/app.js", STATICFILES_CACHECONTROL);
   httpServer.serveStatic("/phonon.min.css", SPIFFS, "/phonon.min.css");
   httpServer.serveStatic("/phonon.min.js", SPIFFS, "/phonon.min.js");
-  //httpServer.serveStatic("/fonts/material-design-icons.eot", SPIFFS, "/fonts/mdi.eot", STATICFILES_CACHECONTROL);
-  //httpServer.serveStatic("/fonts/material-design-icons.svg", SPIFFS, "/fonts/mdi.svg", STATICFILES_CACHECONTROL);
-  //httpServer.serveStatic("/fonts/material-design-icons.ttf", SPIFFS, "/fonts/mdi.ttf", STATICFILES_CACHECONTROL);
-  //httpServer.serveStatic("/fonts/material-design-icons.woff", SPIFFS, "/fonts/mdi.woff", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/font.woff", SPIFFS, "/font.woff", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/font.eot", SPIFFS, "/font.eot", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/font.svg", SPIFFS, "/font.svg", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/font.ttf", SPIFFS, "/font.ttf", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/forms.min.css", SPIFFS, "/forms.min.css");
+  httpServer.serveStatic("/forms.min.js", SPIFFS, "/forms.min.js");
+  httpServer.serveStatic("/icons.min.css", SPIFFS, "/icons.min.css");
+  httpServer.serveStatic("/lists.min.css", SPIFFS, "/lists.min.css");
+  httpServer.serveStatic("/phonon-base.min.css", SPIFFS, "/phonon-base.min.css");
+  httpServer.serveStatic("/phonon-core.min.js", SPIFFS, "/phonon-core.min.js");
+  httpServer.serveStatic("/font.woff", SPIFFS, "/font.woff");
+  httpServer.serveStatic("/font.eot", SPIFFS, "/font.eot");
+  httpServer.serveStatic("/font.svg", SPIFFS, "/font.svg");
+  httpServer.serveStatic("/font.ttf", SPIFFS, "/font.ttf");
+  if (wifiConfigMode) { 
+      httpServer.serveStatic("/", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
+  } else {
+      httpServer.serveStatic("/", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
+  }
   //httpServer.on ( "/", HTTP_GET, handleRoot );
-  /*httpServer.on ( "/test.svg", drawGraph );
-  httpServer.on ( "/inline", []() {
-    httpServer.send ( 200, "text/plain", "this works as well" );
-  } );*/
   httpServer.onNotFound ( handleNotFound );
 
   // register firmware update HTTP server: 
   //    To upload through terminal you can use: curl -F "image=@ufo.ino.bin" ufo.local/update  
   //    Windows power shell use DOESNT WORK YET: wget -Method POST -InFile ufo.ino.bin -Uri ufo.local/update   
-  //httpUpdater.setup(&httpServer); // this adds the URI "./update" to the http server
-  if (debug) {
-    Serial.println("HTTPUpdateServer ready! Open http://" + String(WiFi.hostname()) + ".local/update in your browser");
-  }
-
   //httpServer.on("/", indexHtmlHandler);
   //httpServer.on("/update", HTTP_GET, indexHtmlHandler);
   httpServer.on("/update", HTTP_GET, updateHandler);
@@ -564,6 +579,7 @@ void loop ( void ) {
 
   handleFactoryReset();
   handleNewWifiSettings();
+  handleSmartConfig();
   httpServer.handleClient();
 
   yield();
@@ -638,7 +654,7 @@ void loop ( void ) {
   // show AP mode in blue to tell user to configure WIFI; especially after RESET
   // blinking alternatively in blue when no client is connected to AP; 
   // binking both rings in blue when at least one client is connected to AP
-  if ((WiFi.getMode() == WIFI_AP) || (WiFi.getMode() == WIFI_AP_STA)) {
+  if (wifiConfigMode) {
     if(wifiAPisConnected && (tick % 1000 > 400)) {
       neopixelSetColor(neopixel_upperring, 0, 0, 255);
       neopixelSetColor(neopixel_lowerring, 0, 0, 255);
