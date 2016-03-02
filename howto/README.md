@@ -30,3 +30,24 @@ Solder the short strips in a series accordingly to the data-flow direction. Ther
 USB cables 5V power goes to "VBat" and the black ground cable goes to "GND"
 ![soldering power to huzzah](soldering huzzah.jpg)
 
+The white DATA wires that control the LEDs are soldered as follows:
+* pin 4 - lower LED ring
+* pin 5 - upper LED ring
+* pin 2 - downlight LEDs
+
+The blue Wifi reset cables:
+* pin 15 - mini-button-switch for WiFi reset, to turn the UFO into Access Point mode; triggers when 3V are on pin 15
+* pin 3V (next to pin 15) - goes to the other contact of the mini-button-switch. 
+!(wired.jpg)
+ 
+Note that the LEDs need to be powered directly from the USB cable, and not from the 3V pin. So all the red 5V cables and separately all the black ground cables are soldered together.
+
+##Putting all together
+The Huzzah ESP8266 microcontroller is mounted on top of the downlight inlay and also keeps the 2 short LED strips in their position. For proper isolation, put the printed platform with the 4 pins upside under the Huzzah board and put then all that inside the clip that holds everything in place.
+![clip-in microcontroller9(mounted microcontroller.jpg)
+
+ 
+
+
+
+
