@@ -60,7 +60,11 @@ Upload through serial (needed the first time; later firmware can be uploaded thr
 3. TODO Uploading file system should not be required to make it simpler;
 [upload file system and web site](https://github.com/esp8266/Arduino/blob/master/doc/filesystem.md#uploading-files-to-file-system) (SPIFFS)
 
- 
+##Configure the UFO
+1. Once firmware is uploaded to the UFO, it starts an access point with SSID named "ufo". (if you cannot see the "ufo" SSID, click the WiFi reset button) - the UFO alternates a single blue ring
+2. Connect to the "ufo" Wifi and navigate to http://192.168.4.1 - once connected the UFO blinks with a second blue ring
+3. Configure WiFi settings so that the UFO connects to your WiFi (note, enterprise PEAP authentication is not yet available) - whenever the UFO is trying to connect to your WiFi, the UFO blinks yellow. So you can declare connection success when the yellow stopped blinking.
+4. Access the Web UI of the UFO as well as the REST interface /api    ***TODO FOR MORE***
 
 
 
