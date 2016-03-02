@@ -44,7 +44,19 @@ Note that the LEDs need to be powered directly from the USB cable, and not from 
 
 ##Putting all together
 The Huzzah ESP8266 microcontroller is mounted on top of the downlight inlay and also keeps the 2 short LED strips in their position. For proper isolation, put the printed platform with the 4 pins upside under the Huzzah board and put then all that inside the clip that holds everything in place.
-![clip-in microcontroller9(mounted microcontroller.jpg)
+![clip-in microcontroller](mounted microcontroller.jpg)
+
+##Firmware
+FTDI cable
+Upload through serial (needed the first time; later firmware can be uploaded through the Web UI).
+### Upload firmware available on github
+1. TODO tooling
+2. TODO 
+### Build the firmware yourself
+1. Install Arduino IDE 1.6.7 and in preferences dialog this board manager URL: `http://arduino.esp8266.com/stable/package_esp8266com_index.json`
+2. [compile and upload firmware through serial](https://learn.adafruit.com/adafruit-huzzah-esp8266-breakout/using-arduino-ide)
+3. TODO Uploading file system should not be required to make it simpler;
+[upload file system and web site](https://github.com/esp8266/Arduino/blob/master/doc/filesystem.md#uploading-files-to-file-system) (SPIFFS)
 
  
 
