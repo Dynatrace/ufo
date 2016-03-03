@@ -22,7 +22,7 @@ __Helmut:__ Build failures and consequently the red state of the build pipeline 
 
 A fast pipeline is especially crucial in our devops environment as we require to bring potential fixes into production as fast as possible. The optimal utilization of our automated test-resources is an important factor for us, as well.
 
-Bernd: The UFO is with its more 34 individual controllable RGB LEDs more powerful than a classic "red alert" lamp. So how is it integrated with the continuous delivery process?
+*Bernd:* The UFO is with its more 34 individual controllable RGB LEDs more powerful than a classic "red alert" lamp. So how is it integrated with the continuous delivery process?
 
 __Helmut:__ The UFO is directly fed with the pipeline state by our quickbuild server at the end of every run via a simple rest interface. One layer of the UFO is visualizing the trunk pipeline whereas the other one is showing our sprint pipeline state. The DevOps team controls the UFO using Dynatrace Application Monitoring / UEM and Ruxit interfaces. But of course, you can control it from any software capable of performing REST calls.
 
