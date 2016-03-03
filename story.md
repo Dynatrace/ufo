@@ -26,7 +26,7 @@ Bernd: The UFO is with its more 34 individual controllable RGB LEDs more powerfu
 
 __Helmut:__ The UFO is directly fed with the pipeline state by our quickbuild server at the end of every run via a simple rest interface. One layer of the UFO is visualizing the trunk pipeline whereas the other one is showing our sprint pipeline state. The DevOps team controls the UFO using Dynatrace Application Monitoring / UEM and Ruxit interfaces. But of course, you can control it from any software capable of performing REST calls.
 
-Bernd: We had several top customers who came into our office ask for such an UFO. Since you have built it yourself, what can we tell customers who want that too? Here are pictures of the original so everyone can see what I am talking about:
+*Bernd:* We had several top customers who came into our office ask for such an UFO. Since you have built it yourself, what can we tell customers who want that too? Here are pictures of the original so everyone can see what I am talking about:
 ![](original ufo1.JPG) ![](original ufo2.JPG)
 
 __Helmut:__ Oh, yes. The original version used Raspberry PI and multiple PIC microcontrollers I used in plenty of my other projects. To reduce the total number of parts, we have designed an open-source version of that UFO that is easily printable on a standard 3D printer and a single ESP8266 WiFi microcontroller. The total cost is in the range of $80 including the WiFi enabled electronics. Its available at https://github.com/Dynatrace/Dynatrace-UFO
