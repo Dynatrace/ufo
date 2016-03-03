@@ -29,4 +29,4 @@ __Helmut:__ The UFO is directly fed with the pipeline state by our quickbuild se
 Bernd: We had several top customers who came into our office ask for such an UFO. Since you have built it yourself, what can we tell customers who want that too? Here are pictures of the original so everyone can see what I am talking about:
 ![](original ufo1.JPG) ![](original ufo2.JPG)
 
-__Helmut:__ We have created an open-source version of that UFO, that anyone can print himselve on a standard 3D printer. The total cost is less than $100 including the WiFi enabled electronics. Its available at github __XXXXYYYYZZZZZZ__
+__Helmut:__ We have created an open-source version of that UFO, that anyone can print himselve on a standard 3D printer. The total cost is less than $100 including the WiFi enabled electronics. Its available at https://github.com/Dynatrace/Dynatrace-UFO
