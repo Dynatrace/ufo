@@ -1,6 +1,6 @@
 #The UFO Story
 
-Interviewer: Hi Helmut, you have invented the UFO for Dynatrace to improve the agile development, build and continuous delivery processes. 
+Bernd: Hi Helmut, you have invented the UFO - a multidimensional state visualization device -  for Dynatrace to improve our agile development, build and continuous delivery processes. 
 So what exactly is the UFO and what motivated you to create it?
 
 __Helmut:__ I created the UFO because we had a lack of awareness of build problems in our CI process. 
@@ -8,12 +8,20 @@ It very often happened that developers broke the pipeline but have not been awar
 and therefore did not start to think if their changes might be the cause. 
 Installing this visualization device in our cafeteria made a big change in the actual 
 awareness of our developers regarding build failures but also in their mindset 
-that those conditions need to be avoided at any cost – you don’t want to be the one which flooded the cafeteria with red light…
+that those conditions need to be avoided at any cost – you don’t want to be the one which flooded the cafeteria with red light.
 
-why did u create the ufo? why important for modern dev(ops)? how did it change behavior (value)? how doesnitbwork in day to day life?
+So generally stated, the UFO is a general state visualization device. The requirement to function from any view angle gave it it’s UFO like appearance. It consists of 2 layers which basically emit light in arbitrary color and animation. However, for us, its real-time feedback on our build and continue delivery process to keep the team in-sync and responsible.
+
+Bernd: why important for modern dev(ops)? 
+
+how did it change behavior (value)? 
+
+how doesnitbwork in day to day life?
+
 which products doesnit integrate with?
-The UFO is a general state visualization device. The requirement to function from any view angle gave it it’s UFO like appearance.
-It consists of 2 layers which basically emit light in arbitrary color and animation.
+
+
+
 
 
 Build failures and consequently the red state of the build pipeline not only blocks all developers from committing their changes but also delays the build entering of the various automated test-stages which basically just slows down the overall development process and diminishes our productivity.
