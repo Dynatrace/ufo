@@ -1,5 +1,5 @@
 # UFO
-###Visual Alert/Status display for e.g. Build, CI, Continuous Delivery, Operations 
+###Visual alert and status display for e.g. build, CI, continuous delivery, operations, and more 
 
 * [__story__](story.md) The original UFO has been created by Helmut, Dynatrace Chief Software Architect. Read his story.  
 * [__data__](data) folder contains all files that will be loaded into the ESP8266 flash memory SPIFF drive to contain website data (folder must use this name for Arduino IDE to automatically upload to ESP8266)
