@@ -14,7 +14,7 @@ So generally stated, the UFO is a general state visualization device. The requir
 
 *Bernd:* how did it change behavior of the team?
 
-__Helmut__: The team adopted actually 
+__Helmut__: The team has become more sensitive on checking in before going home. When the UFO goes red in the cafeteria, the ones who checked in definitly double check the build results and their inbox where their bugs get routet to.
 
 *Bernd:* As our team is has hundreds of engineers, one can impact many, right? 
 
