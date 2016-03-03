@@ -7,5 +7,9 @@
 * [__ufo.ino__](ufo.ino) is the Arduino IDE main program: requires Arduino IDE 1.6.7+ plus additional modules. see ufo.ino source file for more details about requirements
 * [__nodejs testserver__](nodejs testserver) contains source files to simulate the ESP8266 webserver for testing purposes; requires nodejs server + static-server module
 * [__partlist__](partlist/readme.md#ufo-partlist)
+ 
+
+###Example use-case at Dynatrace Ruxit
+Cares about visualizing the actual continuous delivery pipeline, from developers commit to the build system, all the way to deployments into staging systems. The UFO visualizes two pipeline stages, and for each it uses different color/animation coding to represent state and severity.
 ![ufo banner](Pipeline-State-Lamp-01.png)
 
