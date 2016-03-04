@@ -1,11 +1,11 @@
-#ufo partlist
+#UFO partlist
 
 ##approximate cost per ufo
 * $5 filament (filament spools cost $20 to $65, and you need two colors)
 ** black PLA filament
 ** transparent PLA filament
-* $30 for electronics
-* $10 for 2000mA USB charging device
+* $35 for microcontroller, USB cable, switch and wires
+* $10 for 2000mA USB charging device to power the UFO
 
 ##you need
 * 3D printer capable of printing volume L19cm x W19cm x H12cm minimum
