@@ -93,6 +93,11 @@ NOTE: in case you have troubles using the Web UI for setting the WiFi config, yo
 `http://192.168.4.1/api?ssid=<ssid>&pwd=<pwd>`
 4. Access the Web UI of the UFO as well as the REST interface /api    ***TODO FOR MORE***
 
-
+##Todo
+* implement the original UFO api calls also on ESP8266
+* publish the Dynatrace Application Monitoring and Ruxit API infos, DCRUM and Synthetic to follow
+* slight improvement on the base, to allow sliding the ring onto the base with LEDs already mounted
+* publish pre-compiled binaries and instructions to use the flashing tool
+* update web UI to implement desired use-cases  
 
 
