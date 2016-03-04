@@ -60,7 +60,8 @@ The white DATA wires that control the LEDs are soldered as follows:
 The blue Wifi reset cables:
 * pin 15 - mini-button-switch for WiFi reset, to turn the UFO into Access Point mode; triggers when 3V are on pin 15
 * pin 3V (next to pin 15) - goes to the other contact of the mini-button-switch. 
-!(wired.jpg)
+
+![](wired.jpg)
  
 Note that the LEDs need to be powered directly from the USB cable, and not from the 3V pin. So all the red 5V cables and separately all the black ground cables are soldered together.
 
