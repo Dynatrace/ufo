@@ -1,16 +1,38 @@
 #Instructions to build the Dynatrace UFO
 
-##Print the 7 pieces in 5 batches
+##Print the 10 pieces in 5 batches
 
-1. UFO case base + microcontroller holder, plus microcontroller clip
+####We printed with following settings:
+* NO supports
+* 3 shells
+* 0.2mm layer height (0.1mm layer worked well too)
+* 20% infill
+
+####1. UFO case base + microcontroller holder, plus microcontroller clip
+
 black filament
-2. UFO case top + cable stabilizer + mini-switch-clip
+![](print base.jpg)
+
+####2. UFO case top + cable stabilizer + mini-switch-clip
+
 black filament
-3. separator ring
+![](print top.jpg)
+
+####3. separator ring
+
 black filament
-4. Downlight inlay + first ring
+![](print separatorring.jpg)
+
+####4. Downlight inlay + first ring
+
 transparent filament
-5. Second ring
+![](print ledring plus downlightinlay.jpg)
+
+####5. Second ring
+
+transparent filament
+![](print ledring.jpg)
+
 
 ##Prepare USB cable
 Chop off one end of the USB cable and use the 5V line (red) and ground (black) wire for powering the LED strips as well as the Huzzah ESP8266 microcontroller. Make sure to isolate the other wires so to make sure we wont damage USB source or get in contact with the other electronics.
