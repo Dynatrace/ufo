@@ -1,5 +1,7 @@
 #Instructions to build the Dynatrace UFO
 
+see also [partlist](../partlist)
+
 ##Print the 10 pieces in 5 batches
 
 ####We printed with following settings:
