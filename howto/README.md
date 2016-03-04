@@ -76,8 +76,7 @@ FTDI cable
 Upload through serial (needed the first time; later firmware can be uploaded through the Web UI).
 
 ###Upload firmware available on github
-1. TODO tooling
-2. TODO  asdf
+1. TODO - flash tool and bin files
 
 ###Build the firmware yourself
 1. Install Arduino IDE 1.6.7 and in preferences dialog this board manager URL: `http://arduino.esp8266.com/stable/package_esp8266com_index.json`
