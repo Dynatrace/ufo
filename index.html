@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Ufo : Visualize alerts/status for e.g. build automation, continuous integration, continuous delivery, operations and more">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Ufo</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/Dynatrace/ufo">View on GitHub</a>
+
+          <h1 id="project_title">Ufo</h1>
+          <h2 id="project_tagline">Visualize alerts/status for e.g. build automation, continuous integration, continuous delivery, operations and more</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/Dynatrace/ufo/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/Dynatrace/ufo/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a id="ufo" class="anchor" href="#ufo" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>UFO</h1>
+
+<h3>
+<a id="visual-alert-and-status-display-for-eg-build-ci-continuous-delivery-operations-and-more" class="anchor" href="#visual-alert-and-status-display-for-eg-build-ci-continuous-delivery-operations-and-more" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Visual alert and status display for e.g. build, CI, continuous delivery, operations, and more</h3>
+
+<ul>
+<li>
+<a href="story.md"><strong>story</strong></a> The original UFO has been created by Helmut, Dynatrace Chief Software Architect. Read his story.<br>
+</li>
+<li>
+<a href="data"><strong>data</strong></a> folder contains all files that will be loaded into the ESP8266 flash memory SPIFF drive to contain website data (folder must use this name for Arduino IDE to automatically upload to ESP8266)</li>
+<li>
+<a href="3dprint"><strong>3dprint</strong></a> folder contains all CAD files plus derivative 3D print files</li>
+<li>
+<a href="ufo.ino"><strong>ufo.ino</strong></a> is the Arduino IDE main program: requires Arduino IDE 1.6.7+ plus additional modules. see ufo.ino source file for more details about requirements</li>
+<li>
+<a href="nodejs%20testserver"><strong>nodejs testserver</strong></a> contains source files to simulate the ESP8266 webserver for testing purposes; requires nodejs server + static-server module</li>
+<li><a href="partlist/readme.md#ufo-partlist"><strong>partlist</strong></a></li>
+</ul>
+
+<h3>
+<a id="example-use-case-at-dynatrace-ruxit" class="anchor" href="#example-use-case-at-dynatrace-ruxit" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example use-case at Dynatrace Ruxit</h3>
+
+<p>Cares about visualizing the actual continuous delivery pipeline, from developers commit to the build system, all the way to deployments into staging systems. The UFO visualizes two pipeline stages, and for each it uses different color/animation coding to represent state and severity.
+<img src="Pipeline-State-Lamp-01.png" alt="ufo banner"></p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Ufo maintained by <a href="https://github.com/Dynatrace">Dynatrace</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
