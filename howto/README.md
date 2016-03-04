@@ -82,8 +82,8 @@ Upload through serial (needed the first time; later firmware can be uploaded thr
 1. Install Arduino IDE 1.6.7 and in preferences dialog this board manager URL: `http://arduino.esp8266.com/stable/package_esp8266com_index.json`
 2. [compile and upload firmware through serial](https://learn.adafruit.com/adafruit-huzzah-esp8266-breakout/using-arduino-ide)
 3. Upload the Website files to the SPIFFS filesystem. There are two variants to do this:
- a. Upload the all files (*.html, *.css, font.*, ...) that are contained in the `data` folder through the Web UI using the firmware upload form. those files will be automatically put on the ESP8266 file system.
- b. Upload the entire content set of the data folder through an Arduino IDE plug-in via the serial interface. See this description: 
+ * option 1: Upload the all files (*.html, *.css, font.*, ...) that are contained in the `data` folder through the Web UI using the firmware upload form. those files will be automatically put on the ESP8266 file system.
+ * option 2: Upload the entire content set of the data folder through an Arduino IDE plug-in via the serial interface. See this description: 
 [upload file system and web site](https://github.com/esp8266/Arduino/blob/master/doc/filesystem.md#uploading-files-to-file-system) (SPIFFS)
 
 ##Configure the UFO
