@@ -2,8 +2,8 @@
 
 ##approximate cost per ufo
 * $5 filament (filament spools cost $20 to $65, and you need two colors)
-** black PLA filament
-** transparent PLA filament
+ * black PLA filament
+ * transparent PLA filament
 * $35 for microcontroller, USB cable, switch and wires
 * $10 for 2000mA USB charging device to power the UFO
 
@@ -13,9 +13,9 @@
 * FTDI cable (approx $15) for programming the ESP8266
 
 ##examples where to get the electronics
-U.S.: Adafruit <http://www.adafruit.com>
-U.S./Internationally: Mouser electronics <http://mouser.com> (they have many international sites such as mouser.de, mouser.at, ...)
-Germany/Austria: Flikto <http://flikto.de> 
+* U.S.: Adafruit <http://www.adafruit.com>
+* U.S./Internationally: Mouser electronics <http://mouser.com> (they have many international sites such as mouser.de, mouser.at, ...)
+* Germany/Austria: Flikto <http://flikto.de> 
 
 ##electronics partlist
 * 1x [Adafruit Huzzah ESP8266 breakoutboard](https://www.adafruit.com/products/2471) 
