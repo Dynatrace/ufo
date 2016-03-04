@@ -1,7 +1,7 @@
 # UFO
 ###Visual alert and status display for e.g. build, CI, continuous delivery, operations, and more 
 
-* [__story__](story.md) The original UFO has been created by Helmut, Dynatrace Chief Software Architect. Read his story.  
+* [__story__](story) The original UFO has been created by Helmut, Dynatrace Chief Software Architect. Read his story.  
 * [__howto__](howto) Step by step description on building your own UFO
 * [__partlist__](partlist/readme.md#ufo-partlist)
 (folder must use this name for Arduino IDE to automatically upload to ESP8266)
