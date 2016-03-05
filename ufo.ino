@@ -469,9 +469,9 @@ void setupSerial() {
     Serial.println("");
     Serial.println("");
     Serial.println("Welcome to Dynatrace UFO!");
-    Serial.println("Version: " FIRMWARE_VERSION);
-    Serial.println("Bootversion: " +String(ESP.getBootVersion()));
-    Serial.println("SDK Version: " +String(ESP.getSdkVersion()));
+    Serial.println("UFO Firmware Version: " FIRMWARE_VERSION);
+    Serial.println("ESP8266 Bootversion: " +String(ESP.getBootVersion()));
+    Serial.println("ESP8266 SDK Version: " +String(ESP.getSdkVersion()));
     Serial.println("Resetinfo: " + ESP.getResetInfo());
   }
 }
