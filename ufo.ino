@@ -23,7 +23,7 @@
   */
 
 boolean debug = true;
-#define DEBUG_ESP_HTTP_SERVER true
+//#define DEBUG_ESP_HTTP_SERVER true
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -157,7 +157,7 @@ void handleFactoryReset() {
     }
     if (debug) {
       Serial.println("*********FACTORYRESET***********");
-      WiFi.printDiag(Serial); 
+      //WiFi.printDiag(Serial); 
     }
     WiFi.disconnect(false); //disconnect and disable station mode; delete old config
     // default IP address for Access Point is 192.168.4.1
@@ -168,7 +168,7 @@ void handleFactoryReset() {
       Serial.println("Wifi reset to SSID: " + WiFi.SSID() + " pass: " + WiFi.psk());
       Serial.println("Wifi config mode enabled: Access point enabled at open Wifi SSID: " DEFAULT_APSSID);
       Serial.println("Restarting....");
-      WiFi.printDiag(Serial); 
+      //WiFi.printDiag(Serial); 
       Serial.flush();
     }  
     ESP.restart();
@@ -509,7 +509,7 @@ void setup ( void ) {
     if (wifiConfigMode) {
       Serial.println("WiFi Configuration Mode - Access Point IP address: " + WiFi.softAPIP().toString());
     }
-    WiFi.printDiag(Serial);
+    //WiFi.printDiag(Serial);
   }
 
   // setup all web server routes; make sure to use / last
