@@ -81,19 +81,27 @@ Upload through serial (needed the first time; later firmware can be uploaded thr
 ###Build the firmware yourself
 1. Install Arduino IDE 1.6.7 and in preferences dialog this board manager URL: `http://arduino.esp8266.com/stable/package_esp8266com_index.json`
 ![Arduino IDE preferences](arduino preferences.png) Make sure to restart the IDE afterwards.
-2. Install ESP8266 board using Arduino IDE Board Manager under the tools menu
-![Arduino board manager](install esp8266.png)
-3. Configure microcontroller in IDE 
-* Adafruit Huzzah ESP8266 board
-* 3MB SPIFFS
-* serial port that's connected to the FTDI serial cable
-* USBtinyISP as Programmer
-* 115200bps 
-Serial Monitor 
-2. [compile and upload firmware through serial](https://learn.adafruit.com/adafruit-huzzah-esp8266-breakout/using-arduino-ide)
-3. Upload the Website files to the SPIFFS filesystem. There are two variants to do this:
+1. Install ESP8266 board using Arduino IDE Board Manager under the tools menu
+![Arduino board manager](install esp8266 board.png)
+1. Configure microcontroller in IDE 
+ * Adafruit Huzzah ESP8266 board
+ * 3MB SPIFFS
+ * serial port that's connected to the FTDI serial cable
+ * USBtinyISP as Programmer
+ * 115200bps 
+![board config](board config.png)
+1. use *Tools->Serial Monitor* to see the output of the ESP8266
+![serial monitor](serial monitor.png)
+1. place the ESP8266 in firmware programming mode by pressing the buttons in following sequence:
+ * press reset and stay on it
+ * press GPIO0 and you should see the red led go on
+ * release reset 
+ * release GPIO0 and make sure the red led is still on, as it's signaling that the ESP8266 expects a firmware download
+1. Menu *Sketch->Upload CTRL-U* will compile and upload the sketch (firmware) via the serial interface. 
+Read more here: [compile and upload firmware through serial](https://learn.adafruit.com/adafruit-huzzah-esp8266-breakout/using-arduino-ide)
+1. Upload the Website files to the SPIFFS filesystem. There are two variants to do this:
  * option 1: Upload the entire content set of the data folder through an Arduino IDE plug-in via the serial interface. 
- Note that the serial monitor must be closed when using the `ESP8266 Sketch Data Upload` function from the Adruino IDE tools menu. 
+ Note that the serial monitor must be closed when using the *ESP8266 Sketch Data Uploa* function from the Adruino IDE tools menu. 
  Also you do need an Arduino IDE plug-in from here: 
 [upload file system and web site](https://github.com/esp8266/Arduino/blob/master/doc/filesystem.md#uploading-files-to-file-system) (SPIFFS)
 
