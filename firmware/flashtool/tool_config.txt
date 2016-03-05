@@ -1,6 +1,6 @@
 path_data:
 empty:..\ufo.ino.bin;0x01000;
-empty:..\spiffs;0x100000;
+empty:..\ufo.spiffs.bin;0x100000;
 empty:;;
 empty:;;
 empty:;;
