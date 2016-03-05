@@ -42,7 +42,7 @@ Chop off one end of the USB cable and use the 5V line (red) and ground (black) w
 
 ##Prepare LED strips
 Cut the LED strip in pieces of 2 strips with 15 LEDs each and 2 strips with 2 LEDs each. Please make sure you cut exactly in the middle of the soldering tabs, because you will need to solder cables later there. Check out the cutting mark.
-![Cut the LED strip in pieces](cut a strip of 15 LEDs off an remove protectuve hull.jpg)
+![Cut the LED strip in pieces](cut a strip of 15 LEDs off and remove protective hull.jpg)
 ![15 LEDs per long strip](15 LEDs per strip.jpg)
 
 ##Solder short strips
@@ -80,11 +80,27 @@ Upload through serial (needed the first time; later firmware can be uploaded thr
 
 ###Build the firmware yourself
 1. Install Arduino IDE 1.6.7 and in preferences dialog this board manager URL: `http://arduino.esp8266.com/stable/package_esp8266com_index.json`
+![Arduino IDE preferences](arduino preferences.png) Make sure to restart the IDE afterwards.
+2. Install ESP8266 board using Arduino IDE Board Manager under the tools menu
+![Arduino board manager](install esp8266.png)
+3. Configure microcontroller in IDE 
+* Adafruit Huzzah ESP8266 board
+* 3MB SPIFFS
+* serial port that's connected to the FTDI serial cable
+* USBtinyISP as Programmer
+* 115200bps 
+Serial Monitor 
 2. [compile and upload firmware through serial](https://learn.adafruit.com/adafruit-huzzah-esp8266-breakout/using-arduino-ide)
 3. Upload the Website files to the SPIFFS filesystem. There are two variants to do this:
- * option 1: Upload the all files (*.html, *.css, font.*, ...) that are contained in the `data` folder through the Web UI using the firmware upload form. those files will be automatically put on the ESP8266 file system.
- * option 2: Upload the entire content set of the data folder through an Arduino IDE plug-in via the serial interface. See this description: 
+ * option 1: Upload the entire content set of the data folder through an Arduino IDE plug-in via the serial interface. 
+ Note that the serial monitor must be closed when using the `ESP8266 Sketch Data Upload` function from the Adruino IDE tools menu. 
+ Also you do need an Arduino IDE plug-in from here: 
 [upload file system and web site](https://github.com/esp8266/Arduino/blob/master/doc/filesystem.md#uploading-files-to-file-system) (SPIFFS)
+
+ * option 2 (requireds option 1 executed once to format the file system): 
+ (TODO: Format the ESP8266 filesystem using the WebUI or api call `/api?formatfilesystem=true`)
+ and upload the all files (*.html, *.css, font.*, ...) that are contained in the `data` folder through the Web UI using the firmware upload form. 
+ those files will be automatically put on the ESP8266 file system.
 
 ##Configure the UFO
 1. Once firmware is uploaded to the UFO, it starts an access point with SSID named "ufo". (if you cannot see the "ufo" SSID, click the WiFi reset button) - the UFO alternates a single blue ring
