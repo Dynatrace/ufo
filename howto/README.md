@@ -90,6 +90,8 @@ Upload through serial (needed the first time; later firmware can be uploaded thr
  * USBtinyISP as Programmer
  * 115200bps 
 ![board config](board config.png)
+1. Add *Adafruit NeoPixel* library, needed to control the LED strips
+![neopixel library](install neopixel library.png)
 1. use *Tools->Serial Monitor* to see the output of the ESP8266
 ![serial monitor](serial monitor.png)
 1. place the ESP8266 in firmware programming mode by pressing the buttons in following sequence:
