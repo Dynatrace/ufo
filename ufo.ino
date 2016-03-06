@@ -59,8 +59,6 @@ byte redcountUpperring = 5;
 byte redcountLowerring = 10;
 
 boolean logo = true;
-boolean logored = false;
-boolean logogreen = false;
 byte whirlr = 255;
 byte whirlg = 255;
 byte whirlb = 255;
@@ -204,18 +202,30 @@ void apiHandler() {
       Serial.println("lets turn logoed on");
       logo = true;
     } else if (httpServer.arg("logo").equals("red")) {
-      Serial.println("lets turn logo on");
-      logored = true;
+      neopixel_logo.setPixelColor(0, 255, 0, 0); 
+      neopixel_logo.setPixelColor(1, 255, 0, 0); 
+      neopixel_logo.setPixelColor(2, 255, 0, 0); 
+      neopixel_logo.setPixelColor(3, 255, 0, 0); 
     } else if (httpServer.arg("logo").equals("green")) {
-      Serial.println("lets turn logo on");
-      logogreen = true;
+      neopixel_logo.setPixelColor(0, 0, 255, 0); 
+      neopixel_logo.setPixelColor(1, 0, 255, 0); 
+      neopixel_logo.setPixelColor(2, 0, 255, 0); 
+      neopixel_logo.setPixelColor(3, 0, 255, 0); 
     } else {
       Serial.println("lets turn logoed off");
       logo = false;
-      logogreen = false;
-      logored = false;
     }
   }
+
+  // to quickly set the RGB colors of the logo remotely
+  if (httpServer.hasArg("logoled")) {
+    byte led = byte(httpServer.arg("logoled").toInt());    
+    byte r = byte(httpServer.arg("r").toInt());    
+    byte g = byte(httpServer.arg("g").toInt());    
+    byte b = byte(httpServer.arg("b").toInt());    
+    neopixel_logo.setPixelColor(led, r, g, b); 
+  }
+  
   if (httpServer.hasArg("whirl")) {
     Serial.println("WHIRL arg found" + httpServer.arg("whirl"));
     String ws = httpServer.arg("whirl");
@@ -484,8 +494,12 @@ void setup ( void ) {
 
   // setup neopixel
   neopixel_logo.begin();
-  neopixel_logo.clear();
+  neopixel_logo.setPixelColor(0, 0, 100, 255); // http://ufo/api?logoled=0&r=0&g=100&b=255
+  neopixel_logo.setPixelColor(1, 125, 255, 0); // http://ufo/api?logoled=1&r=125&g=255&b=0
+  neopixel_logo.setPixelColor(2, 0, 255, 0); // http://ufo/api?logoled=2&r=0&g=255&b=0
+  neopixel_logo.setPixelColor(3, 255, 0, 255); // http://ufo/api?logoled=3&r=255&g=0&b=255
   neopixel_logo.show();
+  
   neopixel_lowerring.begin();
   neopixel_lowerring.clear();
   neopixel_lowerring.show();
@@ -583,24 +597,6 @@ void loop ( void ) {
   httpServer.handleClient();
 
   yield();
-
-  // adjust logo colors
-  if (logored) {
-    neopixel_logo.setPixelColor(0, 255, 0, 0); 
-    neopixel_logo.setPixelColor(1, 255, 0, 0); 
-    neopixel_logo.setPixelColor(2, 255, 0, 0); 
-    neopixel_logo.setPixelColor(3, 255, 0, 0); 
-  } else if (logogreen) {
-    neopixel_logo.setPixelColor(0, 0, 255, 0); 
-    neopixel_logo.setPixelColor(1, 0, 255, 0); 
-    neopixel_logo.setPixelColor(2, 0, 255, 0); 
-    neopixel_logo.setPixelColor(3, 0, 255, 0); 
-  } else {
-    neopixel_logo.setPixelColor(0, 190, 223, 42); // north-lime BEDF2A
-    neopixel_logo.setPixelColor(1, 125, 197, 64); // east-green 7DC540
-    neopixel_logo.setPixelColor(2, 133, 68, 179); // south-purple 8544B3
-    neopixel_logo.setPixelColor(3, 0, 166, 251); // west-blue 00A6FB
-  }
 
   // adjust logo brightness (on/off right now)
   if (logo) {
