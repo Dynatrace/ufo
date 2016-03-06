@@ -83,7 +83,7 @@ Upload through serial (needed the first time; later firmware can be uploaded thr
  * release GPIO0 and make sure the red led is still on, as it's signaling that the ESP8266 expects a firmware download
 2. connect the ESP8266 to the FTDI cable and via USB to your computer
 3. run the `ESP_DOWNLOAD_TOOL_V2.4.exe` from the `firmware/flashtool` folder, configure the proper COM port thats assigned to the FTDI cable and program the ESP8266
-![flashtool](flashtool.png =100x)
+![flashtool](flashtool.png)
 
 ###Build the firmware yourself
 1. Install Arduino IDE 1.6.7 and in preferences dialog this board manager URL: `http://arduino.esp8266.com/stable/package_esp8266com_index.json`
