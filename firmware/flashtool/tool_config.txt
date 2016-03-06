@@ -1,6 +1,6 @@
 path_data:
-empty:..\ufo.ino.bin;0x01000;
-empty:..\ufo.spiffs.bin;0x100000;
+choosed:..\ufo.ino.bin;0x000000;
+choosed:..\ufo.spiffs.bin;0x100000;
 empty:;;
 empty:;;
 empty:;;
@@ -8,7 +8,7 @@ empty:;;
 empty:;;
 default_path:.;
 COM1:
-com_port1:2
+com_port1:4
 baudrate1:4
 COM2:
 com_port2:6
@@ -36,11 +36,11 @@ ID_BIND:
 id_bind_addr:0x
 
 CRYSTAL:1
-SPIAUTOSET:0
-SPICFGDIS:0
+SPIAUTOSET:1
+SPICFGDIS:1
 SPISPEED:0
 SPIMODE:0
-FLASHSIZE:0
+FLASHSIZE:4
 EFUSE_MODE:1
 TARGETPOWER1:20.500000
 TARGETPOWER2:19.500000

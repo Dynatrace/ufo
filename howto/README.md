@@ -76,13 +76,15 @@ FTDI cable
 Upload through serial (needed the first time; later firmware can be uploaded through the Web UI).
 
 ###Upload firmware available on github
+1. connect the ESP8266 to the FTDI cable and via USB to your computer
 1. place the ESP8266 in firmware programming mode by pressing the buttons in following sequence:
  * press reset and stay on it
  * press GPIO0 and you should see the red led go on
  * release reset 
  * release GPIO0 and make sure the red led is still on, as it's signaling that the ESP8266 expects a firmware download
-2. connect the ESP8266 to the FTDI cable and via USB to your computer
-3. run the `ESP_DOWNLOAD_TOOL_V2.4.exe` from the `firmware/flashtool` folder, configure the proper COM port thats assigned to the FTDI cable and program the ESP8266
+
+![esp8266 upload](esp8266 upload.jpg)
+1. run the `ESP_DOWNLOAD_TOOL_V2.4.exe` from the `firmware/flashtool` folder, configure the proper COM port thats assigned to the FTDI cable and program the ESP8266
 ![flashtool](flashtool.png)
 
 ###Build the firmware yourself
