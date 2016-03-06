@@ -72,8 +72,8 @@ The Huzzah ESP8266 microcontroller is mounted on top of the downlight inlay and 
 ![clip-in microcontroller](mounted microcontroller.jpg)
 
 ##Firmware
-FTDI cable
-Upload through serial (needed the first time; later firmware can be uploaded through the Web UI).
+The initial firmware needs to be programmed using the Serial-USB (FTDI) cable. 
+Once you have that completed, you can use the UFO web UI to upload the firmware. 
 
 ###Upload firmware available on github
 1. connect the ESP8266 to the FTDI cable and via USB to your computer
