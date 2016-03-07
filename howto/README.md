@@ -73,6 +73,7 @@ The Huzzah ESP8266 microcontroller is mounted on top of the downlight inlay and 
 
 ##Firmware
 The initial firmware needs to be programmed using the Serial-USB (FTDI) cable. 
+You might need to install a driver on your PC for that cable.
 Once you have that completed, you can use the UFO web UI to upload the firmware. 
 
 ###Upload firmware available on github
@@ -111,8 +112,8 @@ Once you have that completed, you can use the UFO web UI to upload the firmware.
 1. Menu *Sketch->Upload CTRL-U* will compile and upload the sketch (firmware) via the serial interface. 
 Read more here: [compile and upload firmware through serial](https://learn.adafruit.com/adafruit-huzzah-esp8266-breakout/using-arduino-ide)
 1. Upload the Website files to the SPIFFS filesystem. There are two variants to do this:
- * option 1: Upload the entire content set of the data folder through an Arduino IDE plug-in via the serial interface. 
- Note that the serial monitor must be closed when using the *ESP8266 Sketch Data Uploa* function from the Adruino IDE tools menu. 
+ * option 1: Put the ESP8266 into programming mode again and upload the entire content set of the data folder through an Arduino IDE plug-in via the serial interface. 
+ Note that the serial monitor must be closed when using the *ESP8266 Sketch Data Upload* function from the Adruino IDE tools menu. 
  Also you do need an Arduino IDE plug-in from here: 
 [upload file system and web site](https://github.com/esp8266/Arduino/blob/master/doc/filesystem.md#uploading-files-to-file-system) (SPIFFS)
 
