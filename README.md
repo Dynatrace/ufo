@@ -1,5 +1,6 @@
 # UFO
 ###Visual alert and status display for e.g. build, CI, continuous delivery, operations, and more 
+![printed ufo](printed ufo.jpg)
 
 * [__story__](story) The original UFO has been created by Helmut, Dynatrace Chief Software Architect. Read his story.  
 * [__howto__](howto) Step by step description on building your own UFO
