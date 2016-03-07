@@ -13,6 +13,6 @@
  
 
 ###Example use-case at Dynatrace Ruxit
-Cares about visualizing the actual continuous delivery pipeline, from developers commit to the build system, all the way to deployments into staging systems. The UFO visualizes two pipeline stages, and for each it uses different color/animation coding to represent state and severity.
+Cares about visualizing the actual continuous delivery pipeline, from developers commit to the build system, all the way to deployments into staging systems. The UFO visualizes two pipeline stages, and for each it uses different color/animation coding to represent state and severity. Of course you can assign your own meanings to the visualization and even customize the UFO and apis to your needs.
 ![ufo banner](Pipeline-State-Lamp-01.png)
 
