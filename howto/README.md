@@ -35,6 +35,8 @@ transparent filament
 transparent filament
 ![](print ledring.jpg)
 
+## How all fits together
+![](ufo explosion.png)
 
 ##Prepare USB cable
 Chop off one end of the USB cable and use the 5V line (red) and ground (black) wire for powering the LED strips as well as the Huzzah ESP8266 microcontroller. Make sure to isolate the other wires so to make sure we wont damage USB source or get in contact with the other electronics.
