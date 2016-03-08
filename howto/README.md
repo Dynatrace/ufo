@@ -136,8 +136,8 @@ Note: If you have troubles using the web UI for setting the wifi config, you mig
 ##Todo
 * implement the original UFO api calls also on ESP8266
 * publish the Dynatrace Application Monitoring and Ruxit API infos, DCRUM and Synthetic to follow
-* slight improvement on the base, to allow sliding the ring onto the base with LEDs already mounted
-* publish pre-compiled binaries and instructions to use the flashing tool
+* ~~slight improvement on the base, to allow sliding the ring onto the base with LEDs already mounted~~
+* ~~publish pre-compiled binaries and instructions to use the flashing tool~~ initial alpha versions are done, but watch out for updates.
 * update web UI to implement desired use-cases  
 
 
