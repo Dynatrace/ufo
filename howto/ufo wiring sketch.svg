@@ -84,10 +84,10 @@
  <text xmlns="http://www.w3.org/2000/svg" x="115.2" id="label" y="6.48" font-size="7.2" text-anchor="middle" xml:space="preserve" xmlns:xml="http://www.w3.org/XML/1998/namespace" stroke-width="0" fill="#787878" font-family="Droid Sans">2 strips 2 leds each - downlight</text>
 </g>
 </g></g><g partID='854221170'><g transform='translate(208.079,254.352)' ><g xmlns="http://www.w3.org/2000/svg" id="breadboard">
- <text xmlns="http://www.w3.org/2000/svg" x="93.6" font-size="7.2" y="6.48" id="label" text-anchor="middle" xml:space="preserve" xmlns:xml="http://www.w3.org/XML/1998/namespace" stroke-width="0" fill="#787878" font-family="Droid Sans">strip 30 leds - lower ring</text>
+ <text xmlns="http://www.w3.org/2000/svg" x="93.6" id="label" y="6.48" font-size="7.2" text-anchor="middle" xml:space="preserve" xmlns:xml="http://www.w3.org/XML/1998/namespace" stroke-width="0" fill="#787878" font-family="Droid Sans">strip 15 leds - lower ring</text>
 </g>
 </g></g><g partID='854221140'><g transform='translate(207.296,211.017)' ><g xmlns="http://www.w3.org/2000/svg" id="breadboard">
- <text xmlns="http://www.w3.org/2000/svg" x="93.6" font-size="7.2" y="6.48" id="label" text-anchor="middle" xml:space="preserve" xmlns:xml="http://www.w3.org/XML/1998/namespace" stroke-width="0" fill="#787878" font-family="Droid Sans">strip 30 leds - upper ring</text>
+ <text xmlns="http://www.w3.org/2000/svg" x="93.6" id="label" y="6.48" font-size="7.2" text-anchor="middle" xml:space="preserve" xmlns:xml="http://www.w3.org/XML/1998/namespace" stroke-width="0" fill="#787878" font-family="Droid Sans">strip 15 leds - upper ring</text>
 </g>
 </g></g><g partID='854179660'><g transform='translate(165.221,252.665)' ><g transform="matrix(1, 0, 0, 1, 0, -309.6)">
  <g  id="breadboard">
