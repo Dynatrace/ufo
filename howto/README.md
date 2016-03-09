@@ -50,9 +50,11 @@ Cut the LED strip into 2 strips of 15 LEDs each and 2 strips of 2 LEDs each. Be 
 ##Solder short strips
 Solder the short strips in a series accordingly to the data-flow direction. There are arrows on the strip that show you the direction. Data for controlling the bus of LEDs flows from the microcontroller outbound in direction of arrow.
 ![Short LED strips soldered in series](arrows show how to place strip in series.jpg)
-!(2x2 LEDs in series on logo.jpg)
+![](2x2 LEDs in series on logo.jpg)
 
 ##Wiring
+![Wiring](ufo wiring sketch.png)
+
 USB cables 5V power goes to "VBat" and the black ground cable goes to "GND"
 ![soldering power to huzzah](soldering huzzah.jpg)
 
