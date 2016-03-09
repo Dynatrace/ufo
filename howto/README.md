@@ -90,6 +90,7 @@ Once you have that completed, you can use the UFO web UI to upload the firmware.
 
 ![esp8266 upload](esp8266 upload.jpg)
 1. Run the `ESP_DOWNLOAD_TOOL_V2.4.exe` from the `firmware/flashtool` folder, configure the proper COM port that's assigned to the FTDI cable and program the ESP8266.
+
 ![flashtool](flashtool.png)
 
 ###Build the firmware yourself
