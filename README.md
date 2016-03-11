@@ -2,6 +2,15 @@
 ###Visual alert/status display for builds, CI, continuous delivery, operations, and more 
 ![printed ufo](printed ufo.jpg)
 
+* Easy to print, build and 
+* Fosters collaboration when placing in areas like office cafeteria, ...
+* Open source hard- and software
+* WiFi
+* REST api, control 34 RGB LEDs
+* Integrates with CI/CD/Monitoring (e.g. Jenkins, Nagios, Cloud-Watch, Dynatrace, ...)
+* Easy to modify, Arduino compatible ESP8266 microcontroller
+
+
 * [__Story__](story) The original UFO was created by Helmut, Dynatrace Chief Software Architect. Read his story.  
 * [__How to__](howto) Step-by-step instructions for building your own UFO
 * [__Parts list__](partlist/readme.md#ufo-partlist)
