@@ -7,8 +7,8 @@
 * Open source hard- and software
 * WiFi
 * REST api, control 34 RGB LEDs
-* Integrates with CI/CD/Monitoring (e.g. Jenkins, Nagios, Cloud-Watch, Dynatrace, ...)
-* Easy to modify, Arduino compatible ESP8266 microcontroller
+* Integrates with CI/CD/Monitoring (e.g. Jenkins, Nagios, Cloud-Watch, Dynatrace, ...) 
+* Easy to modify, Arduino compatible ESP8266 microcontroller 
 ***
 
 * [__Story__](story) The original UFO was created by Helmut, Dynatrace Chief Software Architect. Read his story.  
