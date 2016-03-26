@@ -20,7 +20,7 @@
   *     5) smartconfig https://tzapu.com/esp8266-smart-config-esp-touch-arduino-ide/
   *     6) see also https://github.com/tzapu/WiFiManager/blob/master/WiFiManager.cpp how others deal with Wifi config
   *     7) switch to fastlib for neopixels?
-  */
+  */ 
 
 boolean debug = true;
 //#define DEBUG_ESP_HTTP_SERVER true
@@ -267,6 +267,46 @@ void apiHandler() {
   httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
 }
 
+// Dynatrace Ruxit integration:
+// setup a custom Problem Notification Web Hook and provide following JSON elements
+// {"ProblemState":"{State}","ProblemImpact":"{ProblemImpact}"} 
+void ruxitPostHandler() {
+
+//############################################################### TODO  
+}
+
+//############################################################### TODO
+void ruxitPostUploadHandler() {
+  // handler for the file upload, get's the sketch bytes, and writes
+  // them through the Update object
+  HTTPUpload& upload = httpServer.upload();
+  if(upload.status == UPLOAD_FILE_START){
+    if (debug) Serial.println("uploading to SPIFFS: /" + filename);
+    uploadFile = SPIFFS.open("/" + filename, "w");
+  } else if(upload.status == UPLOAD_FILE_WRITE){
+    if (debug) Serial.print(".");
+    if(uploadFile.write(upload.buf, upload.currentSize) != upload.currentSize){
+      if (debug) Serial.println("ERROR writing file " + String(uploadFile.name()) + "to SPIFFS.");
+      uploadFile.close();
+    }
+  } else if(upload.status == UPLOAD_FILE_END){
+    uploadSize = upload.totalSize;
+    if(uploadFile.size() == upload.totalSize){ 
+      if (debug) Serial.println("Upload to SPIFFS Succeeded - uploaded: " + String(upload.totalSize) + ".... rebooting now!");
+    } else {
+      if (debug) Serial.println("Upload to SPIFFS FAILED: " + String(uploadFile.size()) + " bytes of " + String(upload.totalSize));
+    }
+    uploadFile.close();
+  } else if(upload.status == UPLOAD_FILE_ABORTED){
+    uploadSize = upload.totalSize;
+    uploadFile.close();
+    if (debug) Serial.println("Upload to SPIFFS was aborted");
+  }
+  
+  yield();
+}
+
+
 void generateHandler() {
   if (httpServer.hasArg("size")) {
     Serial.println("size arg found" + httpServer.arg("size"));
@@ -330,7 +370,6 @@ String parseFileName(String &path) {
   filename.toLowerCase();
   return filename;
 }
-
 
 File uploadFile;
 void updatePostUploadHandler() {
@@ -529,6 +568,7 @@ void setup ( void ) {
   // setup all web server routes; make sure to use / last
   #define STATICFILES_CACHECONTROL "private, max-age=0, no-cache, no-store"
   httpServer.on ( "/api", apiHandler );
+  httpServer.on ( "/ruxit", HTTP_POST, ruxitPostHandler, ruxitPostUploadHandler); // webhook URL for Dynatrace Ruxit problem notifications
   httpServer.on ( "/info", infoHandler );
   httpServer.on ( "/gen", generateHandler );
   //httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
