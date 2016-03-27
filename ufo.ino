@@ -1,6 +1,6 @@
 /*
- * Requires Arduino IDE 1.6.7 or later for running OTA updates. 
- * OTA update requires Python 2.7, OTA IDE plugin, ...  http://esp8266.github.io/Arduino/versions/2.1.0-rc2/doc/ota_updates/ota_updates.html#arduino-ide
+ * Requires Arduino IDE 1.6.7 or later 
+ * ESP8266 Arduino library v2.1.0 or later
  * Adafruit Huzzah ESP8266-E12, 4MB flash, uploads with 3MB SPIFFS (3MB filesystem of total 4MB) -- note that SPIFFS upload packages up everything from the "data" folder and uploads it via serial (same procedure as uploading sketch) or OTA. however, OTA is disabled by default
  * Use Termite serial terminal software for debugging
  */
@@ -31,8 +31,10 @@ boolean debug = true;
 //#include <ESP8266mDNS.h>
 //#include <WiFiUdp.h>
 //#include <ArduinoOTA.h>
+#include <ESP8266SSDP.h>
 #include <Wire.h>
 #include <FS.h>
+#include <EEPROM.h>
 #include <Adafruit_NeoPixel.h>
 #include <math.h>
 #include <StreamString.h>
@@ -72,6 +74,28 @@ boolean wifiStationOK = false;
 boolean wifiAPisConnected = false;
 boolean wifiConfigMode;
 long uploadSize = 0;
+
+
+void startSSDP() {
+  // windows plug-and-play discovery should make it easier to find the UFO once its hooked-up on WIFI
+  SSDP.setSchemaURL("description.xml");
+  SSDP.setHTTPPort(80);
+  SSDP.setName("Dynatrace UFO");
+  SSDP.setSerialNumber(String(ESP.getChipId()));
+  SSDP.setURL("index.html"); // ****************** CAN CHANGE TO "/"????? would eliminate the need of index.html
+  SSDP.setModelName("UFO");
+  SSDP.setModelNumber(FIRMWARE_VERSION);
+  SSDP.setModelURL("http://dynatrace.github.io/ufo/");
+  SSDP.setManufacturer("Dynatrace LLC open-source project");
+  SSDP.setManufacturerURL("http://dynatrace.github.io/ufo/");
+  SSDP.begin();
+}
+// TODO read/write additional settings from/to eeprom
+boolean readEEPROMconfig() {
+  EEPROM.begin(1024); // Note: we can go up to 4kB. however, a smaller value reduces RAM consumption
+  Serial.print("Reading EEPROM address(0): ");
+  Serial.println(EEPROM.read(0));
+}
 
 //format bytes
 String formatBytes(size_t bytes){
@@ -451,6 +475,7 @@ void WiFiEvent(WiFiEvent_t event) {
         case WIFI_EVENT_STAMODE_GOT_IP:
             Serial.println("WiFi connected. IP address: " + String(WiFi.localIP().toString()) + " hostname: "+ WiFi.hostname() + "  SSID: " + WiFi.SSID());
             wifiStationOK = true;
+            startSSDP();
             break;
         case WIFI_EVENT_STAMODE_DISCONNECTED:
             Serial.println("WiFi client lost connection");
@@ -565,6 +590,12 @@ void setup ( void ) {
     //WiFi.printDiag(Serial);
   }
 
+
+  httpServer.on("/description.xml", HTTP_GET, [](){
+    SSDP.schema(httpServer.client());
+  });
+  
+
   // setup all web server routes; make sure to use / last
   #define STATICFILES_CACHECONTROL "private, max-age=0, no-cache, no-store"
   httpServer.on ( "/api", apiHandler );
@@ -587,8 +618,10 @@ void setup ( void ) {
   httpServer.serveStatic("/font.ttf", SPIFFS, "/font.ttf");
   if (wifiConfigMode) { 
       httpServer.serveStatic("/", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
+      httpServer.serveStatic("/index.html", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
   } else {
       httpServer.serveStatic("/", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
+      httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
   }
   //httpServer.on ( "/", HTTP_GET, handleRoot );
   httpServer.onNotFound ( handleNotFound );
