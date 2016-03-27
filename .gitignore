@@ -1,0 +1,3 @@
+*.bin_rep
+firmware/flashtool/bin_tmp/downloadPanel1/ufo.spiffs.bin
+firmware/flashtool/MAC_ADDR/MAC_TABLE.CSV
