@@ -23,19 +23,21 @@
   */ 
 
 boolean debug = true;
-//#define DEBUG_ESP_HTTP_SERVER true
+#define DEBUG_ESP_HTTP_SERVER true
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266HTTPClient.h>
 //#include <ESP8266mDNS.h>
 //#include <WiFiUdp.h>
 //#include <ArduinoOTA.h>
 #include <ESP8266SSDP.h>
 #include <Wire.h>
 #include <FS.h>
-#include <EEPROM.h>
+//#include <EEPROM.h>
 #include <Adafruit_NeoPixel.h>
+#include <ArduinoJson.h>
 #include <math.h>
 #include <StreamString.h>
 
@@ -74,6 +76,8 @@ boolean wifiStationOK = false;
 boolean wifiAPisConnected = false;
 boolean wifiConfigMode;
 long uploadSize = 0;
+boolean isPollRuxit = false;
+
 
 
 void startSSDP() {
@@ -90,12 +94,15 @@ void startSSDP() {
   SSDP.setManufacturerURL("http://dynatrace.github.io/ufo/");
   SSDP.begin();
 }
+
+/*
 // TODO read/write additional settings from/to eeprom
 boolean readEEPROMconfig() {
   EEPROM.begin(1024); // Note: we can go up to 4kB. however, a smaller value reduces RAM consumption
   Serial.print("Reading EEPROM address(0): ");
   Serial.println(EEPROM.read(0));
 }
+*/
 
 //format bytes
 String formatBytes(size_t bytes){
@@ -294,42 +301,76 @@ void apiHandler() {
 // Dynatrace Ruxit integration:
 // setup a custom Problem Notification Web Hook and provide following JSON elements
 // {"ProblemState":"{State}","ProblemImpact":"{ProblemImpact}"} 
+// Example post data sent using Windows PowerShell
+// Invoke-RestMethod -Method Post -Uri "http://ufo/ruxit" -Body ('{"ProblemState":"{State}","ProblemImpact":"{ProblemImpact}"}') -ContentType ("application/json")
 void ruxitPostHandler() {
+  if (httpServer.hasArg("plain")) { // POST data is stored in the "plain" argument
+    StaticJsonBuffer<512> jsonBuffer;
+    if (debug) Serial.println("Ruxit JSON POST data: " + httpServer.arg("plain"));
+    JsonObject& jsonObject = jsonBuffer.parseObject(httpServer.arg("plain"));
 
-//############################################################### TODO  
-}
-
-//############################################################### TODO
-void ruxitPostUploadHandler() {
-  // handler for the file upload, get's the sketch bytes, and writes
-  // them through the Update object
-  HTTPUpload& upload = httpServer.upload();
-  if(upload.status == UPLOAD_FILE_START){
-    if (debug) Serial.println("uploading to SPIFFS: /" + filename);
-    uploadFile = SPIFFS.open("/" + filename, "w");
-  } else if(upload.status == UPLOAD_FILE_WRITE){
-    if (debug) Serial.print(".");
-    if(uploadFile.write(upload.buf, upload.currentSize) != upload.currentSize){
-      if (debug) Serial.println("ERROR writing file " + String(uploadFile.name()) + "to SPIFFS.");
-      uploadFile.close();
-    }
-  } else if(upload.status == UPLOAD_FILE_END){
-    uploadSize = upload.totalSize;
-    if(uploadFile.size() == upload.totalSize){ 
-      if (debug) Serial.println("Upload to SPIFFS Succeeded - uploaded: " + String(upload.totalSize) + ".... rebooting now!");
-    } else {
-      if (debug) Serial.println("Upload to SPIFFS FAILED: " + String(uploadFile.size()) + " bytes of " + String(upload.totalSize));
-    }
-    uploadFile.close();
-  } else if(upload.status == UPLOAD_FILE_ABORTED){
-    uploadSize = upload.totalSize;
-    uploadFile.close();
-    if (debug) Serial.println("Upload to SPIFFS was aborted");
+    // TODO HANDLE RUXIT PROBLEM DATA ################################################################################################
+    
+  } else {
+    if (debug) Serial.println("Ruxit JSON POST data MISSING!");
   }
-  
-  yield();
+
+  httpServer.send(200);
+  httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
 }
 
+void pollRuxit() {
+
+  if (wifiStationOK) {
+    if (debug) Serial.println("Poll Ruxit now");
+    if (debug) Serial.flush();
+  } else {
+    if (debug) Serial.println("Poll Ruxit now - DEFERRED - WIFI NOT YET AVAILABLE");
+    return;
+  }
+
+  HTTPClient http;
+
+  // configure traged server and url
+  //http.begin("https://192.168.1.12/test.html", "7a 9c f4 db 40 d3 62 5a 6e 21 bc 5c cc 66 c8 3e a1 45 59 38"); //HTTPS
+  http.begin("https://ulmfcldvho.live.ruxit.com/api/v1/problem/status?Api-Token=W89kT1trQduXlyxXKQIgI", "7a 9c f4 db 40 d3 62 5a 6e 21 bc 5c cc 66 c8 3e a1 45 59 38"); //HTTPS
+  int httpCode = http.GET();
+  if(httpCode == HTTP_CODE_OK) {
+      /*String json = http.getString();
+      if (debug) Serial.println("Ruxit Problem API call: " + json);
+      StaticJsonBuffer<512> jsonBuffer;
+      JsonObject& jsonObject = jsonBuffer.parseObject(json);
+      long applicationProblems = jsonObject["result"]["openProblemCounts"]["APPLICATION"];
+      if (debug) Serial.println("Ruxit Problem API call - Application problems: " + String(applicationProblems));
+      if (applicationProblems) {
+        redcountUpperring = 14;
+        redcountLowerring = 14;
+      } else {
+        redcountUpperring = 1;
+        redcountLowerring = 1;
+      }*/
+  } else {
+      //if (debug) Serial.println("Ruxit Problem API call FAILED (error code " + String(httpCode) + "): "  + http.getString());
+      if (debug) Serial.println("Ruxit Problem API call FAILED (error code " + String(httpCode) + "): ");
+      redcountUpperring = 7;
+      redcountLowerring = 8;
+  }
+  http.end();
+  
+  
+  /* {
+  result: {
+    totalOpenProblemsCount: 4,
+    openProblemCounts: {
+      APPLICATION: 1,
+      INFRASTRUCTURE: 3,
+      SERVICE: 0
+    }
+  }
+  } */
+  
+}
+      
 
 void generateHandler() {
   if (httpServer.hasArg("size")) {
@@ -599,7 +640,7 @@ void setup ( void ) {
   // setup all web server routes; make sure to use / last
   #define STATICFILES_CACHECONTROL "private, max-age=0, no-cache, no-store"
   httpServer.on ( "/api", apiHandler );
-  httpServer.on ( "/ruxit", HTTP_POST, ruxitPostHandler, ruxitPostUploadHandler); // webhook URL for Dynatrace Ruxit problem notifications
+  httpServer.on ( "/ruxit", HTTP_POST, ruxitPostHandler); // webhook URL for Dynatrace Ruxit problem notifications
   httpServer.on ( "/info", infoHandler );
   httpServer.on ( "/gen", generateHandler );
   //httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
@@ -660,6 +701,7 @@ void neopixelWhirlRed(Adafruit_NeoPixel &neopixel, byte redcount, byte whirlpos)
 unsigned int tick = 0;
 byte whirlpos = 0;
 byte wheelcolor = 0;
+unsigned long trigger = 0;
 
 void loop ( void ) {
   tick++;
@@ -669,6 +711,15 @@ void loop ( void ) {
   handleSmartConfig();
   httpServer.handleClient();
 
+  // poll the problem status from Ruxit
+  if (isPollRuxit) {
+    unsigned long m = millis();
+    if (trigger < m) {
+      pollRuxit(); // poll every minute
+      trigger = m + 60000;
+    }
+  }
+  
   yield();
 
   // adjust logo brightness (on/off right now)
