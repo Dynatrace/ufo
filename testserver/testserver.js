@@ -42,7 +42,7 @@ http.createServer(function (request, response) {
 		response.setHeader('cache-control', 'private, max-age=0, no-cache, no-store')
 		response.write('{ "ssid": "nodejs-ssid", "ipaddress": "10.10.10.10", "heap": "' 
              + randomInt(2000, 50000) + '", "macaddress": "AB:CD:EF:00:11:22", "firmwareversion": "' 
-             + Date() + '"}');
+             + Date() + '", "hostname": "ufo"}');
 		response.end();
 	} else if(parsedUrl.pathname === "/update") {
 		if (request.method === "GET") {

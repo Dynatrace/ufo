@@ -23,7 +23,7 @@
                     <li>Option 1: Open Windows file explorer and click on "Network" to
                         display all devices that are discovered through SSDP.
                     </li>
-                    <li>Option 2: by default the UFO registers with hostname <b id="hostname">---</b> at you access point. so try http://ufo (or http://ufo.local).
+                    <li>Option 2: by default the UFO registers with hostname <b id="hostname">---</b> at you access point. so try <span id="ufourl">http://hostname</span>: TODO: add auto-redirect to URL.
                     </li>
                     <li>Option 3: Remember your MAC address <b><span id="macaddress">---</span></b>
                     as you may want to lookup the IP address in your Wifi Accesspoint.</li>
@@ -96,7 +96,9 @@
 							//document.getElementById('infoipdns').innerHTML = result.ipdns;
 							//document.getElementById('infoipsubnetmask').innerHTML = result.ipsubnetmask;
 							document.getElementById('macaddress').innerHTML = result.macaddress;
-							//document.getElementById('hostname').innerHTML = result.hostname;
+							document.getElementById('hostname').innerHTML = result.hostname;
+							document.getElementById('ufourl').href = "http://"+result.hostname;
+							//document.getElementById('ufourl').innerHTML = "http://"+result.hostname;
 							//document.getElementById('infoapipaddress').innerHTML = result.apipaddress;
 							//document.getElementById('infoapconnectedstations').innerHTML = result.apconnectedstations;
 							//document.getElementById('infowifiautoconnect').innerHTML = result.wifiautoconnect;
