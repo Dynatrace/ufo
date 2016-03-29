@@ -5,6 +5,9 @@
  * Use Termite serial terminal software for debugging
  */
 
+
+//******************** DOTSTAR TEST VERSION
+
  /* NOTE  
   *  ESP8266 stores last set SSID and PWD in reserved flash area 
   *  connect to SSID huzzah, and call http://192.168.4.1/api?ssid=<ssid>&pwd=<password> to set new SSID/PASSWORD 
