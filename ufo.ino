@@ -39,7 +39,9 @@ boolean debug = true;
 #include <Wire.h>
 #include <FS.h>
 //#include <EEPROM.h>
-#include <Adafruit_NeoPixel.h>
+//#include <Adafruit_NeoPixel.h>
+#include <Adafruit_DotStar.h>
+
 #include <ArduinoJson.h>
 #include <math.h>
 #include <StreamString.h>
@@ -58,10 +60,11 @@ boolean debug = true;
 #define PIN_FACTORYRESET 15
 
 
+/*
 Adafruit_NeoPixel neopixel_logo = Adafruit_NeoPixel(4, PIN_NEOPIXEL_LOGO, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel neopixel_lowerring = Adafruit_NeoPixel(15, PIN_NEOPIXEL_LOWERRING, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel neopixel_upperring = Adafruit_NeoPixel(15, PIN_NEOPIXEL_UPPERRING, NEO_GRB + NEO_KHZ800);
-
+*/
 byte redcountUpperring = 5;
 byte redcountLowerring = 10;
 
@@ -236,7 +239,7 @@ void apiHandler() {
       Serial.println("lets turn logoed on");
       logo = true;
     } else if (httpServer.arg("logo").equals("red")) {
-      neopixel_logo.setPixelColor(0, 255, 0, 0); 
+ /*     neopixel_logo.setPixelColor(0, 255, 0, 0); 
       neopixel_logo.setPixelColor(1, 255, 0, 0); 
       neopixel_logo.setPixelColor(2, 255, 0, 0); 
       neopixel_logo.setPixelColor(3, 255, 0, 0); 
@@ -244,7 +247,7 @@ void apiHandler() {
       neopixel_logo.setPixelColor(0, 0, 255, 0); 
       neopixel_logo.setPixelColor(1, 0, 255, 0); 
       neopixel_logo.setPixelColor(2, 0, 255, 0); 
-      neopixel_logo.setPixelColor(3, 0, 255, 0); 
+      neopixel_logo.setPixelColor(3, 0, 255, 0); */
     } else {
       Serial.println("lets turn logoed off");
       logo = false;
@@ -257,7 +260,7 @@ void apiHandler() {
     byte r = byte(httpServer.arg("r").toInt());    
     byte g = byte(httpServer.arg("g").toInt());    
     byte b = byte(httpServer.arg("b").toInt());    
-    neopixel_logo.setPixelColor(led, r, g, b); 
+/*    neopixel_logo.setPixelColor(led, r, g, b);  */
   }
   
   if (httpServer.hasArg("whirl")) {
@@ -600,6 +603,7 @@ void setup ( void ) {
 
   pinMode(PIN_FACTORYRESET, INPUT); //, INPUT_PULLUP); use INPUT_PULLUP in case we put reset to ground; currently reset is doing a 3V signal
 
+/*
   // setup neopixel
   neopixel_logo.begin();
   neopixel_logo.setPixelColor(0, 0, 100, 255); // http://ufo/api?logoled=0&r=0&g=100&b=255
@@ -614,6 +618,7 @@ void setup ( void ) {
   neopixel_upperring.begin();
   neopixel_upperring.clear();
   neopixel_upperring.show();
+*/
 
   // initialize ESP8266 file system
   SPIFFS.begin();
@@ -660,6 +665,7 @@ void setup ( void ) {
   httpServer.serveStatic("/font.eot", SPIFFS, "/font.eot");
   httpServer.serveStatic("/font.svg", SPIFFS, "/font.svg");
   httpServer.serveStatic("/font.ttf", SPIFFS, "/font.ttf");
+
   if (wifiConfigMode) { 
       httpServer.serveStatic("/", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
       httpServer.serveStatic("/index.html", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
@@ -682,6 +688,7 @@ void setup ( void ) {
   httpServer.begin();
 }
 
+/*
 void neopixelSetColor(Adafruit_NeoPixel &neopixel, byte r, byte g, byte b ) {
   for (unsigned short i = 0; i < neopixel.numPixels(); i++) {
     neopixel.setPixelColor(i, r, g, b);
@@ -699,7 +706,7 @@ void neopixelWhirlRed(Adafruit_NeoPixel &neopixel, byte redcount, byte whirlpos)
        neopixel.setPixelColor((p % neopixel.numPixels()), 0, 255, 0);
      }
   }
-}
+}*/
 
 unsigned int tick = 0;
 byte whirlpos = 0;
@@ -723,7 +730,7 @@ void loop ( void ) {
     }
   }
   
-  yield();
+  /*yield();
 
   // adjust logo brightness (on/off right now)
   if (logo) {
@@ -740,9 +747,9 @@ void loop ( void ) {
   if (tick % 50 == 0) {
      if (whirl) whirlpos++;
   }
-  yield();
+  yield();*/
 
-/*
+/************
   if (whirl) {
     byte p;
     byte r;
@@ -772,8 +779,8 @@ void loop ( void ) {
   } else {
       neopixelSetcolor(neopixel_upperring, 0, 0, 0);
       neopixelSetcolor(neopixel_lowerring, 0, 0, 0);
-  }*/
-
+  }**********************/
+/*
   // show AP mode in blue to tell user to configure WIFI; especially after RESET
   // blinking alternatively in blue when no client is connected to AP; 
   // binking both rings in blue when at least one client is connected to AP
@@ -800,7 +807,7 @@ void loop ( void ) {
   
   yield();
   neopixel_upperring.show();
-  neopixel_lowerring.show();
+  neopixel_lowerring.show();*/
 }
 
 
