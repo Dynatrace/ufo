@@ -20,7 +20,7 @@
 ##Electronics partlist
 * 1x [Adafruit Huzzah ESP8266 breakoutboard](https://www.adafruit.com/products/2471) 
 ![Adafruit Huzzah breakout board](adafruit huzzah esp8266.jpg)
-* 2x meters [Adafruit Neopixel RGB LED Strip 800MHz, 30 LED per meter] (https://www.adafruit.com/product/1460)
+* 2x meters [Adafruit DotStar Digital LED Strip, 30 LED per meter] (https://www.adafruit.com/products/2237)
 ![LED strips 800MHz](rgb led strip 1460.jpg)
 * 1x [mini-push-button-switch 6x6mm] (https://www.sparkfun.com/products/97)   
  ![mini pushbutton switch](mini pushbutton switch 6x6mm.jpg)
