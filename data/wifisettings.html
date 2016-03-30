@@ -16,20 +16,48 @@
                 </div>
             </header>
 			<div class="content">
-				<input type="text" placeholder="SSID" id="ssid">
-				<input type="password" placeholder="***" id="wifipwd">
-				<button id="submitwifisettings" class="btn fit-parent primary">Apply WIFI setting</button>
+                <div class="padded-full">
+                <ul style="color:dimgrey">
+                    <b>Welcome to the Dynatrace UFO</b><br>Firmware version: <span id="firmwareversion">---</span><p><br>
+                    <span style="color:dimgrey">Please configure the Wifi settings of your UFO first. In order to access the UFO AFTER submitting the Wifi settings, you may do the following:<span>
+                    <li>Option 1: Open Windows file explorer and click on "Network" to
+                        display all devices that are discovered through SSDP.
+                    </li>
+                    <li>Option 2: by default the UFO registers with hostname <b id="hostname">---</b> at you access point. so try <span id="ufourl">http://hostname</span>: TODO: add auto-redirect to URL.
+                    </li>
+                    <li>Option 3: Remember your MAC address <b><span id="macaddress">---</span></b>
+                    as you may want to lookup the IP address in your Wifi Accesspoint.</li>
+                </ul>
+                <div>
+                <div class="padded-full">
+                    <input type="text" placeholder="SSID" id="ssid">
+                    <input type="password" placeholder="************" id="wifipwd">
+                </div>
+                <div class="padded-full">
+                    <button id="submitwifisettings" class="btn fit-parent primary">Apply WIFI setting</button>
+                </div>
 			</div>
         </wifi>
         <!-- scripts -->
         <script src="phonon-core.min.js"></script>
         <!-- <script src="app.js"></script> -->
 		<script>
+            
+            
+           phonon.options({
+			   	  navigator: {
+					defaultPage: 'wifi',
+					animatePages: true,
+					enableBrowserBackButton: true
+					//templateRootDirectory: ''
+				},
+				i18n: null // for this example, we do not use internationalization
+			});
+            //console.log("wifisettings script started...");
 			var app = phonon.navigator();
 			app.on({page: 'wifi', preventClose: false, content: null} , function(activity) {
 
 				var onWifiSettingsSubmit = function(evt) {
-					//var target = evt.target;
 					var req = phonon.ajax({
 						method: 'GET',
 						url: 'api?ssid=' + document.querySelector('#ssid').value + '&pwd=' + document.querySelector('#wifipwd').value,
@@ -49,6 +77,42 @@
 					document.querySelector('#submitwifisettings').on('tap', onWifiSettingsSubmit);
 				})
 			});
+            
+            document.on('pageopened', function(evt) {
+				console.log(evt.detail.page + ' is opened');
+				if (evt.detail.page == "wifi") {
+					
+					var req = phonon.ajax({
+						method: 'GET',
+						url: 'info',
+						dataType: 'text/json',
+						success: function(res, xhr) {
+							console.log(xhr.response);
+                            var result = JSON.parse(xhr.response);
+                            document.getElementById('ssid').value = result.ssid;
+         					//document.getElementById('infoipaddress').innerHTML = result.ipaddress;
+							//document.getElementById('infoheap').innerHTML = result.heap;
+							//document.getElementById('infoipgateway').innerHTML = result.ipgateway;
+							//document.getElementById('infoipdns').innerHTML = result.ipdns;
+							//document.getElementById('infoipsubnetmask').innerHTML = result.ipsubnetmask;
+							document.getElementById('macaddress').innerHTML = result.macaddress;
+							document.getElementById('hostname').innerHTML = result.hostname;
+							document.getElementById('ufourl').href = "http://"+result.hostname;
+							//document.getElementById('ufourl').innerHTML = "http://"+result.hostname;
+							//document.getElementById('infoapipaddress').innerHTML = result.apipaddress;
+							//document.getElementById('infoapconnectedstations').innerHTML = result.apconnectedstations;
+							//document.getElementById('infowifiautoconnect').innerHTML = result.wifiautoconnect;
+							document.getElementById('firmwareversion').innerHTML = result.firmwareversion;
+						},
+						error: function(res, flagError, xhr) {
+							console.error(flagError);
+							console.log(res);
+						}
+					}); 
+				}
+			});
+
+
 
 			app.start();
 					

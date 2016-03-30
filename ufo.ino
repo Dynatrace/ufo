@@ -5,6 +5,9 @@
  * Use Termite serial terminal software for debugging
  */
 
+
+//******************** DOTSTAR TEST VERSION
+
  /* NOTE  
   *  ESP8266 stores last set SSID and PWD in reserved flash area 
   *  connect to SSID huzzah, and call http://192.168.4.1/api?ssid=<ssid>&pwd=<password> to set new SSID/PASSWORD 
@@ -13,13 +16,11 @@
   *        
   * TODO       
   *     Web contents should provide   
-  *     1) get quickly started by configuring WIFI
+  *     1) DONE: get quickly started by configuring WIFI
   *     2) activate some demo scenarios (showcase fancy illumination patterns)
   *     3) providing help about available API calls
-  *     4) firmware updates (load from github or upload to device? or both?)
+  *     4) DONE: web based firmware upload; firmware updates (load from github or upload to device? or both?)
   *     5) smartconfig https://tzapu.com/esp8266-smart-config-esp-touch-arduino-ide/
-  *     6) see also https://github.com/tzapu/WiFiManager/blob/master/WiFiManager.cpp how others deal with Wifi config
-  *     7) switch to fastlib for neopixels?
   */ 
 
 boolean debug = true;
@@ -36,7 +37,9 @@ boolean debug = true;
 #include <Wire.h>
 #include <FS.h>
 //#include <EEPROM.h>
-#include <Adafruit_NeoPixel.h>
+//#include <Adafruit_NeoPixel.h>
+#include <Adafruit_DotStar.h>
+
 #include <ArduinoJson.h>
 #include <math.h>
 #include <StreamString.h>
@@ -49,16 +52,16 @@ boolean debug = true;
 #define DEFAULT_PWD "ufo"
 
 // ESP8266 Huzzah Pin usage
-#define PIN_NEOPIXEL_LOGO 2
-#define PIN_NEOPIXEL_LOWERRING 4
-#define PIN_NEOPIXEL_UPPERRING 5
+#define PIN_DOTSTAR_LOGO 2
+#define PIN_DOTSTAR_LOWERRING 4
+#define PIN_DOTSTAR_UPPERRING 5
+#define PIN_DOTSTAR_CLOCK 14
 #define PIN_FACTORYRESET 15
 
-
-Adafruit_NeoPixel neopixel_logo = Adafruit_NeoPixel(4, PIN_NEOPIXEL_LOGO, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel neopixel_lowerring = Adafruit_NeoPixel(15, PIN_NEOPIXEL_LOWERRING, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel neopixel_upperring = Adafruit_NeoPixel(15, PIN_NEOPIXEL_UPPERRING, NEO_GRB + NEO_KHZ800);
-
+Adafruit_DotStar ledstrip_logo = Adafruit_DotStar(4, PIN_DOTSTAR_LOGO, PIN_DOTSTAR_CLOCK, DOTSTAR_BRG);
+Adafruit_DotStar ledstrip_lowerring = Adafruit_DotStar(15, PIN_DOTSTAR_LOWERRING, PIN_DOTSTAR_CLOCK, DOTSTAR_BRG);
+Adafruit_DotStar ledstrip_upperring = Adafruit_DotStar(15, PIN_DOTSTAR_UPPERRING, PIN_DOTSTAR_CLOCK, DOTSTAR_BRG);
+  
 byte redcountUpperring = 5;
 byte redcountLowerring = 10;
 
@@ -76,7 +79,7 @@ boolean wifiStationOK = false;
 boolean wifiAPisConnected = false;
 boolean wifiConfigMode;
 long uploadSize = 0;
-boolean isPollRuxit = false;
+boolean isPollRuxit = true;
 
 
 
@@ -233,15 +236,15 @@ void apiHandler() {
       Serial.println("lets turn logoed on");
       logo = true;
     } else if (httpServer.arg("logo").equals("red")) {
-      neopixel_logo.setPixelColor(0, 255, 0, 0); 
-      neopixel_logo.setPixelColor(1, 255, 0, 0); 
-      neopixel_logo.setPixelColor(2, 255, 0, 0); 
-      neopixel_logo.setPixelColor(3, 255, 0, 0); 
+      ledstrip_logo.setPixelColor(0, 255, 0, 0); 
+      ledstrip_logo.setPixelColor(1, 255, 0, 0); 
+      ledstrip_logo.setPixelColor(2, 255, 0, 0); 
+      ledstrip_logo.setPixelColor(3, 255, 0, 0); 
     } else if (httpServer.arg("logo").equals("green")) {
-      neopixel_logo.setPixelColor(0, 0, 255, 0); 
-      neopixel_logo.setPixelColor(1, 0, 255, 0); 
-      neopixel_logo.setPixelColor(2, 0, 255, 0); 
-      neopixel_logo.setPixelColor(3, 0, 255, 0); 
+      ledstrip_logo.setPixelColor(0, 0, 255, 0); 
+      ledstrip_logo.setPixelColor(1, 0, 255, 0); 
+      ledstrip_logo.setPixelColor(2, 0, 255, 0); 
+      ledstrip_logo.setPixelColor(3, 0, 255, 0); 
     } else {
       Serial.println("lets turn logoed off");
       logo = false;
@@ -254,7 +257,7 @@ void apiHandler() {
     byte r = byte(httpServer.arg("r").toInt());    
     byte g = byte(httpServer.arg("g").toInt());    
     byte b = byte(httpServer.arg("b").toInt());    
-    neopixel_logo.setPixelColor(led, r, g, b); 
+    ledstrip_logo.setPixelColor(led, r, g, b);  
   }
   
   if (httpServer.hasArg("whirl")) {
@@ -336,7 +339,7 @@ void pollRuxit() {
   http.begin("https://ulmfcldvho.live.ruxit.com/api/v1/problem/status?Api-Token=W89kT1trQduXlyxXKQIgI", "7a 9c f4 db 40 d3 62 5a 6e 21 bc 5c cc 66 c8 3e a1 45 59 38"); //HTTPS
   int httpCode = http.GET();
   if(httpCode == HTTP_CODE_OK) {
-      /*String json = http.getString();
+      String json = http.getString();
       if (debug) Serial.println("Ruxit Problem API call: " + json);
       StaticJsonBuffer<512> jsonBuffer;
       JsonObject& jsonObject = jsonBuffer.parseObject(json);
@@ -348,7 +351,7 @@ void pollRuxit() {
       } else {
         redcountUpperring = 1;
         redcountLowerring = 1;
-      }*/
+      }
   } else {
       //if (debug) Serial.println("Ruxit Problem API call FAILED (error code " + String(httpCode) + "): "  + http.getString());
       if (debug) Serial.println("Ruxit Problem API call FAILED (error code " + String(httpCode) + "): ");
@@ -597,20 +600,22 @@ void setup ( void ) {
 
   pinMode(PIN_FACTORYRESET, INPUT); //, INPUT_PULLUP); use INPUT_PULLUP in case we put reset to ground; currently reset is doing a 3V signal
 
-  // setup neopixel
-  neopixel_logo.begin();
-  neopixel_logo.setPixelColor(0, 0, 100, 255); // http://ufo/api?logoled=0&r=0&g=100&b=255
-  neopixel_logo.setPixelColor(1, 125, 255, 0); // http://ufo/api?logoled=1&r=125&g=255&b=0
-  neopixel_logo.setPixelColor(2, 0, 255, 0); // http://ufo/api?logoled=2&r=0&g=255&b=0
-  neopixel_logo.setPixelColor(3, 255, 0, 255); // http://ufo/api?logoled=3&r=255&g=0&b=255
-  neopixel_logo.show();
+
+  // setup dotstar ledstrips
+  ledstrip_logo.begin();
+  ledstrip_logo.setPixelColor(0, 0, 100, 255); // http://ufo/api?logoled=0&r=0&g=100&b=255
+  ledstrip_logo.setPixelColor(1, 125, 255, 0); // http://ufo/api?logoled=1&r=125&g=255&b=0
+  ledstrip_logo.setPixelColor(2, 0, 255, 0); // http://ufo/api?logoled=2&r=0&g=255&b=0
+  ledstrip_logo.setPixelColor(3, 255, 0, 255); // http://ufo/api?logoled=3&r=255&g=0&b=255
+  ledstrip_logo.show();
   
-  neopixel_lowerring.begin();
-  neopixel_lowerring.clear();
-  neopixel_lowerring.show();
-  neopixel_upperring.begin();
-  neopixel_upperring.clear();
-  neopixel_upperring.show();
+  ledstrip_lowerring.begin();
+  ledstrip_lowerring.clear();
+  ledstrip_lowerring.show();
+  ledstrip_upperring.begin();
+  ledstrip_upperring.clear();
+  ledstrip_upperring.show();
+
 
   // initialize ESP8266 file system
   SPIFFS.begin();
@@ -657,6 +662,7 @@ void setup ( void ) {
   httpServer.serveStatic("/font.eot", SPIFFS, "/font.eot");
   httpServer.serveStatic("/font.svg", SPIFFS, "/font.svg");
   httpServer.serveStatic("/font.ttf", SPIFFS, "/font.ttf");
+
   if (wifiConfigMode) { 
       httpServer.serveStatic("/", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
       httpServer.serveStatic("/index.html", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
@@ -679,21 +685,21 @@ void setup ( void ) {
   httpServer.begin();
 }
 
-void neopixelSetColor(Adafruit_NeoPixel &neopixel, byte r, byte g, byte b ) {
-  for (unsigned short i = 0; i < neopixel.numPixels(); i++) {
-    neopixel.setPixelColor(i, r, g, b);
+void dotstarSetColor(Adafruit_DotStar &dotstar, byte r, byte g, byte b ) {
+  for (unsigned short i = 0; i < dotstar.numPixels(); i++) {
+    dotstar.setPixelColor(i, r, g, b);
   }
 }
 
-void neopixelWhirlRed(Adafruit_NeoPixel &neopixel, byte redcount, byte whirlpos) {
+void dotstarWhirlRed(Adafruit_DotStar &dotstar, byte redcount, byte whirlpos) {
   unsigned short p;
-  for (unsigned short i = 0; i < neopixel.numPixels(); i++) {
+  for (unsigned short i = 0; i < dotstar.numPixels(); i++) {
      p = whirlpos + i;
      if (redcount > 0) {
-       neopixel.setPixelColor((p % neopixel.numPixels()), 255, 0, 0);
+       dotstar.setPixelColor((p % dotstar.numPixels()), 255, 0, 0);
        redcount--;
      } else {
-       neopixel.setPixelColor((p % neopixel.numPixels()), 0, 255, 0);
+       dotstar.setPixelColor((p % dotstar.numPixels()), 0, 255, 0);
      }
   }
 }
@@ -724,80 +730,48 @@ void loop ( void ) {
 
   // adjust logo brightness (on/off right now)
   if (logo) {
-    neopixel_logo.setBrightness(255);
+    ledstrip_logo.setBrightness(255);
   } else {
-    neopixel_logo.setBrightness(0);
+    ledstrip_logo.setBrightness(0);
   }
  
   yield();
-  neopixel_logo.show();
+  ledstrip_logo.show();
 
-  neopixelWhirlRed(neopixel_upperring, redcountUpperring, whirlpos);
-  neopixelWhirlRed(neopixel_lowerring, redcountLowerring, whirlpos);
-  if (tick % 50 == 0) {
+  dotstarWhirlRed(ledstrip_upperring, redcountUpperring, whirlpos);
+  dotstarWhirlRed(ledstrip_lowerring, redcountLowerring, whirlpos);
+  if (tick % 25 == 0) {
      if (whirl) whirlpos++;
   }
   yield();
-
-/*
-  if (whirl) {
-    byte p;
-    byte r;
-    byte g;
-    byte b;
-    for (byte i = 0; i<6; i++) {
-      p = i + whirlpos;      
-      if (i == 0 || i == 5) {
-        r = whirlr/4;
-        g = whirlg/4;
-        b = whirlb/4;
-      } else if (i == 1 || i == 4) {
-        r = whirlr/2;
-        g = whirlg/2;
-        b = whirlb/2;
-      } else {
-        r = whirlr;
-        g = whirlg;
-        b = whirlb;
-      }
-      neopixel_upperring.setPixelColor((p % 15), r, g, b);
-      neopixel_lowerring.setPixelColor((p % 15), r, g, b);
-    }
-    if (tick % 50 == 0) {
-      whirlpos++;
-    }
-  } else {
-      neopixelSetcolor(neopixel_upperring, 0, 0, 0);
-      neopixelSetcolor(neopixel_lowerring, 0, 0, 0);
-  }*/
 
   // show AP mode in blue to tell user to configure WIFI; especially after RESET
   // blinking alternatively in blue when no client is connected to AP; 
   // binking both rings in blue when at least one client is connected to AP
   if (wifiConfigMode) {
-    if(wifiAPisConnected && (tick % 1000 > 400)) {
-      neopixelSetColor(neopixel_upperring, 0, 0, 255);
-      neopixelSetColor(neopixel_lowerring, 0, 0, 255);
+    if(wifiAPisConnected && (tick % 500 > 200)) {
+      dotstarSetColor(ledstrip_upperring, 0, 0, 255);
+      dotstarSetColor(ledstrip_lowerring, 0, 0, 255);
     } else {
-      if (tick % 2000 > 1000) {
-        neopixelSetColor(neopixel_upperring, 0, 0, 255);
-        neopixelSetColor(neopixel_lowerring, 0, 0, 0);
+      if (tick % 1000 > 500) {
+        dotstarSetColor(ledstrip_upperring, 0, 0, 255);
+        dotstarSetColor(ledstrip_lowerring, 0, 0, 0);
       } else {
-        neopixelSetColor(neopixel_lowerring, 0, 0, 255);
-        neopixelSetColor(neopixel_upperring, 0, 0, 0);
+        dotstarSetColor(ledstrip_lowerring, 0, 0, 255);
+        dotstarSetColor(ledstrip_upperring, 0, 0, 0);
       }
     }
   } else { // blink yellow while not connected to wifi when it should
-    if (!wifiStationOK && (tick % 1000 > 750)) {
-      neopixelSetColor(neopixel_upperring, 50, 50, 0);
-      neopixelSetColor(neopixel_lowerring, 50, 50, 0);
+    if (!wifiStationOK && (tick % 500 > 375)) {
+      dotstarSetColor(ledstrip_upperring, 50, 50, 0);
+      dotstarSetColor(ledstrip_lowerring, 50, 50, 0);
     }
   }
 
   
   yield();
-  neopixel_upperring.show();
-  neopixel_lowerring.show();
+  ledstrip_upperring.show();
+  ledstrip_lowerring.show();
 }
 
 

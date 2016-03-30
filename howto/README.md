@@ -51,8 +51,11 @@ Cut the LED strip into 2 strips of 15 LEDs each and 2 strips of 2 LEDs each. Be 
 Solder the short strips in a series accordingly to the data-flow direction. There are arrows on the strip that show you the direction. Data for controlling the bus of LEDs flows from the microcontroller outbound in direction of arrow.
 ![Short LED strips soldered in series](arrows show how to place strip in series.jpg)
 ![](2x2 LEDs in series on logo.jpg)
+The DotStar LED strips use 4 wires
+![](dotstar wiring.jpg)
 
 ##Wiring
+TODO: update for Dotstar - add clock wire pin 14 to LED strips
 ![Wiring](ufo wiring sketch.png)
 
 USB cables 5V power goes to "VBat" and the black ground cable goes to "GND"
@@ -62,6 +65,9 @@ The white data wires that control the LEDs are soldered as follows:
 * Pin 4 - Lower LED ring
 * Pin 5 - Upper LED ring
 * Pin 2 - Downlight LEDs
+
+The yellow cable is the clock signal for the LED strips
+* Pin 14 - DotStar LED clock - connects to all three LED strips
 
 The blue wifi reset cables:
 * Pin 15 - Mini-button-switch for wifi reset, to switch the UFO into Access Point mode; triggers when 3V are on pin 15
@@ -134,12 +140,17 @@ Read more here: [compile and upload firmware through serial](https://learn.adafr
 3. Configure wifi settings so that the UFO connects to your wifi (Note: enterprise PEAP authentication is not yet available) - whenever the UFO is trying to connect to your wifi, the UFO blinks yellow. So you can declare connection success when the yellow stops blinking.
 Note: If you have troubles using the web UI for setting the wifi config, you might have more success using the API directly:
 `http://192.168.4.1/api?ssid=<ssid>&pwd=<pwd>`
+1. Once Wifi is configured, you have multiple options to access the UFO
+  * Option 1: in Windows you can use the UPNP (SSDP) discovery 
+  in the File Explorers Network view ![windows discovers the ufo](windows discovers ufo.png)
+  * Option 3: try http://ufo as the UFO uses the default hostname "UFO" when it registers with DHCP.
+  * Option 3: lookup the MAC address in your Wifi Access Point and get the IP address assigned by DHCP
 4. Access the web UI of the UFO as well as the REST interface /API    ***TODO FOR MORE***
+
 
 ##Todo
 * implement the original UFO api calls also on ESP8266
 * publish the Dynatrace Application Monitoring and Ruxit API infos, DCRUM and Synthetic to follow
-* ~~slight improvement on the base, to allow sliding the ring onto the base with LEDs already mounted~~
 * ~~publish pre-compiled binaries and instructions to use the flashing tool~~ initial alpha versions are done, but watch out for updates.
 * update web UI to implement desired use-cases  
 
