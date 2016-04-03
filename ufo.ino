@@ -58,7 +58,7 @@ boolean debug = true;
 #define PIN_DOTSTAR_CLOCK 14
 #define PIN_FACTORYRESET 15
 
-Adafruit_DotStar ledstrip_logo = Adafruit_DotStar(4, PIN_DOTSTAR_LOGO, PIN_DOTSTAR_CLOCK, DOTSTAR_BRG);
+Adafruit_DotStar ledstrip_logo = Adafruit_DotStar(4, PIN_DOTSTAR_LOGO, PIN_DOTSTAR_CLOCK, DOTSTAR_BGR); //NOTE: in case the colors dont match, check out the last color order parameter
 Adafruit_DotStar ledstrip_lowerring = Adafruit_DotStar(15, PIN_DOTSTAR_LOWERRING, PIN_DOTSTAR_CLOCK, DOTSTAR_BRG);
 Adafruit_DotStar ledstrip_upperring = Adafruit_DotStar(15, PIN_DOTSTAR_UPPERRING, PIN_DOTSTAR_CLOCK, DOTSTAR_BRG);
   
@@ -79,7 +79,7 @@ boolean wifiStationOK = false;
 boolean wifiAPisConnected = false;
 boolean wifiConfigMode;
 long uploadSize = 0;
-boolean isPollRuxit = true;
+boolean isPollRuxit = false;
 
 
 
@@ -336,7 +336,7 @@ void pollRuxit() {
 
   // configure traged server and url
   //http.begin("https://192.168.1.12/test.html", "7a 9c f4 db 40 d3 62 5a 6e 21 bc 5c cc 66 c8 3e a1 45 59 38"); //HTTPS
-  http.begin("https://ulmfcldvho.live.ruxit.com/api/v1/problem/status?Api-Token=W89kT1trQduXlyxXKQIgI", "7a 9c f4 db 40 d3 62 5a 6e 21 bc 5c cc 66 c8 3e a1 45 59 38"); //HTTPS
+  http.begin("https://yyyyyyyyyyyyyy.live.ruxit.com/api/v1/problem/status?Api-Token=xxxxxxxxxxxxxxxxxxxxxxx", "7a 9c f4 db 40 d3 62 5a 6e 21 bc 5c cc 66 c8 3e a1 45 59 38"); //HTTPS
   int httpCode = http.GET();
   if(httpCode == HTTP_CODE_OK) {
       String json = http.getString();
