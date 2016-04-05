@@ -1,5 +1,5 @@
 /*
- * Requires Arduino IDE 1.6.7 or later 
+ * Requires Arduino IDE 1.6.8 or later 
  * ESP8266 Arduino library v2.1.0 or later
  * Adafruit Huzzah ESP8266-E12, 4MB flash, uploads with 3MB SPIFFS (3MB filesystem of total 4MB) -- note that SPIFFS upload packages up everything from the "data" folder and uploads it via serial (same procedure as uploading sketch) or OTA. however, OTA is disabled by default
  * Use Termite serial terminal software for debugging
@@ -26,6 +26,7 @@
 boolean debug = true;
 #define DEBUG_ESP_HTTP_SERVER true
 
+#include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
@@ -40,7 +41,6 @@ boolean debug = true;
 //#include <Adafruit_NeoPixel.h>
 #include <Adafruit_DotStar.h>
 
-#include <ArduinoJson.h>
 #include <math.h>
 #include <StreamString.h>
 
@@ -79,9 +79,72 @@ boolean wifiStationOK = false;
 boolean wifiAPisConnected = false;
 boolean wifiConfigMode;
 long uploadSize = 0;
-boolean isPollRuxit = false;
 
 
+
+// Storing JSON configuration file in flash file system
+// Uses ArduinoJson library by Benoit Blanchon.
+// https://github.com/bblanchon/ArduinoJson
+// note: wifi credentials are stored in ESP8266 special area flash memory and NOT in this config
+#define MAX_CONFIGFILESIZE 512
+#define CONFIG_FILE "/config.json"
+
+String ruxitEnvironmentID;
+String ruxitApiKey;
+
+bool LoadConfig() {
+  File configFile = SPIFFS.open(CONFIG_FILE, "r");
+  if (!configFile) {
+    if (debug) Serial.println("Failed to open config file");
+    return false;
+  }
+
+  size_t size = configFile.size();
+  if (size > (MAX_CONFIGFILESIZE)) {
+    if (debug) Serial.println("Config file size is too large");
+    return false;
+  }
+
+  // Allocate a buffer to store contents of the file.
+  std::unique_ptr<char[]> buf(new char[size]);
+
+  // We don't use String here because ArduinoJson library requires the input
+  // buffer to be mutable. If you don't use ArduinoJson, you may as well
+  // use configFile.readString instead.
+  configFile.readBytes(buf.get(), size);
+
+  StaticJsonBuffer<MAX_CONFIGFILESIZE+1> jsonBuffer;
+  JsonObject& json = jsonBuffer.parseObject(buf.get());
+
+  if (!json.success()) {
+    if (debug) Serial.println("Failed to parse config file");
+    return false;
+  }
+
+  ruxitEnvironmentID =(const char*)json["ruxit-environmentid"];
+  ruxitApiKey = (const char*)json["ruxit-apikey"];
+  return true;
+}
+  
+  
+
+// note that writing to the SPIFFS wears the flash memory; so make sure to only use it when saving is really required.
+bool SaveConfig() {
+  StaticJsonBuffer<MAX_CONFIGFILESIZE+1> jsonBuffer;
+  JsonObject& json = jsonBuffer.createObject();
+  json["ruxit-environmentid"] = ruxitEnvironmentID;
+  json["ruxit-apikey"] = ruxitApiKey;
+
+  File configFile = SPIFFS.open(CONFIG_FILE, "w");
+  if (!configFile) {
+    if (debug) Serial.println("Failed to open config file for writing");
+    return false;
+  }
+
+  json.printTo(configFile);
+  if (debug) json.printTo(Serial);
+  return true;
+}
 
 void startSSDP() {
   // windows plug-and-play discovery should make it easier to find the UFO once its hooked-up on WIFI
@@ -119,24 +182,6 @@ String formatBytes(size_t bytes){
     return String(bytes/1024.0/1024.0/1024.0)+"GB";
   }
 }
-
-// HTTP not found response
-void handleNotFound() {
-	String message = "File Not Found\n\n";
-	message += "URI: ";
-	message += httpServer.uri();
-	message += "\nMethod: ";
-	message += ( httpServer.method() == HTTP_GET ) ? "GET" : "POST";
-	message += "\nArguments: ";
-	message += httpServer.args();
-	message += "\n";
-
-	for ( uint8_t i = 0; i < httpServer.args(); i++ ) {
-		message += " " + httpServer.argName ( i ) + ": " + httpServer.arg ( i ) + "\n";
-	}
-
-	httpServer.send ( 404, "text/plain", message );
-} 
 
 
 // handle REST api call to set new WIFI credentials; note that URL encoding can be used
@@ -207,6 +252,24 @@ void handleFactoryReset() {
 
   }
 }
+
+// HTTP not found response
+void handleNotFound() {
+  String message = "File Not Found\n\n";
+  message += "URI: ";
+  message += httpServer.uri();
+  message += "\nMethod: ";
+  message += ( httpServer.method() == HTTP_GET ) ? "GET" : "POST";
+  message += "\nArguments: ";
+  message += httpServer.args();
+  message += "\n";
+
+  for ( uint8_t i = 0; i < httpServer.args(); i++ ) {
+    message += " " + httpServer.argName ( i ) + ": " + httpServer.arg ( i ) + "\n";
+  }
+
+  httpServer.send ( 404, "text/plain", message );
+} 
 
 void infoHandler() {
   
@@ -283,8 +346,29 @@ void apiHandler() {
       whirl = true;
       Serial.println("whirl on");      
     }
-
   }
+
+  if (httpServer.hasArg("ruxit-environmentid") || httpServer.hasArg("ruxit-apikey")) {
+    if (debug) Serial.println("Storing ruxit integration settings");  
+    ruxitEnvironmentID = httpServer.arg("ruxit-environmentid");
+    ruxitApiKey = httpServer.arg("ruxit-apikey");
+    if (debug) Serial.println("Stored: " + httpServer.arg("ruxit-environmentid") + " / " + httpServer.arg("ruxit-apikey"));
+    boolean saved = SaveConfig();
+    Serial.println("Config saved. " + String(saved) + "  rebooting.....");
+    Serial.flush();
+
+    String response = "<html>" 
+                        "<head>"  
+                          "<title>IU Webmaster redirect</title>"
+                          "<META http-equiv='refresh' content='10;URL=/'>"
+                        "</head>"  
+                        "<body>"
+                          "<center>Configuration succeeded! Ufo is rebooting. Redirecting to homepage in 10 seconds...</center>"  
+                        "</body>"  
+                      "</html>";
+    httpServer.send(200, "text/html", response);
+    ESP.restart();
+  }   
 
   // note its required to provide both arguments SSID and PWD
   if (httpServer.hasArg("ssid") && httpServer.hasArg("pwd")) {
@@ -333,17 +417,20 @@ void pollRuxit() {
   }
 
   HTTPClient http;
-
+ 
   // configure traged server and url
   //http.begin("https://192.168.1.12/test.html", "7a 9c f4 db 40 d3 62 5a 6e 21 bc 5c cc 66 c8 3e a1 45 59 38"); //HTTPS
-  http.begin("https://yyyyyyyyyyyyyy.live.ruxit.com/api/v1/problem/status?Api-Token=xxxxxxxxxxxxxxxxxxxxxxx", "7a 9c f4 db 40 d3 62 5a 6e 21 bc 5c cc 66 c8 3e a1 45 59 38"); //HTTPS
+  http.begin("https://"+ruxitEnvironmentID+".live.ruxit.com/api/v1/problem/status?Api-Token=" + ruxitApiKey, "7a 9c f4 db 40 d3 62 5a 6e 21 bc 5c cc 66 c8 3e a1 45 59 38"); //HTTPS
   int httpCode = http.GET();
   if(httpCode == HTTP_CODE_OK) {
       String json = http.getString();
       if (debug) Serial.println("Ruxit Problem API call: " + json);
-      StaticJsonBuffer<512> jsonBuffer;
+      if (debug) Serial.flush();
+/*      ################ CRASHING SO FAR
+ *       
+ *       StaticJsonBuffer<4096> jsonBuffer;  
       JsonObject& jsonObject = jsonBuffer.parseObject(json);
-      long applicationProblems = jsonObject["result"]["openProblemCounts"]["APPLICATION"];
+      long applicationProblems = jsonObject["result"]["openProblemCounts"]["APPLICATION"];   
       if (debug) Serial.println("Ruxit Problem API call - Application problems: " + String(applicationProblems));
       if (applicationProblems) {
         redcountUpperring = 14;
@@ -351,7 +438,7 @@ void pollRuxit() {
       } else {
         redcountUpperring = 1;
         redcountLowerring = 1;
-      }
+      } */
   } else {
       //if (debug) Serial.println("Ruxit Problem API call FAILED (error code " + String(httpCode) + "): "  + http.getString());
       if (debug) Serial.println("Ruxit Problem API call FAILED (error code " + String(httpCode) + "): ");
@@ -621,6 +708,13 @@ void setup ( void ) {
   SPIFFS.begin();
   printSpiffsContents();
 
+  // load non-wifi config from SPIFFS config.json file
+  if (LoadConfig()) {
+    if (debug) Serial.println("Ruxit envid: " + ruxitEnvironmentID + " apikey: " + ruxitApiKey);
+  } else {
+    if (debug) Serial.println("Loading Ruxit config failed!");
+  }
+
   // initialize Wifi based on stored config
   WiFi.onEvent(WiFiEvent);
   WiFi.hostname(DEFAULT_HOSTNAME); // note, the hostname is not persisted in the ESP config like the SSID. so it needs to be set every time WiFi is started
@@ -710,6 +804,7 @@ byte wheelcolor = 0;
 unsigned long trigger = 0;
 
 void loop ( void ) {
+ 
   tick++;
 
   handleFactoryReset();
@@ -718,7 +813,7 @@ void loop ( void ) {
   httpServer.handleClient();
 
   // poll the problem status from Ruxit
-  if (isPollRuxit) {
+  if (ruxitEnvironmentID.length() > 0) {
     unsigned long m = millis();
     if (trigger < m) {
       pollRuxit(); // poll every minute

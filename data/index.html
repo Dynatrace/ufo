@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8" />
@@ -130,13 +131,18 @@
 			</div>
 		</header> 
 		<div class="content">
-            <div class="padded-full">
-        		<input type="text" placeholder="environment-id" id="ruxit-environmentid">
-		    	<input type="text" placeholder="api-key" id="ruxit-apikey">
-            </div>
-            <div class="padded-full">
-    			<button id="submitruxitsettings" class="btn fit-parent primary">Apply Ruxit setting</button>
-            </div>
+		  <div class="input-wrapper list">
+		    <form method='GET' action='/api'> 
+				<span class="padded-list">Configure Ruxit integration. Submit empty fields to disable integration.</span>
+                <div class="padded-full">
+                    <input type="text" name="ruxit-environmentid" placeholder="environment-id" id="ruxit-environmentid">
+                    <input type="text" name="ruxit-apikey" placeholder="api-key" id="ruxit-apikey">
+                </div>
+                <div class="padded-full">
+					<button class="btn btn-submit fit-parent primary" type="submit">Apply settings and reboot.</button>
+                </div> 
+			</form>
+		  </div>          
 		</div>
     </pageruxitsettings>
 
@@ -219,28 +225,8 @@
 
 				}; 
                 
-				var onRuxitSettingsSubmit = function(evt) {
-					var target = evt.target;
-					var req = phonon.ajax({
-						method: 'GET',
-						url: 'api?ruxit-environmentid=' + document.querySelector('#ruxit-environmentid').value + '&ruxit-apikey=' + document.querySelector('#ruxit-apikey').value,
-						dataType: 'json',
-						success: function(res, xhr) {
-							console.log(res);
-						},
-						
-						error: function(res, flagError, xhr) {
-							console.error(flagError);
-							console.log(res);
-						}
-					}); 
-
-				}; 
-                
-
 				activity.onCreate(function() {
 					document.querySelector('#submitwifisettings').on('tap', onWifiSettingsSubmit);
-					document.querySelector('#submitruxitsettings').on('tap', onRuxitSettingsSubmit);
 					document.querySelector('#led1on').on('tap', onApi);
 					document.querySelector('#led1off').on('tap', onApi);
 					document.querySelector('#whirlon').on('tap', onApi);
