@@ -409,7 +409,7 @@ void ruxitPostHandler() {
 void pollRuxit() {
 
   if (wifiStationOK) {
-    if (debug) Serial.println("Poll Ruxit now");
+    if (debug) Serial.println("Poll Ruxit now. Free heap: " + String(ESP.getFreeHeap()));
     if (debug) Serial.flush();
   } else {
     if (debug) Serial.println("Poll Ruxit now - DEFERRED - WIFI NOT YET AVAILABLE");
@@ -419,18 +419,31 @@ void pollRuxit() {
   HTTPClient http;
  
   // configure traged server and url
-  //http.begin("https://192.168.1.12/test.html", "7a 9c f4 db 40 d3 62 5a 6e 21 bc 5c cc 66 c8 3e a1 45 59 38"); //HTTPS
-  http.begin("https://"+ruxitEnvironmentID+".live.ruxit.com/api/v1/problem/status?Api-Token=" + ruxitApiKey, "7a 9c f4 db 40 d3 62 5a 6e 21 bc 5c cc 66 c8 3e a1 45 59 38"); //HTTPS
-  int httpCode = http.GET();
+  http.begin("https://"+ruxitEnvironmentID+".live.ruxit.com/api/v1/problem/status?Api-Token=" + ruxitApiKey); 
+
+      Serial.println("http.begin executed. free heap: "  + String(ESP.getFreeHeap()));
+      Serial.flush();
+
+  
+/*  int httpCode = http.GET();
   if(httpCode == HTTP_CODE_OK) {
-      String json = http.getString();
+      if (http.getSize() > 128) {
+        if (debug) Serial.println("Ruxit Problem API call response too large to handle! " + String(http.getSize()) + " bytes");
+        http.end();
+        return;
+      }
+
+      Serial.println("GET resulted in OK. free heap: "  + String(ESP.getFreeHeap()));
+      Serial.flush();
+      
+      String json = http.getString(); // this allocates memory, so lets not get this string if the HTTP response is too large
       if (debug) Serial.println("Ruxit Problem API call: " + json);
-      if (debug) Serial.flush();
-/*      ################ CRASHING SO FAR
- *       
- *       StaticJsonBuffer<4096> jsonBuffer;  
+      if (debug) Serial.flush();*/
+/*      //StaticJsonBuffer<128+2> jsonBuffer;  // attention, too large buffers cause stack overflow and thus crashes!
+      DynamicJsonBuffer jsonBuffer;  // attention, dynamic json buffer strongly discouraged in embedded environments!!
       JsonObject& jsonObject = jsonBuffer.parseObject(json);
-      long applicationProblems = jsonObject["result"]["openProblemCounts"]["APPLICATION"];   
+      long applicationProblems = jsonObject["result"]["totalOpenProblemsCount"];
+      //long applicationProblems = jsonObject["result"]["openProblemCounts"]["APPLICATION"];   
       if (debug) Serial.println("Ruxit Problem API call - Application problems: " + String(applicationProblems));
       if (applicationProblems) {
         redcountUpperring = 14;
@@ -438,13 +451,12 @@ void pollRuxit() {
       } else {
         redcountUpperring = 1;
         redcountLowerring = 1;
-      } */
+      }  
   } else {
-      //if (debug) Serial.println("Ruxit Problem API call FAILED (error code " + String(httpCode) + "): "  + http.getString());
       if (debug) Serial.println("Ruxit Problem API call FAILED (error code " + String(httpCode) + "): ");
       redcountUpperring = 7;
       redcountLowerring = 8;
-  }
+  } */
   http.end();
   
   
@@ -817,7 +829,8 @@ void loop ( void ) {
     unsigned long m = millis();
     if (trigger < m) {
       pollRuxit(); // poll every minute
-      trigger = m + 60000;
+      trigger = m + 5000;
+//##############################      trigger = m + 60000;
     }
   }
   

@@ -28,7 +28,13 @@ http.createServer(function (request, response) {
 	console.log(parsedUrl.pathname);
 	console.log(parsedUrl.query);
 	console.log("query: " + query);
-	if(parsedUrl.pathname === "/api") {
+    if(parsedUr.pathname === "/api/v1/problem/status") {
+       // Ruxit Integration Api test
+		response.write('{"result":{"totalOpenProblemsCount":1,"openProblemCounts":{"APPLICATION":1,"INFRASTRUCTURE":0,"SERVICE":0}}}');
+		response.setHeader('Content-Type', 'application/json');
+		response.end();
+       // EXAMPLE RESULT: {"result":{"totalOpenProblemsCount":1,"openProblemCounts":{"APPLICATION":1,"INFRASTRUCTURE":0,"SERVICE":0}}}
+    } else if(parsedUrl.pathname === "/api") {
      	console.log("acessing api! " + query);
 		/*if (query.led == "on") {
 			console.log("turn LED ON");
@@ -38,7 +44,7 @@ http.createServer(function (request, response) {
 		response.write("<html><body>sepperl greets from node js</body></html>");
 		response.end();
 	} else 	if(parsedUrl.pathname === "/info") {
-		response.setHeader('Content-Type', 'text/json');
+		response.setHeader('Content-Type', 'application/json');
 		response.setHeader('cache-control', 'private, max-age=0, no-cache, no-store')
 		response.write('{ "ssid": "nodejs-ssid", "ipaddress": "10.10.10.10", "heap": "' 
              + randomInt(2000, 50000) + '", "macaddress": "AB:CD:EF:00:11:22", "firmwareversion": "' 
