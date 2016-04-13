@@ -1,14 +1,10 @@
-/*
- * Requires Arduino IDE 1.6.8 or later 
- * ESP8266 Arduino library v2.1.0 or later
- * Adafruit Huzzah ESP8266-E12, 4MB flash, uploads with 3MB SPIFFS (3MB filesystem of total 4MB) -- note that SPIFFS upload packages up everything from the "data" folder and uploads it via serial (same procedure as uploading sketch) or OTA. however, OTA is disabled by default
- * Use Termite serial terminal software for debugging
- */
-
-
-//******************** DOTSTAR TEST VERSION
-
- /* NOTE  
+ /*
+  * Requires Arduino IDE 1.6.8 or later 
+  * ESP8266 Arduino library v2.1.0 or later
+  * Adafruit Huzzah ESP8266-E12, 4MB flash, uploads with 3MB SPIFFS (3MB filesystem of total 4MB) -- note that SPIFFS upload packages up everything from the "data" folder and uploads it via serial (same procedure as uploading sketch) or OTA. however, OTA is disabled by default
+  * Use Termite serial terminal software for debugging
+  * 
+  * NOTE  
   *  ESP8266 stores last set SSID and PWD in reserved flash area 
   *  connect to SSID huzzah, and call http://192.168.4.1/api?ssid=<ssid>&pwd=<password> to set new SSID/PASSWORD 
   *        
@@ -40,7 +36,6 @@ boolean debug = true;
 #include <Wire.h>
 #include <FS.h>
 //#include <EEPROM.h>
-//#include <Adafruit_NeoPixel.h>
 #include <Adafruit_DotStar.h>
 
 #include <math.h>
@@ -834,9 +829,8 @@ void loop ( void ) {
   if (ruxitEnvironmentID.length() > 0) {
     unsigned long m = millis();
     if (trigger < m) {
-      pollRuxit(); // poll every minute
-      trigger = m + 5000;
-//##############################      trigger = m + 60000;
+      pollRuxit(); 
+      trigger = m + 60*1000; // poll every minute 60*1000ms
     }
   }
   
