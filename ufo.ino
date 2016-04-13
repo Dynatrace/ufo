@@ -24,7 +24,7 @@
   */ 
 
 boolean debug = true;
-#define DEBUG_ESP_HTTP_SERVER true
+//#define ENABLE_SSDP // SSDP takes 2.5KB RAM
 
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
@@ -34,7 +34,9 @@ boolean debug = true;
 //#include <ESP8266mDNS.h>
 //#include <WiFiUdp.h>
 //#include <ArduinoOTA.h>
-#include <ESP8266SSDP.h>
+#ifdef ENABLE_SDDP
+  #include <ESP8266SSDP.h>
+#endif
 #include <Wire.h>
 #include <FS.h>
 //#include <EEPROM.h>
@@ -146,21 +148,22 @@ bool SaveConfig() {
   return true;
 }
 
-void startSSDP() {
-  // windows plug-and-play discovery should make it easier to find the UFO once its hooked-up on WIFI
-  SSDP.setSchemaURL("description.xml");
-  SSDP.setHTTPPort(80);
-  SSDP.setName("Dynatrace UFO");
-  SSDP.setSerialNumber(String(ESP.getChipId()));
-  SSDP.setURL("index.html"); // ****************** CAN CHANGE TO "/"????? would eliminate the need of index.html
-  SSDP.setModelName("UFO");
-  SSDP.setModelNumber(FIRMWARE_VERSION);
-  SSDP.setModelURL("http://dynatrace.github.io/ufo/");
-  SSDP.setManufacturer("Dynatrace LLC open-source project");
-  SSDP.setManufacturerURL("http://dynatrace.github.io/ufo/");
-  SSDP.begin();
-}
-
+#ifdef ENABLE_SDDP
+  void startSSDP() {
+    // windows plug-and-play discovery should make it easier to find the UFO once its hooked-up on WIFI
+    SSDP.setSchemaURL("description.xml");
+    SSDP.setHTTPPort(80);
+    SSDP.setName("Dynatrace UFO");
+    SSDP.setSerialNumber(String(ESP.getChipId()));
+    SSDP.setURL("index.html"); // ****************** CAN CHANGE TO "/"????? would eliminate the need of index.html
+    SSDP.setModelName("UFO");
+    SSDP.setModelNumber(FIRMWARE_VERSION);
+    SSDP.setModelURL("http://dynatrace.github.io/ufo/");
+    SSDP.setManufacturer("Dynatrace LLC open-source project");
+    SSDP.setManufacturerURL("http://dynatrace.github.io/ufo/");
+    SSDP.begin();
+  }
+#endif
 /*
 // TODO read/write additional settings from/to eeprom
 boolean readEEPROMconfig() {
@@ -418,14 +421,16 @@ void pollRuxit() {
 
   HTTPClient http;
  
-  // configure traged server and url
-  http.begin("https://"+ruxitEnvironmentID+".live.ruxit.com/api/v1/problem/status?Api-Token=" + ruxitApiKey); 
+  // configure server and url
+  // NOTE: SSL takes 18kB extra RAM memory!!! leads out-of-memory crash!!!! thus use a proxy or lambda function in HTTP client mode
+  http.begin("http://"+ruxitEnvironmentID+".live.ruxit.com/api/v1/problem/status?Api-Token=" + ruxitApiKey); 
+  //http.begin("http://proxy/api/v1/problem/status?Api-Token=" + ruxitApiKey); 
 
       Serial.println("http.begin executed. free heap: "  + String(ESP.getFreeHeap()));
       Serial.flush();
 
   
-/*  int httpCode = http.GET();
+  int httpCode = http.GET();
   if(httpCode == HTTP_CODE_OK) {
       if (http.getSize() > 128) {
         if (debug) Serial.println("Ruxit Problem API call response too large to handle! " + String(http.getSize()) + " bytes");
@@ -438,9 +443,8 @@ void pollRuxit() {
       
       String json = http.getString(); // this allocates memory, so lets not get this string if the HTTP response is too large
       if (debug) Serial.println("Ruxit Problem API call: " + json);
-      if (debug) Serial.flush();*/
-/*      //StaticJsonBuffer<128+2> jsonBuffer;  // attention, too large buffers cause stack overflow and thus crashes!
-      DynamicJsonBuffer jsonBuffer;  // attention, dynamic json buffer strongly discouraged in embedded environments!!
+      if (debug) Serial.flush();
+      StaticJsonBuffer<128+2> jsonBuffer;  // attention, too large buffers cause stack overflow and thus crashes!
       JsonObject& jsonObject = jsonBuffer.parseObject(json);
       long applicationProblems = jsonObject["result"]["totalOpenProblemsCount"];
       //long applicationProblems = jsonObject["result"]["openProblemCounts"]["APPLICATION"];   
@@ -456,7 +460,7 @@ void pollRuxit() {
       if (debug) Serial.println("Ruxit Problem API call FAILED (error code " + String(httpCode) + "): ");
       redcountUpperring = 7;
       redcountLowerring = 8;
-  } */
+  } 
   http.end();
   
   
@@ -618,7 +622,9 @@ void WiFiEvent(WiFiEvent_t event) {
         case WIFI_EVENT_STAMODE_GOT_IP:
             Serial.println("WiFi connected. IP address: " + String(WiFi.localIP().toString()) + " hostname: "+ WiFi.hostname() + "  SSID: " + WiFi.SSID());
             wifiStationOK = true;
-            startSSDP();
+            #ifdef ENABLE_SDDP
+              startSSDP();
+            #endif
             break;
         case WIFI_EVENT_STAMODE_DISCONNECTED:
             Serial.println("WiFi client lost connection");
@@ -742,11 +748,11 @@ void setup ( void ) {
     //WiFi.printDiag(Serial);
   }
 
-
-  httpServer.on("/description.xml", HTTP_GET, [](){
-    SSDP.schema(httpServer.client());
-  });
-  
+  #ifdef ENABLE_SDDP
+    httpServer.on("/description.xml", HTTP_GET, [](){
+      SSDP.schema(httpServer.client());
+    });
+  #endif  
 
   // setup all web server routes; make sure to use / last
   #define STATICFILES_CACHECONTROL "private, max-age=0, no-cache, no-store"

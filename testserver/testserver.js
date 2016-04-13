@@ -28,10 +28,10 @@ http.createServer(function (request, response) {
 	console.log(parsedUrl.pathname);
 	console.log(parsedUrl.query);
 	console.log("query: " + query);
-    if(parsedUr.pathname === "/api/v1/problem/status") {
+    if(parsedUrl.pathname === "/api/v1/problem/status") {
        // Ruxit Integration Api test
-		response.write('{"result":{"totalOpenProblemsCount":1,"openProblemCounts":{"APPLICATION":1,"INFRASTRUCTURE":0,"SERVICE":0}}}');
 		response.setHeader('Content-Type', 'application/json');
+		response.write('{"result":{"totalOpenProblemsCount":1,"openProblemCounts":{"APPLICATION":1,"INFRASTRUCTURE":0,"SERVICE":0}}}');
 		response.end();
        // EXAMPLE RESULT: {"result":{"totalOpenProblemsCount":1,"openProblemCounts":{"APPLICATION":1,"INFRASTRUCTURE":0,"SERVICE":0}}}
     } else if(parsedUrl.pathname === "/api") {
