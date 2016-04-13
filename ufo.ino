@@ -24,7 +24,7 @@
   */ 
 
 boolean debug = true;
-//#define ENABLE_SSDP // SSDP takes 2.5KB RAM
+#define ENABLE_SSDP // SSDP takes 2.5KB RAM
 
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
