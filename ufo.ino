@@ -1,6 +1,6 @@
  /*
   * Requires Arduino IDE 1.6.8 or later 
-  * ESP8266 Arduino library v2.1.0 or later
+  * ESP8266 Arduino library v2.2.0 or later
   * Adafruit Huzzah ESP8266-E12, 4MB flash, uploads with 3MB SPIFFS (3MB filesystem of total 4MB) -- note that SPIFFS upload packages up everything from the "data" folder and uploads it via serial (same procedure as uploading sketch) or OTA. however, OTA is disabled by default
   * Use Termite serial terminal software for debugging
   * 
