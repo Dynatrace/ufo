@@ -114,20 +114,6 @@
 		</div>
 	</pagefirmwareupdate>
 
-	<!-- <pagewifisettings data-page="true">
-		<header class="header-bar">
-			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
-			<div class="center">
-				<h1 class="title">Wifi Settings</h1>
-			</div>
-		</header> 
-		<div class="content">
-			<input type="text" placeholder="SSID" id="ssid">
-			<input type="password" placeholder="********" id="wifipwd">
-			<button id="submitwifisettings" class="btn fit-parent primary">Apply WIFI setting</button>
-		</div>
-	</pagewifisettings>-->
-
 	<pagewifisettings data-page="true">
 		<header class="header-bar">
 			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
@@ -150,16 +136,8 @@
 						as you may want to lookup the IP address
 							in your Wifi Accesspoint.</li>
 				</ul>
-				<!--<div class="padded-full">
-					<input type="text" placeholder="SSID" id="ssid"></input>
-					<input type="password" placeholder="************" id="wifipwd"></input>
-				</div>
-				<div class="padded-full">
-					<button id="submitwifisettings" class="btn fit-parent primary">Apply WIFI setting</button>
-				</div>-->
 				
 				<form method='GET' action='/api'>
-					<!--<span class="padded-list">Configure Ruxit integration. Submit empty fields to disable integration.</span>-->
 					<div class="padded-full">
 						<input type="text" name="ssid" placeholder="SSID" id="ssid" />
 						<input type="password" name="pwd" placeholder="*************" id="wifipwd" />
@@ -258,31 +236,6 @@
 				}) 
 			});
 			
-			/* app.on({page: 'pagewifisettings', preventClose: false, content: null} , function(activity) {
-
-				var onWifiSettingsSubmit = function(evt) {
-					console.log('api?ssid=' + encodeURI(document.querySelector('#ssid').value) + '&pwd=' + encodeURI(document.querySelector('#wifipwd').value));
-					var req = phonon.ajax({
-						method: 'GET',
-						url: 'api?ssid=' + encodeURI(document.querySelector('#ssid').value) + '&pwd=' + encodeURI(document.querySelector('#wifipwd').value),
-						dataType: 'json',
-						success: function(res, xhr) {
-							console.log(res);
-						},
-						error: function(res, flagError, xhr) {
-							console.error(flagError);
-							console.log(res);
-						}
-					}); 
-
-				}; 
-
-				activity.onCreate(function() {
-					document.querySelector('#submitwifisettings').on('tap', onWifiSettingsSubmit);
-					document.querySelector('#submitwifisettings').on('click', onWifiSettingsSubmit);
-				})
-			}); */
-
 			document.on('pageopened', function(evt) {
 				console.log(evt.detail.page + ' is opened');
 				if (evt.detail.page == "pageinfo") {

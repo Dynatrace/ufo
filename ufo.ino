@@ -20,7 +20,7 @@
   */ 
 
 boolean debug = true;
-#define ENABLE_SSDP true // SSDP takes 2.5KB RAM
+//#define ENABLE_SSDP  // SSDP takes 2.5KB RAM
 
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
@@ -68,13 +68,12 @@ byte whirlg = 255;
 byte whirlb = 255;
 boolean whirl = true;
 
-//boolean restart = false;
-
 ESP8266WebServer        httpServer ( 80 );
 
 boolean wifiStationOK = false;
 boolean wifiAPisConnected = false;
-boolean wifiConfigMode;
+boolean wifiConfigMode = true;
+boolean httpClientOnlyMode = false;
 long uploadSize = 0;
 
 
@@ -202,27 +201,6 @@ void handleSmartConfig() {
    }
 }
 
-void handleNewWifiSettings() {
-   if (newWifi) {
-       // if SSID is given, also update wifi credentials
-       if (newWifiSSID.length()) {
-          WiFi.mode(WIFI_STA);
-          WiFi.begin(newWifiSSID.c_str(), newWifiPwd.c_str() );
-       } 
-       //newWifi = false;
-       //newWifiPwd = String();
-       //newWifiSSID = String();
-       //newWifiHostname = String();
-       if (debug) {
-         Serial.println("New Wifi settings: " + newWifiSSID + " / " + newWifiPwd);
-         Serial.println("Restarting....");
-         Serial.flush();
-       }
-
-      ESP.restart();
-
-   }
-}
 
 // Handle Factory reset and enable Access Point mode to enable configuration
 void handleFactoryReset() {
@@ -249,6 +227,27 @@ void handleFactoryReset() {
     ESP.restart();
 
   }
+}
+
+// send a HTML response about reboot progress
+// reboot device therafter.
+void httpReboot(String message) {
+   String response = "<!DOCTYPE html>"
+                      "<html>" 
+                      "<head>"  
+                        "<title>Dynatrace UFO configuration changed. Rebooting now... </title>"
+                        "<META http-equiv='refresh' content='10;URL=/'>"
+                      "</head>"  
+                      "<body>"
+                        "<center>";
+  response+=             message; 
+  response+=            "Device is being rebooted. Redirecting to homepage in 10 seconds...</center>"  
+                      "</body>"  
+                    "</html>";
+                    
+    httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
+    httpServer.send(200, "text/html", response);
+    ESP.restart();
 }
 
 // HTTP not found response
@@ -353,28 +352,27 @@ void apiHandler() {
     ruxitApiKey = httpServer.arg("ruxit-apikey");
     if (debug) Serial.println("Stored: " + httpServer.arg("ruxit-environmentid") + " / " + httpServer.arg("ruxit-apikey"));
     boolean saved = SaveConfig();
-    Serial.println("Config saved. " + String(saved) + "  rebooting.....");
-    Serial.flush();
-
-    String response = "<html>" 
-                        "<head>"  
-                          "<title>IU Webmaster redirect</title>"
-                          "<META http-equiv='refresh' content='10;URL=/'>"
-                        "</head>"  
-                        "<body>"
-                          "<center>Configuration succeeded! Ufo is rebooting. Redirecting to homepage in 10 seconds...</center>"  
-                        "</body>"  
-                      "</html>";
-    httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
-    httpServer.send(200, "text/html", response);
-    ESP.restart();
+    if (debug) Serial.println("Config saved. " + String(saved) + "  rebooting.....");
+    if (debug) Serial.flush();
+    httpReboot("Configuration succeeded!");
   }   
 
   // note its required to provide both arguments SSID and PWD
   if (httpServer.hasArg("ssid") && httpServer.hasArg("pwd")) {
-    newWifi = true;
-    newWifiSSID = httpServer.arg("ssid");
-    newWifiPwd = httpServer.arg("pwd");
+      // if SSID is given, also update wifi credentials
+       if (newWifiSSID.length()) {
+          WiFi.mode(WIFI_STA);
+          WiFi.begin(newWifiSSID.c_str(), newWifiPwd.c_str() );
+       } 
+ 
+       if (debug) {
+         Serial.println("New Wifi settings: " + newWifiSSID + " / " + newWifiPwd);
+         Serial.println("Restarting....");
+         Serial.flush();
+       }
+
+      httpReboot("New WIFI settings accepted. Mac address: " + WiFi.macAddress() + "<p/>");
+
   } 
   if (httpServer.hasArg("hostname")) {
     newWifi = true;
@@ -420,11 +418,11 @@ void pollRuxit() {
  
   // configure server and url
   // NOTE: SSL takes 18kB extra RAM memory!!! leads out-of-memory crash!!!! thus use a proxy or lambda function in HTTP client mode
-  http.begin("http://"+ruxitEnvironmentID+".live.ruxit.com/api/v1/problem/status?Api-Token=" + ruxitApiKey); 
-  //http.begin("http://proxy/api/v1/problem/status?Api-Token=" + ruxitApiKey); 
+  String url = "https://"+ruxitEnvironmentID+".live.ruxit.com/api/v1/problem/status?Api-Token=" + ruxitApiKey;
+  http.begin(url, "7a 9c f4 db 40 d3 62 5a 6e 21 bc 5c cc 66 c8 3e a1 45 59 38"); 
 
-      Serial.println("http.begin executed. free heap: "  + String(ESP.getFreeHeap()));
-      Serial.flush();
+  if (debug) Serial.println("http.begin executed. free heap: "  + String(ESP.getFreeHeap()));
+  if (debug) Serial.flush();
 
   
   int httpCode = http.GET();
@@ -435,8 +433,8 @@ void pollRuxit() {
         return;
       }
 
-      Serial.println("GET resulted in OK. free heap: "  + String(ESP.getFreeHeap()));
-      Serial.flush();
+      if (debug) Serial.println("GET resulted in OK. free heap: "  + String(ESP.getFreeHeap()));
+      if (debug) Serial.flush();
       
       String json = http.getString(); // this allocates memory, so lets not get this string if the HTTP response is too large
       if (debug) Serial.println("Ruxit Problem API call: " + json);
@@ -454,7 +452,7 @@ void pollRuxit() {
         redcountLowerring = 1;
       }  
   } else {
-      if (debug) Serial.println("Ruxit Problem API call FAILED (error code " + String(httpCode) + "): ");
+      if (debug) Serial.println("Ruxit Problem API call FAILED (error code " + String(httpCode) + "): " + url);
       redcountUpperring = 7;
       redcountLowerring = 8;
   } 
@@ -508,21 +506,7 @@ void updatePostHandler() {
     if (Update.hasError()) {
       Update.printError(error);
     }
-    String response =   "<!DOCTYPE html>"
-                        "<html>" 
-                        "<head>"  
-                          "<title>IU Webmaster redirect</title>"
-                          "<META http-equiv='refresh' content='10;URL=/'>"
-                        "</head>"  
-                        "<body>"
-                          "<center>";
-    response+=             (Update.hasError())?error:"Upload succeeded! " + String(uploadSize); 
-    response+=            " bytes transferred<p>Device is being rebooted. Redirecting to homepage in 10 seconds...</center>"  
-                        "</body>"  
-                      "</html>";
-    httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
-    httpServer.send(200, "text/html", response);
-    ESP.restart();
+    httpReboot((Update.hasError())?error:"Upload succeeded! " + String(uploadSize) + " bytes transferred<p>");
 }
 
 String parseFileName(String &path) {
@@ -793,7 +777,14 @@ void setup ( void ) {
   httpServer.on("/update", HTTP_POST, updatePostHandler, updatePostUploadHandler);
 
   // start webserver
-  httpServer.begin();
+  if (wifiConfigMode || (ruxitEnvironmentID.length() == 0) || (ruxitApiKey.length() == 0)) {
+    httpClientOnlyMode = false;
+    httpServer.begin();    
+  } else {
+    httpClientOnlyMode = true;
+    if (debug) Serial.println("Entering HTTP Client only mode. Click the WIFI Reset button to reconfigure the UFO.");
+  }
+
 }
 
 void dotstarSetColor(Adafruit_DotStar &dotstar, byte r, byte g, byte b ) {
@@ -825,19 +816,20 @@ void loop ( void ) {
   tick++;
 
   handleFactoryReset();
-  handleNewWifiSettings(); //TODO##################################################### simplify by moving this back to the HTTP handler
   handleSmartConfig();
-  httpServer.handleClient();
-
-  // poll the problem status from Ruxit
-  if (ruxitEnvironmentID.length() > 0) {
-    unsigned long m = millis();
-    if (trigger < m) {
-      pollRuxit(); 
-      trigger = m + 60*1000; // poll every minute 60*1000ms
-    }
+  if (httpClientOnlyMode) {
+     // poll the problem status from Ruxit
+    if (ruxitEnvironmentID.length() > 0) {
+      unsigned long m = millis();
+      if (trigger < m) {
+        pollRuxit(); 
+        trigger = m + 10*1000; //60*1000; // poll every minute 60*1000ms
+      }
+    } 
+  } else {
+     httpServer.handleClient();
   }
-  
+    
   yield();
 
   // adjust logo brightness (on/off right now)
