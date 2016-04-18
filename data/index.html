@@ -1,115 +1,120 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <meta name="format-detection" content="telephone=no" />
-        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
-        <link rel="stylesheet" href="phonon-base.min.css" />
-        <link rel="stylesheet" href="lists.min.css" />
-        <link rel="stylesheet" href="forms.min.css" />
-		<link rel="stylesheet" href="icons.min.css" />
-        <title>Dynatrace UFO</title>
-    </head>
-	<body>
-        <!-- the home page is the default one. This page does not require to call its content because we define on its tag.-->
-       <home data-page="true">
-            <header class="header-bar">
-                <div class="center">
-                    <h1 class="title">Dynatrace UFO</h1>
-                </div>
-            </header>
 
-            <div class="content">
-    			<ul class="list">
-					<li class="divider">UFO communication examples (REST calls)</li>
-					<li>
-						<span class="padded-list">/api?logo=on|off</span>
-					    <button class="btn btn-flat primary pull-right" data-api="logo=off" id="led1off">Off</button>
-						<button class="btn btn-flat primary pull-right" data-api="logo=on" id="led1on">On</button>
-					</li> 
-					<li>
-						<span class="padded-list">/api?whirl=on|off</span>
-					    <button class="btn btn-flat primary pull-right" data-api="whirl=off" id="whirloff">Off</button>
-						<button class="btn btn-flat primary pull-right" data-api="whirl=on" id="whirlon">On</button>
-					</li>
-					<li>
-						<span class="padded-list">/api?whirl=r|g</span>
-					    <button class="btn btn-flat negative pull-right" data-api="whirl=r" id="whirlred">R</button>
-						<button class="btn btn-flat positive pull-right" data-api="whirl=g" id="whirlgreen">G</button>
-					</li>
-					<li class="divider">UFO machine room</li>
-					<li>
-						<a href="#!pageinfo" class="padded-list">Info</a>
-					</li>
-					<li>
-					  <a href="#!pagefirmwareupdate" class="padded-list">Firmware update</a>
-					</li>
-					<li>
-					  <a href="#!pageruxitsettings" class="padded-list">Ruxit integration</a>
-					</li>
-					<li>
-					  <a href="wifisettings.html" class="padded-list">Wifi settings</a>
-					</li>
-				</ul> 
- 
+<head>
+	<meta charset="utf-8" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height"
+	/>
+	<link rel="stylesheet" href="phonon-base.min.css" />
+	<link rel="stylesheet" href="lists.min.css" />
+	<link rel="stylesheet" href="forms.min.css" />
+	<link rel="stylesheet" href="icons.min.css" />
+	<title>Dynatrace UFO</title>
+</head>
 
- 			</div>
-
-        </home>
-
-        <!-- for the second page, Phonon will load its content. --> 
-        <pageinfo data-page="true">
-					<header class="header-bar">
-				<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
-				<div class="center">
-					<h1 class="title">Info</h1>
-				</div>
-			</header>
-			<div class="content">
-				<ul class="list">
-					<li class="divider">System</li>
-					<!-- TODO class=pull-right doesnt work for wider strings -->
-					<li class="padded-list">Heap: <span class="pull-right" id="infoheap">-</span></li>
-					<li class="padded-list">Firmware: <span id="infofirmwareversion">-</span></li>
-					<li class="divider">Network</li>
-					<li class="padded-list">SSID: <span id="infossid">-</span></li>
-					<li class="padded-list">IP: <span id="infoipaddress">-</span></li>
-					<li class="padded-list">Subnetmask: <span id="infoipsubnetmask">-</span></li>
-					<li class="padded-list">Gateway: <span id="infoipgateway">-</span></li>
-					<li class="padded-list">DNS: <span id="infoipdns">-</span></li>
-					<li class="padded-list">Hostname: <span id="infohostname">-</span></li>
-					<li class="padded-list">Macaddress: <span id="infomacaddress">-</span></li>
-					<li class="padded-list">Wifi autoconnect: <span id="infowifiautoconnect">-</span></li>					<li class="divider">Accesspoint</li>
-					<li class="padded-list">IP: <span id="infoapipaddress">-</span></li>
-					<li class="padded-list">Connected stations: <span id="infoapconnectedstations">-</span></li>
-				</ul>
-			</div> 
-		</pageinfo>
-		
-	  <pagefirmwareupdate data-page="true">
+<body>
+	<!-- the home page is the default one. This page does not require to call its content because we define on its tag.-->
+	<home data-page="true">
 		<header class="header-bar">
-		  <button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
-		  <div class="center">
-			<h1 class="title">Firmware upload</h1>
-		  </div>
+			<div class="center">
+				<h1 class="title">Dynatrace UFO</h1>
+			</div>
+		</header>
+
+		<div class="content">
+			<ul class="list">
+				<li class="divider">UFO communication examples (REST calls)</li>
+				<li>
+					<span class="padded-list">/api?logo=on|off</span>
+					<button class="btn btn-flat primary pull-right" data-api="logo=off" id="led1off">Off</button>
+					<button class="btn btn-flat primary pull-right" data-api="logo=on" id="led1on">On</button>
+				</li>
+				<li>
+					<span class="padded-list">/api?whirl=on|off</span>
+					<button class="btn btn-flat primary pull-right" data-api="whirl=off" id="whirloff">Off</button>
+					<button class="btn btn-flat primary pull-right" data-api="whirl=on" id="whirlon">On</button>
+				</li>
+				<li>
+					<span class="padded-list">/api?whirl=r|g</span>
+					<button class="btn btn-flat negative pull-right" data-api="whirl=r" id="whirlred">R</button>
+					<button class="btn btn-flat positive pull-right" data-api="whirl=g" id="whirlgreen">G</button>
+				</li>
+				<li class="divider">UFO machine room</li>
+				<li>
+					<a href="#!pageinfo" class="padded-list">Info</a>
+				</li>
+				<li>
+					<a href="#!pagefirmwareupdate" class="padded-list">Firmware update</a>
+				</li>
+				<li>
+					<a href="#!pageruxitsettings" class="padded-list">Ruxit integration</a>
+				</li>
+				<li>
+					<!--<a href="wifisettings.html" class="padded-list">Wifi settings</a>-->
+					<a href="#!pagewifisettings" class="padded-list">WIFI Settings</a>
+				</li>
+			</ul>
+
+
+		</div>
+
+	</home>
+
+	<!-- for the second page, Phonon will load its content. -->
+	<pageinfo data-page="true">
+		<header class="header-bar">
+			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
+			<div class="center">
+				<h1 class="title">Info</h1>
+			</div>
 		</header>
 		<div class="content">
-		  <div class="input-wrapper list">
-		    <form method='POST' action='/update' enctype='multipart/form-data'> 
-				<span class="padded-list">Select firmware file like ufo.ino.bin or index.html (do not upload the ufo.spiffs.bin here)</span>
-				<li>
-					<input class="padded-full" type="file" name="update" id="firmwarefilename">
-				</li>
-				<li>
-					<button class="btn btn-submit fit-parent primary" type="submit">Update</button>
-				</li>
-			</form>
-		  </div>          
-		  
-		</div> 
-	  </pagefirmwareupdate>
-	  
-	  <pagewifisettings data-page="true">
+			<ul class="list">
+				<li class="divider">System</li>
+				<!-- TODO class=pull-right doesnt work for wider strings -->
+				<li class="padded-list">Heap: <span class="pull-right" id="infoheap">-</span></li>
+				<li class="padded-list">Firmware: <span id="infofirmwareversion">-</span></li>
+				<li class="divider">Network</li>
+				<li class="padded-list">SSID: <span id="infossid">-</span></li>
+				<li class="padded-list">IP: <span id="infoipaddress">-</span></li>
+				<li class="padded-list">Subnetmask: <span id="infoipsubnetmask">-</span></li>
+				<li class="padded-list">Gateway: <span id="infoipgateway">-</span></li>
+				<li class="padded-list">DNS: <span id="infoipdns">-</span></li>
+				<li class="padded-list">Hostname: <span id="infohostname">-</span></li>
+				<li class="padded-list">Macaddress: <span id="infomacaddress">-</span></li>
+				<li class="padded-list">Wifi autoconnect: <span id="infowifiautoconnect">-</span></li>
+				<li class="divider">Accesspoint</li>
+				<li class="padded-list">IP: <span id="infoapipaddress">-</span></li>
+				<li class="padded-list">Connected stations: <span id="infoapconnectedstations">-</span></li>
+			</ul>
+		</div>
+	</pageinfo>
+
+	<pagefirmwareupdate data-page="true">
+		<header class="header-bar">
+			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
+			<div class="center">
+				<h1 class="title">Firmware upload</h1>
+			</div>
+		</header>
+		<div class="content">
+			<div class="input-wrapper list">
+				<form method='POST' action='/update' enctype='multipart/form-data'>
+					<span class="padded-list">Select firmware file like ufo.ino.bin or index.html (do not upload the ufo.spiffs.bin here)</span>
+					<li>
+						<input class="padded-full" type="file" name="update" id="firmwarefilename"/>
+					</li>
+					<li>
+						<button class="btn btn-submit fit-parent primary" type="submit">Update</button>
+					</li>
+				</form>
+			</div>
+
+		</div>
+	</pagefirmwareupdate>
+
+	<!-- <pagewifisettings data-page="true">
 		<header class="header-bar">
 			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
 			<div class="center">
@@ -121,40 +126,84 @@
 			<input type="password" placeholder="********" id="wifipwd">
 			<button id="submitwifisettings" class="btn fit-parent primary">Apply WIFI setting</button>
 		</div>
+	</pagewifisettings>-->
+
+	<pagewifisettings data-page="true">
+		<header class="header-bar">
+			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
+			<div class="center">
+				<h1 class="title">Dynatrace UFO - Configure WIFI</h1>
+			</div>
+		</header>
+		<div class="content">
+			<div class="padded-full">
+				<ul style="color:dimgrey">
+					<b>Welcome to the Dynatrace UFO</b><br/>Firmware version: <span id="firmwareversion">---</span>
+					<p/><br/>
+						<span style="color:dimgrey">Please configure the Wifi settings of your UFO first. In order to access the UFO AFTER submitting the Wifi settings, you may do the following:</span>
+						<li>Option 1: Open Windows file explorer and click on "Network" to display all devices that are discovered through SSDP.
+						</li>
+						<li>Option 2: by default the UFO registers with hostname <b id="hostname">---</b> at you access point. so try <span id="ufourl">http://hostname</span>:
+							TODO: add auto-redirect to URL.
+						</li>
+						<li>Option 3: Remember your MAC address <b><span id="macaddress">---</span></b> 
+						as you may want to lookup the IP address
+							in your Wifi Accesspoint.</li>
+				</ul>
+				<!--<div class="padded-full">
+					<input type="text" placeholder="SSID" id="ssid"></input>
+					<input type="password" placeholder="************" id="wifipwd"></input>
+				</div>
+				<div class="padded-full">
+					<button id="submitwifisettings" class="btn fit-parent primary">Apply WIFI setting</button>
+				</div>-->
+				
+				<form method='GET' action='/api'>
+					<!--<span class="padded-list">Configure Ruxit integration. Submit empty fields to disable integration.</span>-->
+					<div class="padded-full">
+						<input type="text" name="ssid" placeholder="SSID" id="ssid" />
+						<input type="password" name="pwd" placeholder="*************" id="wifipwd" />
+					</div>
+					<div class="padded-full">
+						<button class="btn btn-submit fit-parent primary" type="submit">Apply WIFI settings and reboot.</button>
+					</div>
+				</form>
+			</div>
+		</div>
 	</pagewifisettings>
-		
-    <pageruxitsettings data-page="true">
+
+	<pageruxitsettings data-page="true">
 		<header class="header-bar">
 			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
 			<div class="center">
 				<h1 class="title">Ruxit Integration Settings</h1>
 			</div>
-		</header> 
+		</header>
 		<div class="content">
-		  <div class="input-wrapper list">
-		    <form method='GET' action='/api'> 
-				<span class="padded-list">Configure Ruxit integration. Submit empty fields to disable integration.</span>
-                <div class="padded-full">
-                    <input type="text" name="ruxit-environmentid" placeholder="environment-id" id="ruxit-environmentid">
-                    <input type="text" name="ruxit-apikey" placeholder="api-key" id="ruxit-apikey">
-                </div>
-                <div class="padded-full">
-					<button class="btn btn-submit fit-parent primary" type="submit">Apply settings and reboot.</button>
-                </div> 
-			</form>
-		  </div>          
+			<div class="input-wrapper list">
+				<form method='GET' action='/api'>
+					<span class="padded-list">Configure Ruxit integration. Submit empty fields to disable integration.</span>
+					<div class="padded-full">
+						<input type="text" name="ruxit-environmentid" placeholder="environment-id" id="ruxit-environmentid" />
+						<input type="text" name="ruxit-apikey" placeholder="api-key" id="ruxit-apikey" />
+					</div>
+					<div class="padded-full">
+						<button class="btn btn-submit fit-parent primary" type="submit">Apply settings and reboot.</button>
+					</div>
+				</form>
+			</div>
 		</div>
-    </pageruxitsettings>
+	</pageruxitsettings>
 
 
 
-        <!-- scripts -->
-        <script src="phonon-core.min.js"></script>
+	<!-- scripts -->
+	<script src="phonon-core.min.js"></script>
 
-        <!-- our app config -->
-        <!-- <script src="app.js"></script> -->
-		<script>
-			phonon.options({
+	<!-- our app config -->
+	<!-- <script src="app.js"></script> -->
+	<script>
+		phonon.options({
 				navigator: {
 					defaultPage: 'home',
 					animatePages: true,
@@ -173,33 +222,6 @@
 			 * page events such as onCreate, onReady, etc
 			*/
 			app.on({page: 'home', preventClose: false, content: null} , function(activity) {
-
-				var onWifiSettingsSubmit = function(evt) {
-					var target = evt.target;
-					//action = 'ok';
-					
-					var req = phonon.ajax({
-						method: 'GET',
-						url: 'api?ssid=' + document.querySelector('#ssid').value + '&pwd=' + document.querySelector('#wifipwd').value,
-						//crossDomain: false,
-						dataType: 'json',
-						//contentType: '',
-						//data: {'ssid': document.querySelector('#ssid').value, 'pwd': document.querySelector('#wifipwd').value}, 
-						//data: { 'key1': 'val1', 'key2': 'val2'},
-						//timeout: 5000,
-						success: function(res, xhr) {
-							console.log(res);
-						},
-						
-						error: function(res, flagError, xhr) {
-							console.error(flagError);
-							console.log(res);
-						}
-					}); 
-
-				}; 
-				
-				
 				var onApi = function(evt) {
 					var target = evt.target;
 					var apicall = target.getAttribute('data-api');
@@ -226,7 +248,7 @@
 				}; 
                 
 				activity.onCreate(function() {
-					document.querySelector('#submitwifisettings').on('tap', onWifiSettingsSubmit);
+					// document.querySelector('#submitwifisettings').on('tap', onWifiSettingsSubmit);
 					document.querySelector('#led1on').on('tap', onApi);
 					document.querySelector('#led1off').on('tap', onApi);
 					document.querySelector('#whirlon').on('tap', onApi);
@@ -235,6 +257,31 @@
 					document.querySelector('#whirlgreen').on('tap', onApi);
 				}) 
 			});
+			
+			/* app.on({page: 'pagewifisettings', preventClose: false, content: null} , function(activity) {
+
+				var onWifiSettingsSubmit = function(evt) {
+					console.log('api?ssid=' + encodeURI(document.querySelector('#ssid').value) + '&pwd=' + encodeURI(document.querySelector('#wifipwd').value));
+					var req = phonon.ajax({
+						method: 'GET',
+						url: 'api?ssid=' + encodeURI(document.querySelector('#ssid').value) + '&pwd=' + encodeURI(document.querySelector('#wifipwd').value),
+						dataType: 'json',
+						success: function(res, xhr) {
+							console.log(res);
+						},
+						error: function(res, flagError, xhr) {
+							console.error(flagError);
+							console.log(res);
+						}
+					}); 
+
+				}; 
+
+				activity.onCreate(function() {
+					document.querySelector('#submitwifisettings').on('tap', onWifiSettingsSubmit);
+					document.querySelector('#submitwifisettings').on('click', onWifiSettingsSubmit);
+				})
+			}); */
 
 			document.on('pageopened', function(evt) {
 				console.log(evt.detail.page + ' is opened');
@@ -267,22 +314,42 @@
 						}
 					}); 
 				}
+				if (evt.detail.page == "pagewifisettings") {
+					var req = phonon.ajax({
+						method: 'GET',
+						url: 'info',
+						dataType: 'text/json',
+						success: function(res, xhr) {
+							console.log(xhr.response);
+                            var result = JSON.parse(xhr.response);
+                            document.getElementById('ssid').value = result.ssid;
+							document.getElementById('macaddress').innerHTML = result.macaddress;
+							document.getElementById('hostname').innerHTML = result.hostname;
+							document.getElementById('ufourl').href = "http://"+result.hostname;
+							document.getElementById('firmwareversion').innerHTML = result.firmwareversion;
+						},
+						error: function(res, flagError, xhr) {
+							console.error(flagError);
+							console.log(res);
+						}
+					}); 
+				}
 			});
 
 			app.on({page: 'pageinfo', preventClose: false, content: null} , function(activity) {
 			});
-		</script>
+	</script>
 
 
-		<script>
+	<script>
 		// Let's go!
 		app.start();
-					
-		</script>
+	</script>
 
-		
-		
-		
+
+
+
 
 </body>
+
 </html>

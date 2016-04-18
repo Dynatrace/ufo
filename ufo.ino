@@ -20,7 +20,7 @@
   */ 
 
 boolean debug = true;
-#define ENABLE_SSDP // SSDP takes 2.5KB RAM
+#define ENABLE_SSDP true // SSDP takes 2.5KB RAM
 
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
@@ -266,6 +266,7 @@ void handleNotFound() {
     message += " " + httpServer.argName ( i ) + ": " + httpServer.arg ( i ) + "\n";
   }
 
+  httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
   httpServer.send ( 404, "text/plain", message );
 } 
 
@@ -285,8 +286,8 @@ void infoHandler() {
   json += ", \"wifiautoconnect\":\""+String(WiFi.getAutoConnect())+"\"";
   json += ", \"firmwareversion\":\""+String(FIRMWARE_VERSION)+"\"";
   json += "}";
-  httpServer.send(200, "text/json", json);
   httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
+  httpServer.send(200, "text/json", json);
   json = String();
 }
 
@@ -364,6 +365,7 @@ void apiHandler() {
                           "<center>Configuration succeeded! Ufo is rebooting. Redirecting to homepage in 10 seconds...</center>"  
                         "</body>"  
                       "</html>";
+    httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
     httpServer.send(200, "text/html", response);
     ESP.restart();
   }   
@@ -379,8 +381,8 @@ void apiHandler() {
     newWifiHostname = httpServer.arg("hostname");
   }
 
-  httpServer.send(200);
   httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
+  httpServer.send(200);
 }
 
 // Dynatrace Ruxit integration:
@@ -400,8 +402,8 @@ void ruxitPostHandler() {
     if (debug) Serial.println("Ruxit JSON POST data MISSING!");
   }
 
-  httpServer.send(200);
   httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
+  httpServer.send(200);
 }
 
 void pollRuxit() {
@@ -480,8 +482,8 @@ void generateHandler() {
     String top = "<html><header>Generator</header><body>sending " + String(bytes) + " bytes of additional payload.<p>";
     String end = "</body></html>";
     httpServer.setContentLength(bytes+top.length()+end.length());
-    httpServer.send(200);
     httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
+    httpServer.send(200);
     String chunk = "";
     httpServer.sendContent(top);
     String a = String("a");
@@ -506,7 +508,8 @@ void updatePostHandler() {
     if (Update.hasError()) {
       Update.printError(error);
     }
-    String response = "<html>" 
+    String response =   "<!DOCTYPE html>"
+                        "<html>" 
                         "<head>"  
                           "<title>IU Webmaster redirect</title>"
                           "<META http-equiv='refresh' content='10;URL=/'>"
@@ -517,6 +520,7 @@ void updatePostHandler() {
     response+=            " bytes transferred<p>Device is being rebooted. Redirecting to homepage in 10 seconds...</center>"  
                         "</body>"  
                       "</html>";
+    httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
     httpServer.send(200, "text/html", response);
     ESP.restart();
 }
@@ -606,8 +610,8 @@ void indexHtmlHandler() {
 
 // handles GET request to "/update" and redirects to "index.html/#!pagefirmwareupdate"
 void updateHandler() {
-    httpServer.send(301, "text/html", "/#!pagefirmwareupdate");
     httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
+    httpServer.send(301, "text/html", "/#!pagefirmwareupdate");
 }
 
 
@@ -770,13 +774,13 @@ void setup ( void ) {
   httpServer.serveStatic("/font.svg", SPIFFS, "/font.svg");
   httpServer.serveStatic("/font.ttf", SPIFFS, "/font.ttf");
 
-  if (wifiConfigMode) { 
-      httpServer.serveStatic("/", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
-      httpServer.serveStatic("/index.html", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
-  } else {
+  //if (wifiConfigMode) { 
+  //    httpServer.serveStatic("/", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
+  //    httpServer.serveStatic("/index.html", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
+  //} else {
       httpServer.serveStatic("/", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
       httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
-  }
+  //}
   //httpServer.on ( "/", HTTP_GET, handleRoot );
   httpServer.onNotFound ( handleNotFound );
 
@@ -821,7 +825,7 @@ void loop ( void ) {
   tick++;
 
   handleFactoryReset();
-  handleNewWifiSettings();
+  handleNewWifiSettings(); //TODO##################################################### simplify by moving this back to the HTTP handler
   handleSmartConfig();
   httpServer.handleClient();
 
