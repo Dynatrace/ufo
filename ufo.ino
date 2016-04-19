@@ -598,36 +598,35 @@ void updateHandler() {
 
 
 void WiFiEvent(WiFiEvent_t event) {
-  if (debug) {
     switch (event) {
       case WIFI_EVENT_STAMODE_GOT_IP:
-        Serial.println("WiFi connected. IP address: " + String(WiFi.localIP().toString()) + " hostname: " + WiFi.hostname() + "  SSID: " + WiFi.SSID());
+        if (debug) Serial.println("WiFi connected. IP address: " + String(WiFi.localIP().toString()) + " hostname: " + WiFi.hostname() + "  SSID: " + WiFi.SSID());
         wifiStationOK = true;
 #ifdef ENABLE_SDDP
         startSSDP();
 #endif
         break;
       case WIFI_EVENT_STAMODE_DISCONNECTED:
-        Serial.println(F("WiFi client lost connection"));
+        if (debug) Serial.println(F("WiFi client lost connection"));
         wifiStationOK = false;
         break;
       case WIFI_EVENT_STAMODE_CONNECTED:
-        Serial.println(F("WiFi client connected"));
+        if (debug) Serial.println(F("WiFi client connected"));
         break;
       case WIFI_EVENT_STAMODE_AUTHMODE_CHANGE:
-        Serial.println(F("WiFi client authentication mode changed."));
+        if (debug) Serial.println(F("WiFi client authentication mode changed."));
         break;
       //case WIFI_STAMODE_DHCP_TIMEOUT:                             THIS IS A NEW CONSTANT ENABLE WITH UPDATED SDK
       //  Serial.println("WiFi client DHCP timeout reached.");
       //break;
       case WIFI_EVENT_SOFTAPMODE_STACONNECTED:
-        Serial.println("WiFi accesspoint: new client connected. Clients: "  + String(WiFi.softAPgetStationNum()));
+        if (debug) Serial.println("WiFi accesspoint: new client connected. Clients: "  + String(WiFi.softAPgetStationNum()));
         if (WiFi.softAPgetStationNum() > 0) {
           wifiAPisConnected = true;
         }
         break;
       case WIFI_EVENT_SOFTAPMODE_STADISCONNECTED:
-        Serial.println("WiFi accesspoint: client disconnected. Clients: " + String(WiFi.softAPgetStationNum()));
+        if (debug) Serial.println("WiFi accesspoint: client disconnected. Clients: " + String(WiFi.softAPgetStationNum()));
         if (WiFi.softAPgetStationNum() > 0) {
           wifiAPisConnected = true;
         } else {
@@ -638,7 +637,7 @@ void WiFiEvent(WiFiEvent_t event) {
         //Serial.println("WiFi accesspoint: probe request received.");
         break;
     }
-  }
+  
 }
 
 void printSpiffsContents() {
