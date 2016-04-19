@@ -1,23 +1,23 @@
- /*
-  * Requires Arduino IDE 1.6.8 or later 
-  * ESP8266 Arduino library v2.2.0 or later
-  * Adafruit Huzzah ESP8266-E12, 4MB flash, uploads with 3MB SPIFFS (3MB filesystem of total 4MB) -- note that SPIFFS upload packages up everything from the "data" folder and uploads it via serial (same procedure as uploading sketch) or OTA. however, OTA is disabled by default
-  * Use Termite serial terminal software for debugging
-  * 
-  * NOTE  
-  *  ESP8266 stores last set SSID and PWD in reserved flash area 
-  *  connect to SSID huzzah, and call http://192.168.4.1/api?ssid=<ssid>&pwd=<password> to set new SSID/PASSWORD 
-  *        
-  *        
-  *        
-  * TODO       
-  *     Web contents should provide   
-  *     1) DONE: get quickly started by configuring WIFI
-  *     2) activate some demo scenarios (showcase fancy illumination patterns)
-  *     3) providing help about available API calls
-  *     4) DONE: web based firmware upload; firmware updates (load from github or upload to device? or both?)
-  *     5) smartconfig https://tzapu.com/esp8266-smart-config-esp-touch-arduino-ide/
-  */ 
+/*
+   Requires Arduino IDE 1.6.8 or later
+   ESP8266 Arduino library v2.2.0 or later
+   Adafruit Huzzah ESP8266-E12, 4MB flash, uploads with 3MB SPIFFS (3MB filesystem of total 4MB) -- note that SPIFFS upload packages up everything from the "data" folder and uploads it via serial (same procedure as uploading sketch) or OTA. however, OTA is disabled by default
+   Use Termite serial terminal software for debugging
+
+   NOTE
+    ESP8266 stores last set SSID and PWD in reserved flash area
+    connect to SSID huzzah, and call http://192.168.4.1/api?ssid=<ssid>&pwd=<password> to set new SSID/PASSWORD
+
+
+
+   TODO
+       Web contents should provide
+       1) DONE: get quickly started by configuring WIFI
+       2) activate some demo scenarios (showcase fancy illumination patterns)
+       3) providing help about available API calls
+       4) DONE: web based firmware upload; firmware updates (load from github or upload to device? or both?)
+       5) smartconfig https://tzapu.com/esp8266-smart-config-esp-touch-arduino-ide/
+*/
 
 boolean debug = true;
 //#define ENABLE_SSDP  // SSDP takes 2.5KB RAM
@@ -31,7 +31,7 @@ boolean debug = true;
 //#include <WiFiUdp.h>
 //#include <ArduinoOTA.h>
 #ifdef ENABLE_SDDP
-  #include <ESP8266SSDP.h>
+#include <ESP8266SSDP.h>
 #endif
 #include <Wire.h>
 #include <FS.h>
@@ -41,7 +41,7 @@ boolean debug = true;
 #include <math.h>
 #include <StreamString.h>
 
-#define FIRMWARE_VERSION __DATE__ " " __TIME__ 
+#define FIRMWARE_VERSION __DATE__ " " __TIME__
 
 #define DEFAULT_HOSTNAME "ufo"
 #define DEFAULT_APSSID "ufo"
@@ -58,7 +58,7 @@ boolean debug = true;
 Adafruit_DotStar ledstrip_logo = Adafruit_DotStar(4, PIN_DOTSTAR_LOGO, PIN_DOTSTAR_CLOCK, DOTSTAR_BGR); //NOTE: in case the colors dont match, check out the last color order parameter
 Adafruit_DotStar ledstrip_lowerring = Adafruit_DotStar(15, PIN_DOTSTAR_LOWERRING, PIN_DOTSTAR_CLOCK, DOTSTAR_BRG);
 Adafruit_DotStar ledstrip_upperring = Adafruit_DotStar(15, PIN_DOTSTAR_UPPERRING, PIN_DOTSTAR_CLOCK, DOTSTAR_BRG);
-  
+
 byte redcountUpperring = 5;
 byte redcountLowerring = 10;
 
@@ -92,13 +92,13 @@ String ruxitApiKey;
 bool LoadConfig() {
   File configFile = SPIFFS.open(CONFIG_FILE, "r");
   if (!configFile) {
-    if (debug) Serial.println("Failed to open config file");
+    if (debug) Serial.println(F("Failed to open config file"));
     return false;
   }
 
   size_t size = configFile.size();
   if (size > (MAX_CONFIGFILESIZE)) {
-    if (debug) Serial.println("Config file size is too large");
+    if (debug) Serial.println(F("Config file size is too large"));
     return false;
   }
 
@@ -110,31 +110,31 @@ bool LoadConfig() {
   // use configFile.readString instead.
   configFile.readBytes(buf.get(), size);
 
-  StaticJsonBuffer<MAX_CONFIGFILESIZE+1> jsonBuffer;
+  StaticJsonBuffer < MAX_CONFIGFILESIZE + 1 > jsonBuffer;
   JsonObject& json = jsonBuffer.parseObject(buf.get());
 
   if (!json.success()) {
-    if (debug) Serial.println("Failed to parse config file");
+    if (debug) Serial.println(F("Failed to parse config file"));
     return false;
   }
 
-  ruxitEnvironmentID =(const char*)json["ruxit-environmentid"];
-  ruxitApiKey = (const char*)json["ruxit-apikey"];
+  ruxitEnvironmentID = (const char*)json[F("ruxit-environmentid")];
+  ruxitApiKey = (const char*)json[F("ruxit-apikey")];
   return true;
 }
-  
-  
+
+
 
 // note that writing to the SPIFFS wears the flash memory; so make sure to only use it when saving is really required.
 bool SaveConfig() {
-  StaticJsonBuffer<MAX_CONFIGFILESIZE+1> jsonBuffer;
+  StaticJsonBuffer < MAX_CONFIGFILESIZE + 1 > jsonBuffer;
   JsonObject& json = jsonBuffer.createObject();
-  json["ruxit-environmentid"] = ruxitEnvironmentID;
-  json["ruxit-apikey"] = ruxitApiKey;
+  json[F("ruxit-environmentid")] = ruxitEnvironmentID;
+  json[F("ruxit-apikey")] = ruxitApiKey;
 
   File configFile = SPIFFS.open(CONFIG_FILE, "w");
   if (!configFile) {
-    if (debug) Serial.println("Failed to open config file for writing");
+    if (debug) Serial.println(F("Failed to open config file for writing"));
     return false;
   }
 
@@ -144,40 +144,40 @@ bool SaveConfig() {
 }
 
 #ifdef ENABLE_SDDP
-  void startSSDP() {
-    // windows plug-and-play discovery should make it easier to find the UFO once its hooked-up on WIFI
-    SSDP.setSchemaURL("description.xml");
-    SSDP.setHTTPPort(80);
-    SSDP.setName("Dynatrace UFO");
-    SSDP.setSerialNumber(String(ESP.getChipId()));
-    SSDP.setURL("index.html"); // ****************** CAN CHANGE TO "/"????? would eliminate the need of index.html
-    SSDP.setModelName("UFO");
-    SSDP.setModelNumber(FIRMWARE_VERSION);
-    SSDP.setModelURL("http://dynatrace.github.io/ufo/");
-    SSDP.setManufacturer("Dynatrace LLC open-source project");
-    SSDP.setManufacturerURL("http://dynatrace.github.io/ufo/");
-    SSDP.begin();
-  }
+void startSSDP() {
+  // windows plug-and-play discovery should make it easier to find the UFO once its hooked-up on WIFI
+  SSDP.setSchemaURL(F("description.xml"));
+  SSDP.setHTTPPort(80);
+  SSDP.setName(F("Dynatrace UFO"));
+  SSDP.setSerialNumber(String(ESP.getChipId()));
+  SSDP.setURL(F("index.html")); // ****************** CAN CHANGE TO "/"????? would eliminate the need of index.html
+  SSDP.setModelName("UFO");
+  SSDP.setModelNumber(FIRMWARE_VERSION);
+  SSDP.setModelURL(F("http://dynatrace.github.io/ufo/"));
+  SSDP.setManufacturer(F("Dynatrace LLC open-source project"));
+  SSDP.setManufacturerURL(F("http://dynatrace.github.io/ufo/"));
+  SSDP.begin();
+}
 #endif
 /*
-// TODO read/write additional settings from/to eeprom
-boolean readEEPROMconfig() {
+  // TODO read/write additional settings from/to eeprom
+  boolean readEEPROMconfig() {
   EEPROM.begin(1024); // Note: we can go up to 4kB. however, a smaller value reduces RAM consumption
   Serial.print("Reading EEPROM address(0): ");
   Serial.println(EEPROM.read(0));
-}
+  }
 */
 
 //format bytes
-String formatBytes(size_t bytes){
-  if (bytes < 1024){
-    return String(bytes)+"B";
-  } else if(bytes < (1024 * 1024)){
-    return String(bytes/1024.0)+"KB";
-  } else if(bytes < (1024 * 1024 * 1024)){
-    return String(bytes/1024.0/1024.0)+"MB";
+String formatBytes(size_t bytes) {
+  if (bytes < 1024) {
+    return String(bytes) + "B";
+  } else if (bytes < (1024 * 1024)) {
+    return String(bytes / 1024.0) + "KB";
+  } else if (bytes < (1024 * 1024 * 1024)) {
+    return String(bytes / 1024.0 / 1024.0) + "MB";
   } else {
-    return String(bytes/1024.0/1024.0/1024.0)+"GB";
+    return String(bytes / 1024.0 / 1024.0 / 1024.0) + "GB";
   }
 }
 
@@ -186,16 +186,16 @@ String formatBytes(size_t bytes){
 // api?ssid=<ssid>&pwd=<password>
 
 void handleSmartConfig() {
-   if (wifiConfigMode) {
-      if (WiFi.smartConfigDone()) {
-         if (debug) {
-           Serial.println("SMARTCONFIG SUCCEEDED - New Wifi settings: " + WiFi.SSID() + " / " + WiFi.psk());
-           Serial.println("Restarting....");
-           Serial.flush();
-         }
-         ESP.restart();
+  if (wifiConfigMode) {
+    if (WiFi.smartConfigDone()) {
+      if (debug) {
+        Serial.println(String(F("SMARTCONFIG SUCCEEDED - New Wifi settings: ")) + WiFi.SSID() + " / " + WiFi.psk());
+        Serial.println(F("Restarting...."));
+        Serial.flush();
       }
-   }
+      ESP.restart();
+    }
+  }
 }
 
 
@@ -206,8 +206,8 @@ void handleFactoryReset() {
       return;
     }
     if (debug) {
-      Serial.println("*********FACTORYRESET***********");
-      //WiFi.printDiag(Serial); 
+      Serial.println(F("*********FACTORYRESET***********"));
+      //WiFi.printDiag(Serial);
     }
     WiFi.disconnect(false); //disconnect and disable station mode; delete old config
     // default IP address for Access Point is 192.168.4.1
@@ -218,9 +218,9 @@ void handleFactoryReset() {
       Serial.println("Wifi reset to SSID: " + WiFi.SSID() + " pass: " + WiFi.psk());
       Serial.println("Wifi config mode enabled: Access point enabled at open Wifi SSID: " DEFAULT_APSSID);
       Serial.println("Restarting....");
-      //WiFi.printDiag(Serial); 
+      //WiFi.printDiag(Serial);
       Serial.flush();
-    }  
+    }
     ESP.restart();
 
   }
@@ -229,22 +229,22 @@ void handleFactoryReset() {
 // send a HTML response about reboot progress
 // reboot device therafter.
 void httpReboot(String message) {
-   String response = "<!DOCTYPE html>"
-                      "<html>" 
-                      "<head>"  
-                        "<title>Dynatrace UFO configuration changed. Rebooting now... </title>"
-                        "<META http-equiv='refresh' content='10;URL=/'>"
-                      "</head>"  
-                      "<body>"
-                        "<center>";
-  response+=             message; 
-  response+=            "Device is being rebooted. Redirecting to homepage in 10 seconds...</center>"  
-                      "</body>"  
-                    "</html>";
-                    
-    httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
-    httpServer.send(200, "text/html", response);
-    ESP.restart();
+  String response = F("<!DOCTYPE html>"
+                    "<html>"
+                    "<head>"
+                    "<title>Dynatrace UFO configuration changed. Rebooting now... </title>"
+                    "<META http-equiv='refresh' content='10;URL=/'>"
+                    "</head>"
+                    "<body>"
+                    "<center>");
+  response +=             message;
+  response +=            F("Device is being rebooted. Redirecting to homepage in 10 seconds...</center>"
+                         "</body>"
+                         "</html>");
+
+  httpServer.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
+  httpServer.send(200, F("text/html"), response);
+  ESP.restart();
 }
 
 // HTTP not found response
@@ -262,62 +262,62 @@ void handleNotFound() {
     message += " " + httpServer.argName ( i ) + ": " + httpServer.arg ( i ) + "\n";
   }
 
-  httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
-  httpServer.send ( 404, "text/plain", message );
-} 
+  httpServer.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
+  httpServer.send ( 404, F("text/plain"), message );
+}
 
 void infoHandler() {
-  
+
   String json = "{";
-  json += "\"heap\":\""+String(ESP.getFreeHeap())+"\"";
-  json += ", \"ssid\":\""+String(WiFi.SSID())+"\"";
-  json += ", \"ipaddress\":\""+WiFi.localIP().toString()+"\"";
-  json += ", \"ipgateway\":\""+WiFi.gatewayIP().toString()+"\"";
-  json += ", \"ipdns\":\""+WiFi.dnsIP().toString()+"\"";
-  json += ", \"ipsubnetmask\":\""+WiFi.subnetMask().toString()+"\"";
-  json += ", \"macaddress\":\""+WiFi.macAddress()+"\"";
-  json += ", \"hostname\":\""+WiFi.hostname()+"\"";
-  json += ", \"apipaddress\":\""+WiFi.softAPIP().toString()+"\"";
-  json += ", \"apconnectedstations\":\""+String(WiFi.softAPgetStationNum())+"\"";
-  json += ", \"wifiautoconnect\":\""+String(WiFi.getAutoConnect())+"\"";
-  json += ", \"firmwareversion\":\""+String(FIRMWARE_VERSION)+"\"";
+  json += "\"heap\":\"" + String(ESP.getFreeHeap()) + "\"";
+  json += ", \"ssid\":\"" + String(WiFi.SSID()) + "\"";
+  json += ", \"ipaddress\":\"" + WiFi.localIP().toString() + "\"";
+  json += ", \"ipgateway\":\"" + WiFi.gatewayIP().toString() + "\"";
+  json += ", \"ipdns\":\"" + WiFi.dnsIP().toString() + "\"";
+  json += ", \"ipsubnetmask\":\"" + WiFi.subnetMask().toString() + "\"";
+  json += ", \"macaddress\":\"" + WiFi.macAddress() + "\"";
+  json += ", \"hostname\":\"" + WiFi.hostname() + "\"";
+  json += ", \"apipaddress\":\"" + WiFi.softAPIP().toString() + "\"";
+  json += ", \"apconnectedstations\":\"" + String(WiFi.softAPgetStationNum()) + "\"";
+  json += ", \"wifiautoconnect\":\"" + String(WiFi.getAutoConnect()) + "\"";
+  json += ", \"firmwareversion\":\"" + String(FIRMWARE_VERSION) + "\"";
   json += "}";
-  httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
+  httpServer.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
   httpServer.send(200, "text/json", json);
   json = String();
 }
 
 void apiHandler() {
-  if (httpServer.hasArg("logo")) {
+  if (httpServer.hasArg(F("logo"))) {
     Serial.println("LED arg found" + httpServer.arg("logo"));
     if (httpServer.arg("logo").equals("on")) {
-      Serial.println("lets turn logoed on");
+      Serial.println(F("lets turn logoed on"));
       logo = true;
     } else if (httpServer.arg("logo").equals("red")) {
-      ledstrip_logo.setPixelColor(0, 255, 0, 0); 
-      ledstrip_logo.setPixelColor(1, 255, 0, 0); 
-      ledstrip_logo.setPixelColor(2, 255, 0, 0); 
-      ledstrip_logo.setPixelColor(3, 255, 0, 0); 
+      ledstrip_logo.setPixelColor(0, 255, 0, 0);
+      ledstrip_logo.setPixelColor(1, 255, 0, 0);
+      ledstrip_logo.setPixelColor(2, 255, 0, 0);
+      ledstrip_logo.setPixelColor(3, 255, 0, 0);
     } else if (httpServer.arg("logo").equals("green")) {
-      ledstrip_logo.setPixelColor(0, 0, 255, 0); 
-      ledstrip_logo.setPixelColor(1, 0, 255, 0); 
-      ledstrip_logo.setPixelColor(2, 0, 255, 0); 
-      ledstrip_logo.setPixelColor(3, 0, 255, 0); 
+      ledstrip_logo.setPixelColor(0, 0, 255, 0);
+      ledstrip_logo.setPixelColor(1, 0, 255, 0);
+      ledstrip_logo.setPixelColor(2, 0, 255, 0);
+      ledstrip_logo.setPixelColor(3, 0, 255, 0);
     } else {
-      Serial.println("lets turn logoed off");
+      Serial.println(F("lets turn logoed off"));
       logo = false;
     }
   }
 
   // to quickly set the RGB colors of the logo remotely
   if (httpServer.hasArg("logoled")) {
-    byte led = byte(httpServer.arg("logoled").toInt());    
-    byte r = byte(httpServer.arg("r").toInt());    
-    byte g = byte(httpServer.arg("g").toInt());    
-    byte b = byte(httpServer.arg("b").toInt());    
-    ledstrip_logo.setPixelColor(led, r, g, b);  
+    byte led = byte(httpServer.arg("logoled").toInt());
+    byte r = byte(httpServer.arg("r").toInt());
+    byte g = byte(httpServer.arg("g").toInt());
+    byte b = byte(httpServer.arg("b").toInt());
+    ledstrip_logo.setPixelColor(led, r, g, b);
   }
-  
+
   if (httpServer.hasArg("whirl")) {
     Serial.println("WHIRL arg found" + httpServer.arg("whirl"));
     String ws = httpServer.arg("whirl");
@@ -325,55 +325,55 @@ void apiHandler() {
       redcountUpperring = 14;
       redcountLowerring = 15;
       whirl = true;
-      Serial.println("whirl red");      
+      Serial.println("whirl red");
     } else if (ws.equals("g")) {
       redcountUpperring = 0;
       redcountLowerring = 1;
       whirl = true;
-      Serial.println("whirl green");      
+      Serial.println("whirl green");
     } else if (ws.equals("b")) {
       whirl = true;
-      Serial.println("whirl blue");      
+      Serial.println("whirl blue");
     } else if (ws.equals("off")) {
       whirl = false;
-      Serial.println("whirl off");      
+      Serial.println("whirl off");
     } else if (ws.equals("on")) {
       whirl = true;
-      Serial.println("whirl on");      
+      Serial.println("whirl on");
     }
   }
 
-  if (httpServer.hasArg("ruxit-environmentid") || httpServer.hasArg("ruxit-apikey")) {
-    if (debug) Serial.println("Storing ruxit integration settings");  
-    ruxitEnvironmentID = httpServer.arg("ruxit-environmentid");
-    ruxitApiKey = httpServer.arg("ruxit-apikey");
+  if (httpServer.hasArg(F("ruxit-environmentid")) || httpServer.hasArg(F("ruxit-apikey"))) {
+    if (debug) Serial.println(F("Storing ruxit integration settings"));
+    ruxitEnvironmentID = httpServer.arg(F("ruxit-environmentid"));
+    ruxitApiKey = httpServer.arg(F("ruxit-apikey"));
     if (debug) Serial.println("Stored: " + httpServer.arg("ruxit-environmentid") + " / " + httpServer.arg("ruxit-apikey"));
     boolean saved = SaveConfig();
     if (debug) Serial.println("Config saved. " + String(saved) + "  rebooting.....");
     if (debug) Serial.flush();
-    httpReboot("Configuration succeeded!");
-  }   
+    httpReboot(F("Configuration succeeded!"));
+  }
 
   // note its required to provide both arguments SSID and PWD
   if (httpServer.hasArg("ssid") && httpServer.hasArg("pwd")) {
     String newWifiSSID = httpServer.arg("ssid");
     String newWifiPwd = httpServer.arg("pwd");
 
-      // if SSID is given, also update wifi credentials
-       if (newWifiSSID.length()) {
-          WiFi.mode(WIFI_STA);
-          WiFi.begin(newWifiSSID.c_str(), newWifiPwd.c_str() );
-       } 
- 
-       if (debug) {
-         Serial.println("New Wifi settings: " + newWifiSSID + " / " + newWifiPwd);
-         Serial.println("Restarting....");
-         Serial.flush();
-       }
+    // if SSID is given, also update wifi credentials
+    if (newWifiSSID.length()) {
+      WiFi.mode(WIFI_STA);
+      WiFi.begin(newWifiSSID.c_str(), newWifiPwd.c_str() );
+    }
 
-      httpReboot("New WIFI settings accepted. Mac address: " + WiFi.macAddress() + "<p/>");
+    if (debug) {
+      Serial.println("New Wifi settings: " + newWifiSSID + " / " + newWifiPwd);
+      Serial.println("Restarting....");
+      Serial.flush();
+    }
 
-  } 
+    httpReboot("New WIFI settings accepted. Mac address: " + WiFi.macAddress() + "<p/>");
+
+  }
   if (httpServer.hasArg("hostname")) {
     String newWifiHostname = httpServer.arg("hostname");
     //TODO##################################################################
@@ -385,7 +385,7 @@ void apiHandler() {
 
 // Dynatrace Ruxit integration:
 // setup a custom Problem Notification Web Hook and provide following JSON elements
-// {"ProblemState":"{State}","ProblemImpact":"{ProblemImpact}"} 
+// {"ProblemState":"{State}","ProblemImpact":"{ProblemImpact}"}
 // Example post data sent using Windows PowerShell
 // Invoke-RestMethod -Method Post -Uri "http://ufo/ruxit" -Body ('{"ProblemState":"{State}","ProblemImpact":"{ProblemImpact}"}') -ContentType ("application/json")
 void ruxitPostHandler() {
@@ -395,12 +395,12 @@ void ruxitPostHandler() {
     JsonObject& jsonObject = jsonBuffer.parseObject(httpServer.arg("plain"));
 
     // TODO HANDLE RUXIT PROBLEM DATA ################################################################################################
-    
+
   } else {
     if (debug) Serial.println("Ruxit JSON POST data MISSING!");
   }
 
-  httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
+  httpServer.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
   httpServer.send(200);
 }
 
@@ -410,102 +410,101 @@ void pollRuxit() {
     if (debug) Serial.println("Poll Ruxit now. Free heap: " + String(ESP.getFreeHeap()));
     if (debug) Serial.flush();
   } else {
-    //if (debug) Serial.println("Poll Ruxit now - DEFERRED - WIFI NOT YET AVAILABLE");
+    //if (debug) Serial.println(F("Poll Ruxit now - DEFERRED - WIFI NOT YET AVAILABLE"));
     return;
   }
 
   // configure server and url
-  // NOTE: SSL takes 18kB extra RAM memory!!! leads out-of-memory crash!!!! thus use a proxy or lambda function in HTTP client mode
-  String url = "https://"+ruxitEnvironmentID+".live.ruxit.com/api/v1/problem/status?Api-Token=" + ruxitApiKey;
-  //url = "http://192.168.183.43/api/v1/problem/status?Api-Token=" + ruxitApiKey;
-  httpClient.begin(url); 
+  // NOTE: SSL takes 18kB extra RAM memory!!! leads out-of-memory crash!!!! thus the HTTPserver and all other RAM consuming items must be turned off
+  //       the fingerprint is needed to validate the server certificate
+  httpClient.begin("https://" + ruxitEnvironmentID + ".live.ruxit.com/api/v1/problem/status?Api-Token=" + ruxitApiKey, F("B1:EC:7B:B9:AA:A1:63:8F:54:4F:0E:BA:C1:5E:1E:DE:D6:78:43:D8"));
 
   if (debug) Serial.println("http.begin executed. free heap: "  + String(ESP.getFreeHeap()));
   if (debug) Serial.flush();
 
-  
-  int httpCode = httpClient.GET();
-  if(httpCode == HTTP_CODE_OK) {
-      if (httpClient.getSize() > 128) {
-        if (debug) Serial.println("Ruxit Problem API call response too large to handle! " + String(httpClient.getSize()) + " bytes");
-        httpClient.end();
-        return;
-      }
 
-      if (debug) Serial.println("GET resulted in OK. free heap: "  + String(ESP.getFreeHeap()));
-      if (debug) Serial.flush();
-      
-      String json = httpClient.getString(); // this allocates memory, so lets not get this string if the HTTP response is too large
-      if (debug) Serial.println("Ruxit Problem API call: " + json);
-      if (debug) Serial.flush();
-      StaticJsonBuffer<128+2> jsonBuffer;  // attention, too large buffers cause stack overflow and thus crashes!
-      JsonObject& jsonObject = jsonBuffer.parseObject(json);
-      long applicationProblems = jsonObject["result"]["totalOpenProblemsCount"];
-      //long applicationProblems = jsonObject["result"]["openProblemCounts"]["APPLICATION"];   
-      if (debug) Serial.println("Ruxit Problem API call - Application problems: " + String(applicationProblems));
-      if (applicationProblems) {
-        redcountUpperring = 14;
-        redcountLowerring = 14;
-      } else {
-        redcountUpperring = 1;
-        redcountLowerring = 1;
-      }  
+  int httpCode = httpClient.GET();
+  if (httpCode == HTTP_CODE_OK) {
+    if (httpClient.getSize() > 128) {
+      if (debug) Serial.println("Ruxit Problem API call response too large to handle! " + String(httpClient.getSize()) + " bytes");
+      httpClient.end();
+      return;
+    }
+
+    if (debug) Serial.println("GET resulted in OK. free heap: "  + String(ESP.getFreeHeap()));
+    if (debug) Serial.flush();
+
+    String json = httpClient.getString(); // this allocates memory, so lets not get this string if the HTTP response is too large
+    if (debug) Serial.println("Ruxit Problem API call: " + json);
+    if (debug) Serial.flush();
+    StaticJsonBuffer < 128 + 2 > jsonBuffer; // attention, too large buffers cause stack overflow and thus crashes!
+    JsonObject& jsonObject = jsonBuffer.parseObject(json);
+    long applicationProblems = jsonObject["result"]["totalOpenProblemsCount"];
+    //long applicationProblems = jsonObject["result"]["openProblemCounts"]["APPLICATION"];
+    if (debug) Serial.println("Ruxit Problem API call - Application problems: " + String(applicationProblems));
+    if (applicationProblems) {
+      redcountUpperring = 14;
+      redcountLowerring = 14;
+    } else {
+      redcountUpperring = 1;
+      redcountLowerring = 1;
+    }
   } else {
-      if (debug) Serial.println("Ruxit Problem API call FAILED (error code " + httpClient.errorToString(httpCode) + "): " + url);
-      redcountUpperring = 7;
-      redcountLowerring = 8;
-  } 
+    if (debug) Serial.println("Ruxit Problem API call FAILED (error code " + httpClient.errorToString(httpCode) + ")" );
+    redcountUpperring = 7;
+    redcountLowerring = 8;
+  }
   httpClient.end();
-  
-  
+
+
   /* {
-  result: {
+    result: {
     totalOpenProblemsCount: 4,
     openProblemCounts: {
       APPLICATION: 1,
       INFRASTRUCTURE: 3,
       SERVICE: 0
     }
-  }
-  } */
-  
+    }
+    } */
+
 }
-      
+
 
 void generateHandler() {
   if (httpServer.hasArg("size")) {
     Serial.println("size arg found" + httpServer.arg("size"));
     long bytes = httpServer.arg("size").toInt();
     String top = "<html><header>Generator</header><body>sending " + String(bytes) + " bytes of additional payload.<p>";
-    String end = "</body></html>";
-    httpServer.setContentLength(bytes+top.length()+end.length());
-    httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
+    String end = F("</body></html>");
+    httpServer.setContentLength(bytes + top.length() + end.length());
+    httpServer.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
     httpServer.send(200);
     String chunk = "";
     httpServer.sendContent(top);
     String a = String("a");
     while (bytes > 0) {
       chunk = String("");
-      long chunklen = bytes<4096?bytes:4096;
+      long chunklen = bytes < 4096 ? bytes : 4096;
       while (chunk.length() <= chunklen) {
         chunk += a;
       }
       httpServer.sendContent(chunk);
-      bytes-=chunklen;
+      bytes -= chunklen;
     }
     httpServer.sendContent(end);
-  }  
+  }
 }
 
 void updatePostHandler() {
-    // handler for the /update form POST (once file upload finishes)
-    //httpServer.sendHeader("Connection", "close");
-    //httpServer.sendHeader("Access-Control-Allow-Origin", "*");
-    StreamString error;
-    if (Update.hasError()) {
-      Update.printError(error);
-    }
-    httpReboot((Update.hasError())?error:"Upload succeeded! " + String(uploadSize) + " bytes transferred<p>");
+  // handler for the /update form POST (once file upload finishes)
+  //httpServer.sendHeader("Connection", "close");
+  //httpServer.sendHeader("Access-Control-Allow-Origin", "*");
+  StreamString error;
+  if (Update.hasError()) {
+    Update.printError(error);
+  }
+  httpReboot((Update.hasError()) ? error : "Upload succeeded! " + String(uploadSize) + " bytes transferred<p>");
 }
 
 String parseFileName(String &path) {
@@ -513,9 +512,9 @@ String parseFileName(String &path) {
   int lastIndex = path.lastIndexOf('\\');
   if (lastIndex < 0) {
     lastIndex = path.lastIndexOf('/');
-  } 
+  }
   if (lastIndex > 0) {
-    filename = path.substring(lastIndex+1);
+    filename = path.substring(lastIndex + 1);
   } else {
     filename = path;
   }
@@ -530,115 +529,115 @@ void updatePostUploadHandler() {
   // them through the Update object
   HTTPUpload& upload = httpServer.upload();
   String filename = parseFileName(upload.filename);
-  
+
   if (filename.endsWith(".bin")) { // handle firmware upload
-    if(upload.status == UPLOAD_FILE_START){
+    if (upload.status == UPLOAD_FILE_START) {
       //WiFiUDP::stopAll(); needed for MDNS or the like?
       if (debug) Serial.println("Update: " + upload.filename);
       uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-      if(!Update.begin(maxSketchSpace)){//start with max available size
+      if (!Update.begin(maxSketchSpace)) { //start with max available size
         if (debug) Update.printError(Serial);
       }
-    } else if(upload.status == UPLOAD_FILE_WRITE){
+    } else if (upload.status == UPLOAD_FILE_WRITE) {
       if (debug) Serial.print(".");
-      if(Update.write(upload.buf, upload.currentSize) != upload.currentSize){
+      if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
         if (debug) Update.printError(Serial);
       }
-    } else if(upload.status == UPLOAD_FILE_END){
+    } else if (upload.status == UPLOAD_FILE_END) {
       uploadSize = Update.size();
-      if(Update.end(true)){ //true to set the size to the current progress
+      if (Update.end(true)) { //true to set the size to the current progress
         if (debug) Serial.println("Update Success - uploaded: " + String(upload.totalSize) + ".... rebooting now!");
       } else {
         if (debug) Update.printError(Serial);
       }
       if (debug) Serial.setDebugOutput(false);
-    } else if(upload.status == UPLOAD_FILE_ABORTED){
+    } else if (upload.status == UPLOAD_FILE_ABORTED) {
       uploadSize = Update.size();
       Update.end();
       if (debug) Serial.println("Update was aborted");
     }
   } else { // handle file upload
-    if(upload.status == UPLOAD_FILE_START){
+    if (upload.status == UPLOAD_FILE_START) {
       if (debug) Serial.println("uploading to SPIFFS: /" + filename);
       uploadFile = SPIFFS.open("/" + filename, "w");
-    } else if(upload.status == UPLOAD_FILE_WRITE){
+    } else if (upload.status == UPLOAD_FILE_WRITE) {
       if (debug) Serial.print(".");
-      if(uploadFile.write(upload.buf, upload.currentSize) != upload.currentSize){
+      if (uploadFile.write(upload.buf, upload.currentSize) != upload.currentSize) {
         if (debug) Serial.println("ERROR writing file " + String(uploadFile.name()) + "to SPIFFS.");
         uploadFile.close();
       }
-    } else if(upload.status == UPLOAD_FILE_END){
+    } else if (upload.status == UPLOAD_FILE_END) {
       uploadSize = upload.totalSize;
-      if(uploadFile.size() == upload.totalSize){ 
+      if (uploadFile.size() == upload.totalSize) {
         if (debug) Serial.println("Upload to SPIFFS Succeeded - uploaded: " + String(upload.totalSize) + ".... rebooting now!");
       } else {
         if (debug) Serial.println("Upload to SPIFFS FAILED: " + String(uploadFile.size()) + " bytes of " + String(upload.totalSize));
       }
       uploadFile.close();
-    } else if(upload.status == UPLOAD_FILE_ABORTED){
+    } else if (upload.status == UPLOAD_FILE_ABORTED) {
       uploadSize = upload.totalSize;
       uploadFile.close();
       if (debug) Serial.println("Upload to SPIFFS was aborted");
     }
   }
-  
+
   yield();
 }
 
 /*
-void indexHtmlHandler() {
+  void indexHtmlHandler() {
     httpServer.send(200, "text/html", String(indexHtml));
     httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
-}*/
+  }*/
 
 // handles GET request to "/update" and redirects to "index.html/#!pagefirmwareupdate"
 void updateHandler() {
-    httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
-    httpServer.send(301, "text/html", "/#!pagefirmwareupdate");
+  httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
+  httpServer.send(301, "text/html", "/#!pagefirmwareupdate");
 }
 
 
 void WiFiEvent(WiFiEvent_t event) {
-  if(debug) {
-    switch(event) {
-        case WIFI_EVENT_STAMODE_GOT_IP:
-            Serial.println("WiFi connected. IP address: " + String(WiFi.localIP().toString()) + " hostname: "+ WiFi.hostname() + "  SSID: " + WiFi.SSID());
-            wifiStationOK = true;
-            #ifdef ENABLE_SDDP
-              startSSDP();
-            #endif
-            break;
-        case WIFI_EVENT_STAMODE_DISCONNECTED:
-            Serial.println("WiFi client lost connection");
-            wifiStationOK = false;            
-            break;
-        case WIFI_EVENT_STAMODE_CONNECTED:
-            Serial.println("WiFi client connected");
-            break;
-        case WIFI_EVENT_STAMODE_AUTHMODE_CHANGE:
-            Serial.println("WiFi client authentication mode changed.");
-            break;
-        //case WIFI_STAMODE_DHCP_TIMEOUT:                             THIS IS A NEW CONSTANT ENABLE WITH UPDATED SDK
-          //  Serial.println("WiFi client DHCP timeout reached.");
-            //break;
-        case WIFI_EVENT_SOFTAPMODE_STACONNECTED:
-            Serial.println("WiFi accesspoint: new client connected. Clients: "  + String(WiFi.softAPgetStationNum()));
-             if (WiFi.softAPgetStationNum() > 0) {
-               wifiAPisConnected = true;
-             }
-            break;
-        case WIFI_EVENT_SOFTAPMODE_STADISCONNECTED:
-            Serial.println("WiFi accesspoint: client disconnected. Clients: " + String(WiFi.softAPgetStationNum()));
-             if (WiFi.softAPgetStationNum() > 0) {
-               wifiAPisConnected = true;
-             } else {
-               wifiAPisConnected = false;
-             }
-             break;
-        case WIFI_EVENT_SOFTAPMODE_PROBEREQRECVED:
-            //Serial.println("WiFi accesspoint: probe request received.");
-            break; 
-      }
+  if (debug) {
+    switch (event) {
+      case WIFI_EVENT_STAMODE_GOT_IP:
+        Serial.println("WiFi connected. IP address: " + String(WiFi.localIP().toString()) + " hostname: " + WiFi.hostname() + "  SSID: " + WiFi.SSID());
+        wifiStationOK = true;
+#ifdef ENABLE_SDDP
+        startSSDP();
+#endif
+        break;
+      case WIFI_EVENT_STAMODE_DISCONNECTED:
+        Serial.println(F("WiFi client lost connection"));
+        wifiStationOK = false;
+        break;
+      case WIFI_EVENT_STAMODE_CONNECTED:
+        Serial.println(F("WiFi client connected"));
+        break;
+      case WIFI_EVENT_STAMODE_AUTHMODE_CHANGE:
+        Serial.println(F("WiFi client authentication mode changed."));
+        break;
+      //case WIFI_STAMODE_DHCP_TIMEOUT:                             THIS IS A NEW CONSTANT ENABLE WITH UPDATED SDK
+      //  Serial.println("WiFi client DHCP timeout reached.");
+      //break;
+      case WIFI_EVENT_SOFTAPMODE_STACONNECTED:
+        Serial.println("WiFi accesspoint: new client connected. Clients: "  + String(WiFi.softAPgetStationNum()));
+        if (WiFi.softAPgetStationNum() > 0) {
+          wifiAPisConnected = true;
+        }
+        break;
+      case WIFI_EVENT_SOFTAPMODE_STADISCONNECTED:
+        Serial.println("WiFi accesspoint: client disconnected. Clients: " + String(WiFi.softAPgetStationNum()));
+        if (WiFi.softAPgetStationNum() > 0) {
+          wifiAPisConnected = true;
+        } else {
+          wifiAPisConnected = false;
+        }
+        break;
+      case WIFI_EVENT_SOFTAPMODE_PROBEREQRECVED:
+        //Serial.println("WiFi accesspoint: probe request received.");
+        break;
+    }
   }
 }
 
@@ -646,7 +645,7 @@ void printSpiffsContents() {
   if (debug)
   {
     Dir dir = SPIFFS.openDir("/");
-    while (dir.next()) {    
+    while (dir.next()) {
       String fileName = dir.fileName();
       size_t fileSize = dir.fileSize();
       Serial.printf("FS File: %s, size: %s\n", fileName.c_str(), formatBytes(fileSize).c_str());
@@ -659,10 +658,10 @@ void setupSerial() {
   // checking availability of serial connection
   int serialtimeout = 5000; //ms
   Serial.begin ( 115200 );
-  while(!Serial) {
-    if (serialtimeout >0) {
-      serialtimeout -= 50; 
-    } else { 
+  while (!Serial) {
+    if (serialtimeout > 0) {
+      serialtimeout -= 50;
+    } else {
       debug = false;
       break;
     }
@@ -673,10 +672,10 @@ void setupSerial() {
     Serial.println("");
     Serial.println("");
     Serial.println("");
-    Serial.println("Welcome to Dynatrace UFO!");
-    Serial.println("UFO Firmware Version: " FIRMWARE_VERSION);
-    Serial.println("ESP8266 Bootversion: " +String(ESP.getBootVersion()));
-    Serial.println("ESP8266 SDK Version: " +String(ESP.getSdkVersion()));
+    Serial.println(F("Welcome to Dynatrace UFO!"));
+    Serial.println(F("UFO Firmware Version: " FIRMWARE_VERSION));
+    Serial.println("ESP8266 Bootversion: " + String(ESP.getBootVersion()));
+    Serial.println("ESP8266 SDK Version: " + String(ESP.getSdkVersion()));
     Serial.println("Resetinfo: " + ESP.getResetInfo());
   }
 }
@@ -695,7 +694,7 @@ void setup ( void ) {
   ledstrip_logo.setPixelColor(2, 0, 255, 0); // http://ufo/api?logoled=2&r=0&g=255&b=0
   ledstrip_logo.setPixelColor(3, 255, 0, 255); // http://ufo/api?logoled=3&r=255&g=0&b=255
   ledstrip_logo.show();
-  
+
   ledstrip_lowerring.begin();
   ledstrip_lowerring.clear();
   ledstrip_lowerring.show();
@@ -719,25 +718,27 @@ void setup ( void ) {
   WiFi.onEvent(WiFiEvent);
   WiFi.hostname(DEFAULT_HOSTNAME); // note, the hostname is not persisted in the ESP config like the SSID. so it needs to be set every time WiFi is started
   wifiConfigMode = WiFi.getMode() & WIFI_AP;
-  if (wifiConfigMode) 
+#ifdef SMARTCONFIG
+  if (wifiConfigMode)
     WiFi.beginSmartConfig();
+#endif
 
   if (debug) {
-    Serial.println("Connecting to Wifi SSID: " + WiFi.SSID() + " as host "+ WiFi.hostname());
+    Serial.println("Connecting to Wifi SSID: " + WiFi.SSID() + " as host " + WiFi.hostname());
     if (wifiConfigMode) {
       Serial.println("WiFi Configuration Mode - Access Point IP address: " + WiFi.softAPIP().toString());
     }
     //WiFi.printDiag(Serial);
   }
 
-  #ifdef ENABLE_SDDP
-    httpServer.on("/description.xml", HTTP_GET, [](){
-      SSDP.schema(httpServer.client());
-    });
-  #endif  
+#ifdef ENABLE_SDDP
+  httpServer.on("/description.xml", HTTP_GET, []() {
+    SSDP.schema(httpServer.client());
+  });
+#endif
 
   // setup all web server routes; make sure to use / last
-  #define STATICFILES_CACHECONTROL "private, max-age=0, no-cache, no-store"
+#define STATICFILES_CACHECONTROL "private, max-age=0, no-cache, no-store"
   httpServer.on ( "/api", apiHandler );
   httpServer.on ( "/ruxit", HTTP_POST, ruxitPostHandler); // webhook URL for Dynatrace Ruxit problem notifications
   httpServer.on ( "/info", infoHandler );
@@ -757,19 +758,19 @@ void setup ( void ) {
   httpServer.serveStatic("/font.svg", SPIFFS, "/font.svg");
   httpServer.serveStatic("/font.ttf", SPIFFS, "/font.ttf");
 
-  //if (wifiConfigMode) { 
+  //if (wifiConfigMode) {
   //    httpServer.serveStatic("/", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
   //    httpServer.serveStatic("/index.html", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
   //} else {
-      httpServer.serveStatic("/", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
-      httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
+  httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
   //}
   //httpServer.on ( "/", HTTP_GET, handleRoot );
   httpServer.onNotFound ( handleNotFound );
 
-  // register firmware update HTTP server: 
-  //    To upload through terminal you can use: curl -F "image=@ufo.ino.bin" ufo.local/update  
-  //    Windows power shell use DOESNT WORK YET: wget -Method POST -InFile ufo.ino.bin -Uri ufo.local/update   
+  // register firmware update HTTP server:
+  //    To upload through terminal you can use: curl -F "image=@ufo.ino.bin" ufo.local/update
+  //    Windows power shell use DOESNT WORK YET: wget -Method POST -InFile ufo.ino.bin -Uri ufo.local/update
   //httpServer.on("/", indexHtmlHandler);
   //httpServer.on("/update", HTTP_GET, indexHtmlHandler);
   httpServer.on("/update", HTTP_GET, updateHandler);
@@ -778,7 +779,7 @@ void setup ( void ) {
   // start webserver
   if (wifiConfigMode || (ruxitEnvironmentID.length() == 0) || (ruxitApiKey.length() == 0)) {
     httpClientOnlyMode = false;
-    httpServer.begin();    
+    httpServer.begin();
   } else {
     httpClientOnlyMode = true;
     httpClient.setReuse(true);
@@ -796,13 +797,13 @@ void dotstarSetColor(Adafruit_DotStar &dotstar, byte r, byte g, byte b ) {
 void dotstarWhirlRed(Adafruit_DotStar &dotstar, byte redcount, byte whirlpos) {
   unsigned short p;
   for (unsigned short i = 0; i < dotstar.numPixels(); i++) {
-     p = whirlpos + i;
-     if (redcount > 0) {
-       dotstar.setPixelColor((p % dotstar.numPixels()), 255, 0, 0);
-       redcount--;
-     } else {
-       dotstar.setPixelColor((p % dotstar.numPixels()), 0, 255, 0);
-     }
+    p = whirlpos + i;
+    if (redcount > 0) {
+      dotstar.setPixelColor((p % dotstar.numPixels()), 255, 0, 0);
+      redcount--;
+    } else {
+      dotstar.setPixelColor((p % dotstar.numPixels()), 0, 255, 0);
+    }
   }
 }
 
@@ -812,24 +813,26 @@ byte wheelcolor = 0;
 unsigned long trigger = 0;
 
 void loop ( void ) {
- 
+
   tick++;
 
   handleFactoryReset();
+#ifdef SMARTCONFIG
   handleSmartConfig();
+#endif
   if (httpClientOnlyMode) {
-     // poll the problem status from Ruxit
+    // poll the problem status from Ruxit
     if (ruxitEnvironmentID.length() > 0) {
       unsigned long m = millis();
       if (trigger < m) {
-        pollRuxit(); 
-        trigger = m + 10*1000; //60*1000; // poll every minute 60*1000ms
+        pollRuxit();
+        trigger = m + 10 * 1000; //60*1000; // poll every minute 60*1000ms
       }
-    } 
+    }
   } else {
-     httpServer.handleClient();
+    httpServer.handleClient();
   }
-    
+
   yield();
 
   // adjust logo brightness (on/off right now)
@@ -838,22 +841,22 @@ void loop ( void ) {
   } else {
     ledstrip_logo.setBrightness(0);
   }
- 
+
   yield();
   ledstrip_logo.show();
 
   dotstarWhirlRed(ledstrip_upperring, redcountUpperring, whirlpos);
   dotstarWhirlRed(ledstrip_lowerring, redcountLowerring, whirlpos);
   if (tick % 25 == 0) {
-     if (whirl) whirlpos++;
+    if (whirl) whirlpos++;
   }
   yield();
 
   // show AP mode in blue to tell user to configure WIFI; especially after RESET
-  // blinking alternatively in blue when no client is connected to AP; 
+  // blinking alternatively in blue when no client is connected to AP;
   // binking both rings in blue when at least one client is connected to AP
   if (wifiConfigMode) {
-    if(wifiAPisConnected && (tick % 500 > 200)) {
+    if (wifiAPisConnected && (tick % 500 > 200)) {
       dotstarSetColor(ledstrip_upperring, 0, 0, 255);
       dotstarSetColor(ledstrip_lowerring, 0, 0, 255);
     } else {
@@ -872,7 +875,7 @@ void loop ( void ) {
     }
   }
 
-  
+
   yield();
   ledstrip_upperring.show();
   ledstrip_lowerring.show();
