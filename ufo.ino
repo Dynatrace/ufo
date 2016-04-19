@@ -69,6 +69,7 @@ byte whirlb = 255;
 boolean whirl = true;
 
 ESP8266WebServer        httpServer ( 80 );
+HTTPClient              httpClient;
 
 boolean wifiStationOK = false;
 boolean wifiAPisConnected = false;
@@ -183,10 +184,6 @@ String formatBytes(size_t bytes){
 
 // handle REST api call to set new WIFI credentials; note that URL encoding can be used
 // api?ssid=<ssid>&pwd=<password>
-boolean newWifi = false;;
-String newWifiSSID;
-String newWifiPwd;
-String newWifiHostname;
 
 void handleSmartConfig() {
    if (wifiConfigMode) {
@@ -359,6 +356,9 @@ void apiHandler() {
 
   // note its required to provide both arguments SSID and PWD
   if (httpServer.hasArg("ssid") && httpServer.hasArg("pwd")) {
+    String newWifiSSID = httpServer.arg("ssid");
+    String newWifiPwd = httpServer.arg("pwd");
+
       // if SSID is given, also update wifi credentials
        if (newWifiSSID.length()) {
           WiFi.mode(WIFI_STA);
@@ -375,8 +375,8 @@ void apiHandler() {
 
   } 
   if (httpServer.hasArg("hostname")) {
-    newWifi = true;
-    newWifiHostname = httpServer.arg("hostname");
+    String newWifiHostname = httpServer.arg("hostname");
+    //TODO##################################################################
   }
 
   httpServer.sendHeader("cache-control", "private, max-age=0, no-cache, no-store");
@@ -410,33 +410,32 @@ void pollRuxit() {
     if (debug) Serial.println("Poll Ruxit now. Free heap: " + String(ESP.getFreeHeap()));
     if (debug) Serial.flush();
   } else {
-    if (debug) Serial.println("Poll Ruxit now - DEFERRED - WIFI NOT YET AVAILABLE");
+    //if (debug) Serial.println("Poll Ruxit now - DEFERRED - WIFI NOT YET AVAILABLE");
     return;
   }
 
-  HTTPClient http;
- 
   // configure server and url
   // NOTE: SSL takes 18kB extra RAM memory!!! leads out-of-memory crash!!!! thus use a proxy or lambda function in HTTP client mode
   String url = "https://"+ruxitEnvironmentID+".live.ruxit.com/api/v1/problem/status?Api-Token=" + ruxitApiKey;
-  http.begin(url, "7a 9c f4 db 40 d3 62 5a 6e 21 bc 5c cc 66 c8 3e a1 45 59 38"); 
+  //url = "http://192.168.183.43/api/v1/problem/status?Api-Token=" + ruxitApiKey;
+  httpClient.begin(url); 
 
   if (debug) Serial.println("http.begin executed. free heap: "  + String(ESP.getFreeHeap()));
   if (debug) Serial.flush();
 
   
-  int httpCode = http.GET();
+  int httpCode = httpClient.GET();
   if(httpCode == HTTP_CODE_OK) {
-      if (http.getSize() > 128) {
-        if (debug) Serial.println("Ruxit Problem API call response too large to handle! " + String(http.getSize()) + " bytes");
-        http.end();
+      if (httpClient.getSize() > 128) {
+        if (debug) Serial.println("Ruxit Problem API call response too large to handle! " + String(httpClient.getSize()) + " bytes");
+        httpClient.end();
         return;
       }
 
       if (debug) Serial.println("GET resulted in OK. free heap: "  + String(ESP.getFreeHeap()));
       if (debug) Serial.flush();
       
-      String json = http.getString(); // this allocates memory, so lets not get this string if the HTTP response is too large
+      String json = httpClient.getString(); // this allocates memory, so lets not get this string if the HTTP response is too large
       if (debug) Serial.println("Ruxit Problem API call: " + json);
       if (debug) Serial.flush();
       StaticJsonBuffer<128+2> jsonBuffer;  // attention, too large buffers cause stack overflow and thus crashes!
@@ -452,11 +451,11 @@ void pollRuxit() {
         redcountLowerring = 1;
       }  
   } else {
-      if (debug) Serial.println("Ruxit Problem API call FAILED (error code " + String(httpCode) + "): " + url);
+      if (debug) Serial.println("Ruxit Problem API call FAILED (error code " + httpClient.errorToString(httpCode) + "): " + url);
       redcountUpperring = 7;
       redcountLowerring = 8;
   } 
-  http.end();
+  httpClient.end();
   
   
   /* {
@@ -782,6 +781,7 @@ void setup ( void ) {
     httpServer.begin();    
   } else {
     httpClientOnlyMode = true;
+    httpClient.setReuse(true);
     if (debug) Serial.println("Entering HTTP Client only mode. Click the WIFI Reset button to reconfigure the UFO.");
   }
 
