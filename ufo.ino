@@ -30,7 +30,7 @@ boolean debug = true;
 //#include <ESP8266mDNS.h>
 //#include <WiFiUdp.h>
 //#include <ArduinoOTA.h>
-#ifdef ENABLE_SDDP
+#ifdef ENABLE_SSDP
 #include <ESP8266SSDP.h>
 #endif
 #include <Wire.h>
@@ -54,10 +54,351 @@ boolean debug = true;
 #define PIN_DOTSTAR_UPPERRING 5
 #define PIN_DOTSTAR_CLOCK 14
 #define PIN_FACTORYRESET 15
+#define RING_LEDCOUNT 15
 
 Adafruit_DotStar ledstrip_logo = Adafruit_DotStar(4, PIN_DOTSTAR_LOGO, PIN_DOTSTAR_CLOCK, DOTSTAR_BGR); //NOTE: in case the colors dont match, check out the last color order parameter
-Adafruit_DotStar ledstrip_lowerring = Adafruit_DotStar(15, PIN_DOTSTAR_LOWERRING, PIN_DOTSTAR_CLOCK, DOTSTAR_BRG);
-Adafruit_DotStar ledstrip_upperring = Adafruit_DotStar(15, PIN_DOTSTAR_UPPERRING, PIN_DOTSTAR_CLOCK, DOTSTAR_BRG);
+Adafruit_DotStar ledstrip_lowerring = Adafruit_DotStar(RING_LEDCOUNT, PIN_DOTSTAR_LOWERRING, PIN_DOTSTAR_CLOCK, DOTSTAR_BRG);
+Adafruit_DotStar ledstrip_upperring = Adafruit_DotStar(RING_LEDCOUNT, PIN_DOTSTAR_UPPERRING, PIN_DOTSTAR_CLOCK, DOTSTAR_BRG);
+
+//---------------------------------------------------------------------------
+class DisplayCharter
+{
+  public:
+    DisplayCharter();
+    void Init();
+    void Clear();
+    void SetLeds(byte pos, byte count, unsigned int color);
+    void SetBackground(String color);
+    void SetWirl(byte wspeed, bool clockwise);
+    void SetMorph(int period, byte mspeed);
+    unsigned int ParseLedArg(String argument, unsigned int iPos);
+    void ParseWhirlArg(String argument);
+    void ParseMorphArg(String argument);
+    void Display(Adafruit_DotStar &dotstar);
+
+  private:
+    int GetPixelColor(int i);
+    
+  private:
+    unsigned int ledColor[RING_LEDCOUNT];
+    unsigned int backgroudColor;
+    byte whirlSpeed;
+    bool whirlClockwise;
+    byte offset;
+    byte whirlTick;
+    byte morphingState;
+    int  morphPeriod;
+    int morphPeriodTick;
+    byte morphSpeed;
+    byte morphSpeedTick;
+    byte morphingPercentage;
+};
+
+DisplayCharter::DisplayCharter(){
+  Init();
+}
+void DisplayCharter::Init(){
+  for (byte i=0 ; i<RING_LEDCOUNT ; i++)
+    ledColor[i] = -1;
+  backgroudColor = 0x000000;
+  offset = 0;
+  whirlSpeed = 0;
+  morphPeriod = 0;
+  morphingState = 0;
+}
+void DisplayCharter::SetLeds(byte pos, byte count, unsigned int color){
+ for (byte i=0 ; i<count ; i++){
+   ledColor[(pos + i) % RING_LEDCOUNT] = color;
+ }
+}
+void DisplayCharter::SetBackground(String color){
+  if (color.length() == 6){
+    backgroudColor = (int)strtol(color.c_str(), NULL, 16);
+  }
+}
+void DisplayCharter::SetWirl(byte wspeed, bool clockwise){
+  whirlSpeed = wspeed;
+  whirlTick = 0xFF - whirlSpeed;
+  whirlClockwise = clockwise;
+}
+void DisplayCharter::SetMorph(int period, byte mspeed){
+  morphPeriod = period;
+  morphPeriodTick = morphPeriod;
+
+  if (mspeed > 10)
+    morphSpeed = 10;
+  else
+   morphSpeed = mspeed;
+  //Serial.println("SetMorph(" + String(morphPeriod) + ", " + String(morphSpeed) + ")");
+}
+unsigned int DisplayCharter::ParseLedArg(String argument, unsigned int iPos){
+  byte seg = 0;
+  String pos;
+  String count;
+  String color;
+  unsigned int i=iPos;
+  while ((i < argument.length()) && (seg < 3)){
+    char c = argument.charAt(i);
+    if (c == '|')
+      seg++;
+    else switch(seg){
+      case 0:
+        pos.concat(c);
+        break;
+      case 1:
+        count.concat(c);
+        break;
+      case 2:
+        color.concat(c);
+    }
+    i++;
+  }
+  pos.trim();
+  count.trim();
+  color.trim();
+
+  if ((pos.length() > 0) && (count.length() > 0) && (color.length() == 6)){
+    String s = color.substring(2, 4) + color.substring(0, 2) + color.substring(4, 6);
+    SetLeds((byte)pos.toInt(), (byte)count.toInt(), (unsigned int)strtol(s.c_str(), NULL, 16));
+  }
+  return i;
+}
+void DisplayCharter::ParseWhirlArg(String argument){
+  byte seg = 0;
+  String wspeed;
+
+  for (unsigned int i=0 ; i< argument.length() ; i++){
+    char c = argument.charAt(i);
+    if (c == '|'){
+      if (++seg == 2)
+        break;
+    }
+    else switch(seg){
+      case 0:
+        wspeed.concat(c);
+        break;
+    }
+  }
+  wspeed.trim();
+
+  if (wspeed.length() > 0){
+    SetWirl((byte)wspeed.toInt(), !seg);
+  }
+}
+void DisplayCharter::ParseMorphArg(String argument){
+  byte seg = 0;
+  String period;
+  String mspeed;
+
+  for (unsigned int i=0 ; i< argument.length() ; i++){
+    char c = argument.charAt(i);
+    if (c == '|'){
+      if (++seg == 2)
+        break;
+    }
+    else switch(seg){
+      case 0:
+        period.concat(c);
+        break;
+      case 1:
+        mspeed.concat(c);
+        break;
+    }
+  }
+  period.trim();
+  mspeed.trim();
+
+  if ((period.length() > 0) && (mspeed.length() > 0)){
+    SetMorph(period.toInt(), (byte)mspeed.toInt());
+  }
+}
+int DisplayCharter::GetPixelColor(int i){
+  int color = ledColor[i];
+
+  if (color == -1)
+    return backgroudColor;
+
+  if (morphingState){
+    byte g = color >> 16;
+    byte r = (color >> 8) & 0xFF;
+    byte b = color & 0xFF;
+    byte gb = backgroudColor >> 16;
+    byte rb = (backgroudColor >> 8) & 0xFF;
+    byte bb = backgroudColor & 0xFF;
+    byte gn = (g * (100 - morphingPercentage) / 100 + gb * morphingPercentage / 100);
+    byte rn = (r * (100 - morphingPercentage) / 100 + rb * morphingPercentage / 100);
+    byte bn = (b * (100 - morphingPercentage) / 100 + bb * morphingPercentage / 100);
+
+    return (gn << 16) + (rn << 8) + bn;
+  }
+
+  return color;
+}
+void DisplayCharter::Display(Adafruit_DotStar &dotstar){
+  for (byte i=0 ; i<RING_LEDCOUNT ; i++)
+    dotstar.setPixelColor((i + offset) % RING_LEDCOUNT, GetPixelColor(i));
+   
+  if (whirlSpeed){
+    if (!--whirlTick){
+      if (whirlClockwise){
+        if (++offset >= RING_LEDCOUNT)
+          offset = 0;
+      }
+      else{
+        if (!offset)
+          offset = RING_LEDCOUNT - 1;
+        else
+          offset--;
+      }
+      whirlTick = 0xFF - whirlSpeed;
+    }
+  }
+
+  switch (morphingState){
+    case 0:
+      if (morphPeriod){
+        if (!--morphPeriodTick){
+          morphingState = 1;
+          morphingPercentage = 0;
+          morphSpeedTick = 11 - morphSpeed;
+    
+          morphPeriodTick = morphPeriod;
+        }
+      }
+      break;
+    case 1:
+      if (!--morphSpeedTick){
+        if (morphingPercentage < 100)
+          morphingPercentage+=1;
+        else
+          morphingState = 2;
+  
+        morphSpeedTick = 11 - morphSpeed;
+      }
+      break;
+    case 2:
+      if (!--morphSpeedTick){
+        if (morphingPercentage > 0)
+          morphingPercentage-=1;
+        else
+          morphingState = 0;
+  
+        morphSpeedTick = 11 - morphSpeed;
+      }
+      break;   
+  }
+}
+   
+//---------------------------------------------------------------------------
+
+class IPDisplay
+{
+  public:
+    IPDisplay();
+    void ShowIp(String ip, DisplayCharter* displayCh);
+    void ProcessTick();
+    void StopShowingIp();
+
+    
+  private:
+    bool showIp;
+    String ipAddress;
+    unsigned int pos;
+    unsigned int tick;
+    bool shortBreak;
+    unsigned int color;
+    unsigned int colorValue;
+    unsigned int ipspeed;
+    DisplayCharter* displayCharter;
+};
+
+IPDisplay::IPDisplay(){
+  ipspeed = 1100;
+  displayCharter = 0;
+}
+
+void IPDisplay::ShowIp(String ip, DisplayCharter* displayCh){
+  displayCharter = displayCh;
+  ipAddress = ip;
+  pos = 0;
+  color = 0;
+  colorValue = 0xFF0000;
+  tick = ipspeed;
+  shortBreak = false;
+}
+void IPDisplay::ProcessTick()
+{
+  if (!displayCharter)
+    return;
+    
+  if (!--tick){
+    if (shortBreak){
+      displayCharter->Init();
+      displayCharter->SetLeds(0, 15, 0x303030);
+      tick = 100;
+      shortBreak = false;    
+      return;
+    }
+    shortBreak = true;
+    tick = ipspeed;
+
+    if (pos >= ipAddress.length()){
+      pos = 0;
+      if (++color >= 3)
+        color = 0;
+      switch (color){
+        case 0: 
+          colorValue = 0xFF0000;
+          break;
+        case 1: 
+          colorValue = 0x00FF00;
+          break;
+        case 2: 
+          colorValue = 0x0000FF;
+          break;
+          
+      }
+    }
+    displayCharter->Init();
+    char c = ipAddress.charAt(pos);
+    pos++;
+    
+    switch (c){
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+        displayCharter->SetLeds(0, c - '0', colorValue);
+        break; 
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        displayCharter->SetLeds(0, 5, colorValue);
+        displayCharter->SetLeds(8, c - '5', colorValue);
+        break; 
+      case '.':
+        displayCharter->SetLeds(0, 1, 0xb0b0b0);
+        displayCharter->SetLeds(5, 1, 0xb0b0b0);
+        displayCharter->SetLeds(10, 1, 0xb0b0b0);
+        break; 
+    }
+  }
+}
+void IPDisplay::StopShowingIp(){ 
+  if (displayCharter)
+    displayCharter->Init();
+  displayCharter = 0;
+}
+
+//---------------------------------------------------------------------------
+
+
+DisplayCharter displayCharter_lowerring;
+DisplayCharter displayCharter_upperring;
+
+IPDisplay ipDisplay;
 
 byte redcountUpperring = 5;
 byte redcountLowerring = 10;
@@ -143,7 +484,7 @@ bool SaveConfig() {
   return true;
 }
 
-#ifdef ENABLE_SDDP
+#ifdef ENABLE_SSDP
 void startSSDP() {
   // windows plug-and-play discovery should make it easier to find the UFO once its hooked-up on WIFI
   SSDP.setSchemaURL(F("description.xml"));
@@ -157,6 +498,7 @@ void startSSDP() {
   SSDP.setManufacturer(F("Dynatrace LLC open-source project"));
   SSDP.setManufacturerURL(F("http://dynatrace.github.io/ufo/"));
   SSDP.begin();
+  Serial.println("SSDP done!");
 }
 #endif
 /*
@@ -261,7 +603,6 @@ void handleNotFound() {
   for ( uint8_t i = 0; i < httpServer.args(); i++ ) {
     message += " " + httpServer.argName ( i ) + ": " + httpServer.arg ( i ) + "\n";
   }
-
   httpServer.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
   httpServer.send ( 404, F("text/plain"), message );
 }
@@ -288,6 +629,8 @@ void infoHandler() {
 }
 
 void apiHandler() {
+  ipDisplay.StopShowingIp();
+  
   if (httpServer.hasArg(F("logo"))) {
     Serial.println("LED arg found" + httpServer.arg("logo"));
     if (httpServer.arg("logo").equals("on")) {
@@ -318,30 +661,55 @@ void apiHandler() {
     ledstrip_logo.setPixelColor(led, r, g, b);
   }
 
-  if (httpServer.hasArg("whirl")) {
-    Serial.println("WHIRL arg found" + httpServer.arg("whirl"));
-    String ws = httpServer.arg("whirl");
-    if (ws.equals("r")) {
-      redcountUpperring = 14;
-      redcountLowerring = 15;
-      whirl = true;
-      Serial.println("whirl red");
-    } else if (ws.equals("g")) {
-      redcountUpperring = 0;
-      redcountLowerring = 1;
-      whirl = true;
-      Serial.println("whirl green");
-    } else if (ws.equals("b")) {
-      whirl = true;
-      Serial.println("whirl blue");
-    } else if (ws.equals("off")) {
-      whirl = false;
-      Serial.println("whirl off");
-    } else if (ws.equals("on")) {
-      whirl = true;
-      Serial.println("whirl on");
-    }
+  if (httpServer.hasArg("top_init")){
+    displayCharter_upperring.Init();
   }
+  if (httpServer.hasArg("top")){
+    String argument = httpServer.arg("top");
+    unsigned int i = 0;
+    unsigned int ret = 0;
+    
+    while (i < argument.length())
+      i = displayCharter_upperring.ParseLedArg(argument, i);
+  }
+  if (httpServer.hasArg("top_bg")){
+    String argument = httpServer.arg("top_bg");
+    if (argument.length() == 6)
+      displayCharter_upperring.SetBackground(argument.substring(2, 4) + argument.substring(0, 2) + argument.substring(4, 6)); 
+  }
+  if (httpServer.hasArg("top_whirl")){
+    String argument = httpServer.arg("top_whirl");
+    displayCharter_upperring.ParseWhirlArg(argument);
+  } 
+  if (httpServer.hasArg("top_morph")){
+    String argument = httpServer.arg("top_morph");
+    displayCharter_upperring.ParseMorphArg(argument);
+  } 
+    
+  if (httpServer.hasArg("bottom_init")){
+    displayCharter_lowerring.Init();
+  }
+  if (httpServer.hasArg("bottom")){
+    String argument = httpServer.arg("bottom");
+    unsigned int i = 0;
+    unsigned int ret = 0;
+    
+    while (i < argument.length())
+      i = displayCharter_lowerring.ParseLedArg(argument, i);
+  }
+  if (httpServer.hasArg("bottom_bg")){
+    String argument = httpServer.arg("bottom_bg");
+    if (argument.length() == 6)
+      displayCharter_lowerring.SetBackground(argument.substring(2, 4) + argument.substring(0, 2) + argument.substring(4, 6)); 
+  }
+  if (httpServer.hasArg("bottom_whirl")){
+    String argument = httpServer.arg("bottom_whirl");
+    displayCharter_lowerring.ParseWhirlArg(argument);
+  } 
+  if (httpServer.hasArg("bottom_morph")){
+    String argument = httpServer.arg("bottom_morph");
+    displayCharter_lowerring.ParseMorphArg(argument);
+  } 
 
   if (httpServer.hasArg(F("ruxit-environmentid")) || httpServer.hasArg(F("ruxit-apikey"))) {
     if (debug) Serial.println(F("Storing ruxit integration settings"));
@@ -602,7 +970,9 @@ void WiFiEvent(WiFiEvent_t event) {
       case WIFI_EVENT_STAMODE_GOT_IP:
         if (debug) Serial.println("WiFi connected. IP address: " + String(WiFi.localIP().toString()) + " hostname: " + WiFi.hostname() + "  SSID: " + WiFi.SSID());
         wifiStationOK = true;
-#ifdef ENABLE_SDDP
+        ipDisplay.ShowIp(WiFi.localIP().toString(), &displayCharter_lowerring);
+        
+#ifdef ENABLE_SSDP
         startSSDP();
 #endif
         break;
@@ -659,7 +1029,7 @@ void setupSerial() {
   Serial.begin ( 115200 );
   while (!Serial) {
     if (serialtimeout > 0) {
-      serialtimeout -= 50;
+      //serialtimeout -= 50;
     } else {
       debug = false;
       break;
@@ -683,6 +1053,8 @@ void setupSerial() {
 void setup ( void ) {
   setupSerial();
 
+  displayCharter_lowerring.Init();
+  
   pinMode(PIN_FACTORYRESET, INPUT); //, INPUT_PULLUP); use INPUT_PULLUP in case we put reset to ground; currently reset is doing a 3V signal
 
 
@@ -730,7 +1102,7 @@ void setup ( void ) {
     //WiFi.printDiag(Serial);
   }
 
-#ifdef ENABLE_SDDP
+#ifdef ENABLE_SSDP
   httpServer.on("/description.xml", HTTP_GET, []() {
     SSDP.schema(httpServer.client());
   });
@@ -793,22 +1165,7 @@ void dotstarSetColor(Adafruit_DotStar &dotstar, byte r, byte g, byte b ) {
   }
 }
 
-void dotstarWhirlRed(Adafruit_DotStar &dotstar, byte redcount, byte whirlpos) {
-  unsigned short p;
-  for (unsigned short i = 0; i < dotstar.numPixels(); i++) {
-    p = whirlpos + i;
-    if (redcount > 0) {
-      dotstar.setPixelColor((p % dotstar.numPixels()), 255, 0, 0);
-      redcount--;
-    } else {
-      dotstar.setPixelColor((p % dotstar.numPixels()), 0, 255, 0);
-    }
-  }
-}
-
 unsigned int tick = 0;
-byte whirlpos = 0;
-byte wheelcolor = 0;
 unsigned long trigger = 0;
 
 void loop ( void ) {
@@ -844,11 +1201,11 @@ void loop ( void ) {
   yield();
   ledstrip_logo.show();
 
-  dotstarWhirlRed(ledstrip_upperring, redcountUpperring, whirlpos);
-  dotstarWhirlRed(ledstrip_lowerring, redcountLowerring, whirlpos);
-  if (tick % 25 == 0) {
-    if (whirl) whirlpos++;
-  }
+  ipDisplay.ProcessTick();
+  
+  displayCharter_lowerring.Display(ledstrip_lowerring);
+  displayCharter_upperring.Display(ledstrip_upperring);
+  
   yield();
 
   // show AP mode in blue to tell user to configure WIFI; especially after RESET
@@ -869,8 +1226,8 @@ void loop ( void ) {
     }
   } else { // blink yellow while not connected to wifi when it should
     if (!wifiStationOK && (tick % 500 > 375)) {
-      dotstarSetColor(ledstrip_upperring, 50, 50, 0);
-      dotstarSetColor(ledstrip_lowerring, 50, 50, 0);
+      dotstarSetColor(ledstrip_upperring, 255, 200, 0);
+      dotstarSetColor(ledstrip_lowerring, 255, 200, 0);
     }
   }
 
