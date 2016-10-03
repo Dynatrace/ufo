@@ -142,10 +142,11 @@ Read more here: [compile and upload firmware through serial](https://learn.adafr
 Note: If you have troubles using the web UI for setting the wifi config, you might have more success using the API directly:
 `http://192.168.4.1/api?ssid=<ssid>&pwd=<pwd>`
 1. Once Wifi is configured, you have multiple options to access the UFO
-  * Option 1: in Windows you can use the UPNP (SSDP) discovery 
+  * Option 1: The lower ring visualizes the current IP address digit by digit. 192.168... will light 1 led then 9 (5+4) then 2 and so on. A dot is visualized as 3 white leds. The individuL digits are separated by a short white flash. The IP is visualized over and over again until the first api rest call is issued. To stay in sync every IP address visualization run uses a different color.
+  * Option 2: in Windows you can use the UPNP (SSDP) discovery 
   in the File Explorers Network view ![windows discovers the ufo](windows discovers ufo.png)
   * Option 3: try http://ufo as the UFO uses the default hostname "UFO" when it registers with DHCP.
-  * Option 3: lookup the MAC address in your Wifi Access Point and get the IP address assigned by DHCP
+  * Option 4: lookup the MAC address in your Wifi Access Point and get the IP address assigned by DHCP
 4. Access the web UI of the UFO as well as the REST interface /API    ***TODO FOR MORE***
 
 
