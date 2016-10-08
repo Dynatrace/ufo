@@ -129,12 +129,13 @@
 					<b>Welcome to the Dynatrace UFO</b><br/>Firmware version: <span id="firmwareversion">---</span>
 					<p/><br/>
 						<span style="color:dimgrey">Please configure the Wifi settings of your UFO first. In order to access the UFO AFTER submitting the Wifi settings, you may do the following:</span>
-						<li>Option 1: Open Windows file explorer and click on "Network" to display all devices that are discovered through SSDP.
+						<li>Option 1: The lower ring visualizes the current IP address digit by digit. 192.168... will light 1 led then 9 (5+4) then 2 and so on. A dot is visualized as 3 white leds. The individuL digits are separated by a short white flash. The IP is visualized over and over again until the first api rest call is issued. To stay in sync every IP address visualization run uses a different color.</li>
+						<li>Option 2: Open Windows file explorer and click on "Network" to display all devices that are discovered through SSDP.
 						</li>
-						<li>Option 2: by default the UFO registers with hostname <b id="hostname">---</b> at you access point. so try <span id="ufourl">http://hostname</span>:
+						<li>Option 3: by default the UFO registers with hostname <b id="hostname">---</b> at you access point. so try <span id="ufourl">http://hostname</span>:
 							TODO: add auto-redirect to URL.
 						</li>
-						<li>Option 3: Remember your MAC address <b><span id="macaddress">---</span></b> 
+						<li>Option 4: Remember your MAC address <b><span id="macaddress">---</span></b> 
 						as you may want to lookup the IP address
 							in your Wifi Accesspoint.</li>
 				</ul>
