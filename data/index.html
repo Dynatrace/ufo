@@ -50,7 +50,7 @@
 					<a href="#!pagefirmwareupdate" class="padded-list">Firmware update</a>
 				</li>
 				<li>
-					<a href="#!pageruxitsettings" class="padded-list">Dynatrace integration</a>
+					<a href="#!pagedynatraceintegrationsettings" class="padded-list">Dynatrace integration</a>
 				</li>
 				<li>
 					<!--<a href="wifisettings.html" class="padded-list">Wifi settings</a>-->
@@ -153,7 +153,7 @@
 		</div>
 	</pagewifisettings>
 
-	<pageruxitsettings data-page="true">
+	<pagedynatraceintegrationsettings data-page="true">
 		<header class="header-bar">
 			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
 			<div class="center">
@@ -165,8 +165,8 @@
 				<form method='GET' action='/api'>
 					<span class="padded-list">Configure Dynatrace integration. Submit empty fields to disable integration.</span>
 					<div class="padded-full">
-						<input type="text" name="dynatrace-environmentid" placeholder="environment-id" id="ruxit-environmentid" />
-						<input type="text" name="dynatrace-apikey" placeholder="api-key" id="ruxit-apikey" />
+						<input type="text" name="dynatrace-environmentid" placeholder="environment-id" id="dynatrace-environmentid" />
+						<input type="text" name="dynatrace-apikey" placeholder="api-key" id="dynatrace-apikey" />
 					</div>
 					<div class="padded-full">
 						<button class="btn btn-submit fit-parent primary" type="submit">Apply settings and reboot.</button>
@@ -174,7 +174,7 @@
 				</form>
 			</div>
 		</div>
-	</pageruxitsettings>
+	</pagedynatraceintegrationsettings>
 
 
 
