@@ -9,10 +9,9 @@ class DisplayCharter
   public:
     DisplayCharter();
     void Init();
-    void Clear();
     void SetLeds(byte pos, byte count, unsigned int color);
     void SetBackground(String color);
-    void SetWirl(byte wspeed, bool clockwise);
+    void SetWhirl(byte wspeed, bool clockwise);
     void SetMorph(int period, byte mspeed);
     unsigned int ParseLedArg(String argument, unsigned int iPos);
     void ParseWhirlArg(String argument);

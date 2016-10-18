@@ -19,24 +19,24 @@
 */
 
 boolean debug = true;
-#include <ArduinoJson.h>
+//#include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPClient.h>
 #include <Wire.h>
 #include <FS.h>
-#include <Adafruit_DotStar.h>
+//#include <Adafruit_DotStar.h>
 
-#include <math.h>
+//#include <math.h>
 #include <StreamString.h>
 
-#define FIRMWARE_VERSION __DATE__ " " __TIME__
+#define FIRMWARE_VERSION F(__DATE__ " " __TIME__)
 
-#define DEFAULT_HOSTNAME "ufo"
-#define DEFAULT_APSSID "ufo"
-#define DEFAULT_SSID "ufo"
-#define DEFAULT_PWD "ufo"
+#define DEFAULT_HOSTNAME F("ufo")
+#define DEFAULT_APSSID F("ufo")
+//#define DEFAULT_SSID "ufo"
+//#define DEFAULT_PWD "ufo"
 
 // ESP8266 Huzzah Pin usage
 #define PIN_DOTSTAR_LOGO 2
@@ -56,14 +56,7 @@ DisplayCharter displayCharter_upperring;
 
 IPDisplay ipDisplay;
 
-byte redcountUpperring = 5;
-byte redcountLowerring = 10;
-
 boolean logo = true;
-byte whirlr = 255;
-byte whirlg = 255;
-byte whirlb = 255;
-boolean whirl = true;
 
 ESP8266WebServer        httpServer ( 80 );
 HTTPClient              httpClient;
@@ -74,6 +67,9 @@ boolean wifiConfigMode = true;
 boolean httpClientOnlyMode = false;
 long uploadSize = 0;
 
+int applicationProblems = -1;
+int serviceProblems = -1;
+int infrastructureProblems = -1;
 
 String dynatraceEnvironmentID; // needed for Config
 String dynatraceApiKey; // needed for Config
@@ -110,11 +106,12 @@ void handleFactoryReset() {
     WiFi.disconnect(false); //disconnect and disable station mode; delete old config
     // default IP address for Access Point is 192.168.4.1
     //WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0)); // IP, gateway, netmask -- NOT STORED TO FLASH!!
-    WiFi.softAP(DEFAULT_APSSID); // default is open Wifi
+    WiFi.softAP(String(DEFAULT_APSSID).c_str()); // default is open Wifi
     //WiFi.mode(WIFI_AP);
     if (debug) {
       Serial.println(String(F("Wifi reset to SSID: ")) + WiFi.SSID() + String(F(" pass: ")) + WiFi.psk());
-      Serial.println(F("Wifi config mode enabled: Access point enabled at open Wifi SSID: " DEFAULT_APSSID));
+      Serial.print(F("Wifi config mode enabled: Access point enabled at open Wifi SSID: "));
+      Serial.println(DEFAULT_APSSID);
       Serial.println(F("Restarting...."));
       //WiFi.printDiag(Serial);
       Serial.flush();
@@ -198,11 +195,11 @@ void WiFiEvent(WiFiEvent_t event) {
 void printSpiffsContents() {
   if (debug)
   {
-    Dir dir = SPIFFS.openDir("/");
+    Dir dir = SPIFFS.openDir(F("/"));
     while (dir.next()) {
       String fileName = dir.fileName();
       size_t fileSize = dir.fileSize();
-      Serial.printf("FS File: %s, size: %s\n", fileName.c_str(), formatBytes(fileSize).c_str());
+      Serial.printf(String(F("FS File: %s, size: %s\n")).c_str(), fileName.c_str(), formatBytes(fileSize).c_str());
     }
     Serial.printf("\n");
   }
@@ -223,11 +220,12 @@ void setupSerial() {
   }
 
   if (debug) {
-    Serial.println("");
-    Serial.println("");
-    Serial.println("");
+    Serial.println(F(""));
+    Serial.println(F(""));
+    Serial.println(F(""));
     Serial.println(F("Welcome to Dynatrace UFO!"));
-    Serial.println(F("UFO Firmware Version: " FIRMWARE_VERSION));
+    Serial.print(F("UFO Firmware Version: "));
+    Serial.println(FIRMWARE_VERSION);
     Serial.println(String(F("ESP8266 Bootversion: ")) + String(ESP.getBootVersion()));
     Serial.println(String(F("ESP8266 SDK Version: ")) + String(ESP.getSdkVersion()));
     Serial.println(String(F("Resetinfo: ")) + ESP.getResetInfo());
@@ -268,59 +266,80 @@ void setup ( void ) {
     //WiFi.printDiag(Serial);
   }
 
-
-  // setup all web server routes; make sure to use / last
-  #define STATICFILES_CACHECONTROL "private, max-age=0, no-cache, no-store"
-  httpServer.on ( "/api", apiHandler );
-  httpServer.on ( "/dynatrace", HTTP_POST, dynatracePostHandler); // webhook URL for Dynatrace SaaS/Managed problem notifications
-  httpServer.on ( "/info", infoHandler );
-  //httpServer.on ( "/gen", generateHandler );
-  //httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
-  //httpServer.serveStatic("/app.js", SPIFFS, "/app.js", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/phonon.min.css", SPIFFS, "/phonon.min.css");
-  httpServer.serveStatic("/phonon.min.js", SPIFFS, "/phonon.min.js");
-  httpServer.serveStatic("/forms.min.css", SPIFFS, "/forms.min.css");
-  httpServer.serveStatic("/forms.min.js", SPIFFS, "/forms.min.js");
-  httpServer.serveStatic("/icons.min.css", SPIFFS, "/icons.min.css");
-  httpServer.serveStatic("/lists.min.css", SPIFFS, "/lists.min.css");
-  httpServer.serveStatic("/phonon-base.min.css", SPIFFS, "/phonon-base.min.css");
-  httpServer.serveStatic("/phonon-core.min.js", SPIFFS, "/phonon-core.min.js");
-  httpServer.serveStatic("/font.woff", SPIFFS, "/font.woff");
-  httpServer.serveStatic("/font.eot", SPIFFS, "/font.eot");
-  httpServer.serveStatic("/font.svg", SPIFFS, "/font.svg");
-  httpServer.serveStatic("/font.ttf", SPIFFS, "/font.ttf");
-
-  //if (wifiConfigMode) {
-  //    httpServer.serveStatic("/", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
-  //    httpServer.serveStatic("/index.html", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
-  //} else {
-  httpServer.serveStatic("/", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
-  httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
-  //}
-  //httpServer.on ( "/", HTTP_GET, handleRoot );
-  httpServer.onNotFound ( handleNotFound );
-
-  // register firmware update HTTP server:
-  //    To upload through terminal you can use: curl -F "image=@ufo.ino.bin" ufo.local/update
-  //    Windows power shell use DOESNT WORK YET: wget -Method POST -InFile ufo.ino.bin -Uri ufo.local/update
-  //httpServer.on("/", indexHtmlHandler);
-  //httpServer.on("/update", HTTP_GET, indexHtmlHandler);
-  httpServer.on("/update", HTTP_GET, updateHandler);
-  httpServer.on("/update", HTTP_POST, updatePostHandler, updatePostUploadHandler);
-
+  
+  
   // start webserver in Access Point mode ALWAYS and in Station mode only when not using HTTPS polling (which requires HTTP server turned off to conserve memory)
   if (wifiConfigMode || (dynatraceEnvironmentID.length() == 0) || (dynatraceApiKey.length() == 0)) {
     httpClientOnlyMode = false;
+
+    // setup all web server routes; make sure to use / last
+    #define STATICFILES_CACHECONTROL F("private, max-age=0, no-cache, no-store")
+    String s =  F("/api");
+    httpServer.on(s.c_str(), apiHandler );
+    s = F("/dynatrace");
+    httpServer.on(s.c_str(), HTTP_POST, dynatracePostHandler); // webhook URL for Dynatrace SaaS/Managed problem notifications
+    s = F("/info");
+    httpServer.on(s.c_str(), infoHandler );
+    //httpServer.on ( "/gen", generateHandler );
+    //httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
+    //httpServer.serveStatic("/app.js", SPIFFS, "/app.js", STATICFILES_CACHECONTROL);
+    
+    s = F("/phonon.min.css");
+    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
+    s = F("/phonon.min.js");
+    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
+    s = F("/phonon.min.js");
+    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
+    s = F("/forms.min.css");
+    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
+    s = F("/forms.min.js");
+    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
+    s = F("/icons.min.css");
+    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
+    s = F("/lists.min.css");
+    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
+    s = F("/phonon-base.min.css");
+    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
+    s = F("/phonon-core.min.js");
+    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
+    s = F("/font.woff");
+    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
+    s = F("/font.eot");
+    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
+    s = F("/font.svg");
+    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
+    s = F("/font.ttf");
+    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
+   
+    //if (wifiConfigMode) {
+    //    httpServer.serveStatic("/", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
+    //    httpServer.serveStatic("/index.html", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
+    //} else {
+    s = F("/index.html");
+    httpServer.serveStatic(String(F("/")).c_str(), SPIFFS, s.c_str(), String(STATICFILES_CACHECONTROL).c_str());
+    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str(),  String(STATICFILES_CACHECONTROL).c_str());
+    //}
+    //httpServer.on ( "/", HTTP_GET, handleRoot );
+    httpServer.onNotFound ( handleNotFound );
+  
+    // register firmware update HTTP server:
+    //    To upload through terminal you can use: curl -F "image=@ufo.ino.bin" ufo.local/update
+    //    Windows power shell use DOESNT WORK YET: wget -Method POST -InFile ufo.ino.bin -Uri ufo.local/update
+    //httpServer.on("/", indexHtmlHandler);
+    //httpServer.on("/update", HTTP_GET, indexHtmlHandler);
+  
+    s = F("/update");
+    httpServer.on(s.c_str(), HTTP_GET, updateHandler);
+    httpServer.on(s.c_str(), HTTP_POST, updatePostHandler, updatePostUploadHandler);
+    
     httpServer.begin();
   } else {
     httpClientOnlyMode = true;
-    httpClient.setReuse(true);
-    if (debug) Serial.println("Entering HTTP Client only mode. Click the WIFI Reset button to reconfigure the UFO.");
+    urlSetup();
+    if (debug) Serial.println(F("Entering HTTP Client only mode. Click the WIFI Reset button to reconfigure the UFO."));
   }
 
 }
-
-
 
 unsigned int tick = 0;
 unsigned long trigger = 0;
@@ -338,7 +357,7 @@ void loop ( void ) {
       unsigned long m = millis();
       if (trigger < m) {
         pollDynatraceProblemAPI();
-        trigger = m + 10 * 1000; //60*1000; // poll every minute 60*1000ms
+        trigger = m + 30 * 1000; //60*1000; // poll every minute 60*1000ms
       }
     }
   } else {

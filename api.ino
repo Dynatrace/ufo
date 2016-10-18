@@ -1,16 +1,6 @@
 void apiHandler() {
   ipDisplay.StopShowingIp();
 
-  /*if (debug) { // print arguments
-    for (int i = 0; i < httpServer.args(); i++) {
-      Serial.println(F("API call argument: ") + httpServer.argName(i) + F(" value: ") + httpServer.arg(i));
-    }
-    if (httpServer.args() == 0) {
-      Serial.println(F("API call with no arguments"));
-    } else {
-      Serial.println(F("   ---end of arguments---"));
-    }
-  }*/
   // adjust logo brightness (on/off right now)
   if (httpServer.hasArg(F("logo"))) {
     if (httpServer.arg(F("logo")).equals(F("on"))) {
@@ -25,9 +15,9 @@ void apiHandler() {
   // to quickly set the RGB colors of the logo remotely
   if (httpServer.hasArg(F("logoled"))) {
     byte led = byte(httpServer.arg(F("logoled")).toInt());
-    byte r = byte(httpServer.arg("r").toInt());
-    byte g = byte(httpServer.arg("g").toInt());
-    byte b = byte(httpServer.arg("b").toInt());
+    byte r = byte(httpServer.arg(F("r")).toInt());
+    byte g = byte(httpServer.arg(F("g")).toInt());
+    byte b = byte(httpServer.arg(F("b")).toInt());
     ledstrip_logo.setPixelColor(led, r, g, b);
   }
 
@@ -82,13 +72,10 @@ void apiHandler() {
   } 
 
   if (httpServer.hasArg(F("dynatrace-environmentid")) || httpServer.hasArg(F("dynatrace-apikey"))) {
-    //if (debug) Serial.println(F("Storing Dynatrace SaaS/Managed environment integration settings"));
+    if (debug) Serial.println(F("Storing Dynatrace SaaS/Managed environment integration settings"));
     dynatraceEnvironmentID = httpServer.arg(F("dynatrace-environmentid"));
     dynatraceApiKey = httpServer.arg(F("dynatrace-apikey"));
-    //if (debug) Serial.println("Stored: " + httpServer.arg("dynatrace-environmentid") + " / " + httpServer.arg("dynatrace-apikey"));
-    boolean saved = configWrite();
-    //if (debug) Serial.println("Config saved. " + String(saved) + "  rebooting.....");
-    //if (debug) Serial.flush();
+    configWrite();
     httpReboot(F("Configuration succeeded!"));
   }
 
@@ -104,7 +91,7 @@ void apiHandler() {
     }
 
     if (debug) {
-      Serial.println(String(F("New Wifi settings: ")) + newWifiSSID + " / " + newWifiPwd);
+      Serial.println(String(F("New Wifi settings: ")) + newWifiSSID + F(" / ") + newWifiPwd);
       Serial.println(String(F("Restarting....")));
       Serial.flush();
     }
@@ -116,7 +103,7 @@ void apiHandler() {
     String newWifiHostname = httpServer.arg(F("hostname"));
     //TODO##################################################################
   }
-
+  
   httpServer.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
   httpServer.send(200);
 }

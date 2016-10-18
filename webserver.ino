@@ -142,20 +142,56 @@ void handleNotFound() {
 
 void infoHandler() {
 
-  String json = "{";
-  json += "\"heap\":\"" + String(ESP.getFreeHeap()) + "\"";
-  json += ", \"ssid\":\"" + String(WiFi.SSID()) + "\"";
-  json += ", \"ipaddress\":\"" + WiFi.localIP().toString() + "\"";
-  json += ", \"ipgateway\":\"" + WiFi.gatewayIP().toString() + "\"";
-  json += ", \"ipdns\":\"" + WiFi.dnsIP().toString() + "\"";
-  json += ", \"ipsubnetmask\":\"" + WiFi.subnetMask().toString() + "\"";
-  json += ", \"macaddress\":\"" + WiFi.macAddress() + "\"";
-  json += ", \"hostname\":\"" + WiFi.hostname() + "\"";
-  json += ", \"apipaddress\":\"" + WiFi.softAPIP().toString() + "\"";
-  json += ", \"apconnectedstations\":\"" + String(WiFi.softAPgetStationNum()) + "\"";
-  json += ", \"wifiautoconnect\":\"" + String(WiFi.getAutoConnect()) + "\"";
-  json += ", \"firmwareversion\":\"" + String(FIRMWARE_VERSION) + "\"";
-  json += "}";
+  String json = F("{");
+  json += '"'; json += F("heap"); json += '"';
+  json += ':';
+  json += '"'; json +=  String(ESP.getFreeHeap()); json += '"';
+  json += F(", "); 
+  json += '"'; json += F("ssid"); json += '"';
+  json += ':';
+  json += '"'; json +=  String(WiFi.SSID()); json += '"';
+  json += F(", "); 
+  json += '"'; json += F("ipaddress"); json += '"';
+  json += ':';
+  json += '"'; json +=  WiFi.localIP().toString(); json += '"';
+  json += F(", "); 
+  json += '"'; json += F("ipgateway"); json += '"';
+  json += ':';
+  json += '"'; json +=  WiFi.gatewayIP().toString(); json += '"';
+  json += F(", "); 
+  json += '"'; json += F("ipdns"); json += '"';
+  json += ':';
+  json += '"'; json += WiFi.dnsIP().toString(); json += '"';
+  json += F(", "); 
+  json += '"'; json += F("ipsubnetmask"); json += '"';
+  json += ':';
+  json += '"'; json +=  WiFi.subnetMask().toString(); json += '"';
+  json += F(", "); 
+  json += '"'; json += F("macaddress"); json += '"';
+  json += ':';
+  json += '"'; json +=  WiFi.macAddress(); json += '"';
+  json += F(", "); 
+  json += '"'; json += F("hostname"); json += '"';
+  json += ':';
+  json += '"'; json +=  WiFi.hostname(); json += '"';
+  json += F(", "); 
+  json += '"'; json += F("apipaddress"); json += '"';
+  json += ':';
+  json += '"'; json +=  WiFi.softAPIP().toString(); json += '"';
+  json += F(", "); 
+  json += '"'; json += F("apconnectedstations"); json += '"';
+  json += ':';
+  json += '"'; json += String(WiFi.softAPgetStationNum()); json += '"';
+  json += F(", "); 
+  json += '"'; json += F("wifiautoconnect"); json += '"';
+  json += ':';
+  json += '"'; json += String(WiFi.getAutoConnect()); json += '"';
+  json += F(", "); 
+  json += '"'; json += F("firmwareversion"); json += '"';
+  json += ':';
+  json += '"'; json += String(FIRMWARE_VERSION); json += '"';
+  json += '}';
+  
   httpServer.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
   httpServer.send(200, F("text/json"), json);
   json = String();
@@ -169,8 +205,8 @@ void infoHandler() {
 void dynatracePostHandler() {
   if (httpServer.hasArg(F("plain"))) { // POST data is stored in the "plain" argument
     StaticJsonBuffer<512> jsonBuffer;
-    if (debug) Serial.println(String(F("Dynatrace JSON POST data: ")) + httpServer.arg("plain"));
-    JsonObject& jsonObject = jsonBuffer.parseObject(httpServer.arg("plain"));
+    if (debug) Serial.println(String(F("Dynatrace JSON POST data: ")) + httpServer.arg(F("plain")));
+    JsonObject& jsonObject = jsonBuffer.parseObject(httpServer.arg(F("plain")));
 
     // TODO HANDLE Dynatrace PROBLEM DATA ################################################################################################
 

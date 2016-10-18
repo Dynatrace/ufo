@@ -27,7 +27,7 @@ void DisplayCharter::SetBackground(String color){
     backgroundColor = (int)strtol(color.c_str(), NULL, 16);
   }
 }
-void DisplayCharter::SetWirl(byte wspeed, bool clockwise){
+void DisplayCharter::SetWhirl(byte wspeed, bool clockwise){
   whirlSpeed = wspeed;
   whirlTick = 0xFF - whirlSpeed;
   whirlClockwise = clockwise;
@@ -40,8 +40,8 @@ void DisplayCharter::SetMorph(int period, byte mspeed){
     morphSpeed = 10;
   else
    morphSpeed = mspeed;
-  //Serial.println("SetMorph(" + String(morphPeriod) + ", " + String(morphSpeed) + ")");
 }
+
 unsigned int DisplayCharter::ParseLedArg(String argument, unsigned int iPos){
   byte seg = 0;
   String pos;
@@ -93,7 +93,7 @@ void DisplayCharter::ParseWhirlArg(String argument){
   wspeed.trim();
 
   if (wspeed.length() > 0){
-    SetWirl((byte)wspeed.toInt(), !seg);
+    SetWhirl((byte)wspeed.toInt(), !seg);
   }
 }
 void DisplayCharter::ParseMorphArg(String argument){

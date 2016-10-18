@@ -82,7 +82,6 @@ bool configRead() {
 }
 
 
-
 // note that writing to the SPIFFS wears the flash memory; so make sure to only use it when saving is really required.
 bool configWrite() {
   StaticJsonBuffer < MAX_CONFIGFILESIZE + 1 > jsonBuffer;
