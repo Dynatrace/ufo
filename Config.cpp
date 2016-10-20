@@ -1,3 +1,8 @@
+#include "config.h"
+#include <FS.h>
+#include <ArduinoJson.h>
+
+
 // Storing JSON configuration file in flash file system
 // Uses ArduinoJson library by Benoit Blanchon.
 // https://github.com/bblanchon/ArduinoJson
@@ -6,57 +11,20 @@
 #define CONFIG_FILE F("/config.json")
 
 
-/** TODO
-#include <EEPROM.h>
-
-#define EEPROM_CONFIGBUF 256
-
-void configRead() {
-  EEPROM.begin(EEPROM_CONFIGBUF); // Note: we can go up to 4kB. however, a smaller value reduces RAM consumption
-  if ((EEPROM.read(0) != 0xAA) || (EEPROM.read(1) != 0xBB) || (EEPROM.read(2) != 0xCC) || (EEPROM.read(3) != 0x01)) {
-    // Magic mismatch! EEPROM has not been initialized yet!!
-
-    
-  }
-  //Serial.print("Reading EEPROM address(0): ");
-  //Serial.println(EEPROM.read(0));
-  EEPROM.end();
+Config::Config(bool debug){
+  mDebug = debug;
 }
 
-void configWrite() {
-  EEPROM.begin(EEPROM_CONFIGBUF); // Note: we can go up to 4kB. however, a smaller value reduces RAM consumption
-  if ((EEPROM.read(0) != 0xAA) || (EEPROM.read(1) != 0xBB) || (EEPROM.read(2) != 0xCC) || (EEPROM.read(3) != 0x01)) {
-
-      // initialize EEPROM
-    for (int addr = 0; addr < EEPROM_CONFIGBUF; addr++) {
-      EEPROM.write(addr, 0);
-    }
-}
-
-int newaddr configWriteString(int addr, String & s) {
-  int len = s.length();
-
-  for (int i = 0; i < len; i++) {
-    EEPROM.write(addr + i, s.charAt(i));
-  }
-  EEPROM.write(addr + len, 0); // 0 termination
-  return addr+len+1;
-}
-
-**/
-
-
-
-bool configRead() {
+bool Config::Read() {
   File configFile = SPIFFS.open(CONFIG_FILE, "r");
   if (!configFile) {
-    if (debug) Serial.println(F("Failed to open config file"));
+    if (mDebug) Serial.println(F("Failed to open config file"));
     return false;
   }
 
   size_t size = configFile.size();
   if (size > (MAX_CONFIGFILESIZE)) {
-    if (debug) Serial.println(F("Config file size is too large"));
+    if (mDebug) Serial.println(F("Config file size is too large"));
     return false;
   }
 
@@ -72,37 +40,48 @@ bool configRead() {
   JsonObject& json = jsonBuffer.parseObject(buf.get());
 
   if (!json.success()) {
-    if (debug) Serial.println(F("Failed to parse config file"));
+    if (mDebug) Serial.println(F("Failed to parse config file"));
     return false;
   }
-
+  enabled = json[F("dynatrace-enabled")];
   dynatraceEnvironmentID = (const char*)json[F("dynatrace-environmentid")];
   dynatraceApiKey = (const char*)json[F("dynatrace-apikey")];
+  pollingIntervalS = json[F("dynatrace-interval")];
+  if (pollingIntervalS < 30){
+    pollingIntervalS = 30;
+  }
+  
   return true;
 }
 
 
 // note that writing to the SPIFFS wears the flash memory; so make sure to only use it when saving is really required.
-bool configWrite() {
+bool Config::Write() {
   StaticJsonBuffer < MAX_CONFIGFILESIZE + 1 > jsonBuffer;
   JsonObject& json = jsonBuffer.createObject();
+  json[F("dynatrace-enabled")] = enabled;
   json[F("dynatrace-environmentid")] = dynatraceEnvironmentID;
   json[F("dynatrace-apikey")] = dynatraceApiKey;
+  json[F("dynatrace-interval")] = pollingIntervalS;
 
   File configFile = SPIFFS.open(CONFIG_FILE, "w");
   if (!configFile) {
-    if (debug) Serial.println(F("Failed to open config file for writing"));
+    if (mDebug) Serial.println(F("Failed to open config file for writing"));
     return false;
   }
 
   json.printTo(configFile);
-  if (debug) json.printTo(Serial);
+  if (mDebug) json.printTo(Serial);
   return true;
 }
 
-bool configDelete() {
+bool Config::Delete() {
   SPIFFS.begin(); // just make sure its already open
   SPIFFS.remove(CONFIG_FILE);
  
+}
+
+bool Config::Enabled(){
+  return enabled && (dynatraceEnvironmentID.length() > 0) && (dynatraceApiKey.length() > 0);
 }
 

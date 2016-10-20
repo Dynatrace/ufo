@@ -15,37 +15,29 @@
        1) DONE: get quickly started by configuring WIFI
        2) activate some demo scenarios (showcase fancy illumination patterns)
        3) DONE - see homepage (index.html): providing help about available API calls
-       4) DONE: web based firmware upload; firmware updates (load from github or upload to device? or both?)
+       4) DONE: web based firmware upload; firmware s (load from github or upload to device? or both?)
 */
+//-------------------------------------------------------------------------------------------------------------------------
 
 boolean debug = true;
+
+//-------------------------------------------------------------------------------------------------------------------------
+
 //#include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-#include <ESP8266HTTPClient.h>
 #include <Wire.h>
 #include <FS.h>
-//#include <Adafruit_DotStar.h>
-
-//#include <math.h>
+#include <Adafruit_DotStar.h>
 #include <StreamString.h>
-
-#define FIRMWARE_VERSION F(__DATE__ " " __TIME__)
-
-#define DEFAULT_HOSTNAME F("ufo")
-#define DEFAULT_APSSID F("ufo")
-//#define DEFAULT_SSID "ufo"
-//#define DEFAULT_PWD "ufo"
-
-// ESP8266 Huzzah Pin usage
-#define PIN_DOTSTAR_LOGO 2
-#define PIN_DOTSTAR_LOWERRING 4
-#define PIN_DOTSTAR_UPPERRING 5
-#define PIN_DOTSTAR_CLOCK 14
-#define PIN_FACTORYRESET 15
-
 #include "DisplayCharter.h"
+#include "MyRequestHandler.h"
+#include "DataPolling.h"
+#include "Config.h"
+#include "defines.h"
+
+//-------------------------------------------------------------------------------------------------------------------------
 
 Adafruit_DotStar ledstrip_logo = Adafruit_DotStar(4, PIN_DOTSTAR_LOGO, PIN_DOTSTAR_CLOCK, DOTSTAR_BGR); //NOTE: in case the colors dont match, check out the last color order parameter
 Adafruit_DotStar ledstrip_lowerring = Adafruit_DotStar(RING_LEDCOUNT, PIN_DOTSTAR_LOWERRING, PIN_DOTSTAR_CLOCK, DOTSTAR_BRG);
@@ -55,24 +47,19 @@ DisplayCharter displayCharter_lowerring;
 DisplayCharter displayCharter_upperring;
 
 IPDisplay ipDisplay;
+Config dTConfig(debug);
+DataPolling dataPolling(&displayCharter_lowerring, &displayCharter_upperring, &ipDisplay, &dTConfig, debug);
 
 boolean logo = true;
 
-ESP8266WebServer        httpServer ( 80 );
-HTTPClient              httpClient;
+ESP8266WebServer   httpServer(80);
 
 boolean wifiStationOK = false;
 boolean wifiAPisConnected = false;
 boolean wifiConfigMode = true;
-boolean httpClientOnlyMode = false;
-long uploadSize = 0;
+boolean httpClientMode = false;
 
-int applicationProblems = -1;
-int serviceProblems = -1;
-int infrastructureProblems = -1;
-
-String dynatraceEnvironmentID; // needed for Config
-String dynatraceApiKey; // needed for Config
+//-------------------------------------------------------------------------------------------------------------------------
 
 //format bytes
 String formatBytes(size_t bytes) {
@@ -101,7 +88,7 @@ void handleFactoryReset() {
     }
 
     //delete config file to make sure we exit client only mode that disables the webserver
-    configDelete();
+    //dTConfig.Delete();
     
     WiFi.disconnect(false); //disconnect and disable station mode; delete old config
     // default IP address for Access Point is 192.168.4.1
@@ -121,36 +108,6 @@ void handleFactoryReset() {
   }
 }
 
-
-
-/*
-void generateHandler() {
-  if (httpServer.hasArg("size")) {
-    Serial.println("size arg found" + httpServer.arg("size"));
-    long bytes = httpServer.arg("size").toInt();
-    String top = "<html><header>Generator</header><body>sending " + String(bytes) + " bytes of additional payload.<p>";
-    String end = F("</body></html>");
-    httpServer.setContentLength(bytes + top.length() + end.length());
-    httpServer.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
-    httpServer.send(200);
-    String chunk = "";
-    httpServer.sendContent(top);
-    String a = String("a");
-    while (bytes > 0) {
-      chunk = String("");
-      long chunklen = bytes < 4096 ? bytes : 4096;
-      while (chunk.length() <= chunklen) {
-        chunk += a;
-      }
-      httpServer.sendContent(chunk);
-      bytes -= chunklen;
-    }
-    httpServer.sendContent(end);
-  }
-}*/
-
-
-
 void WiFiEvent(WiFiEvent_t event) {
     switch (event) {
       case WIFI_EVENT_STAMODE_GOT_IP:
@@ -168,7 +125,7 @@ void WiFiEvent(WiFiEvent_t event) {
       case WIFI_EVENT_STAMODE_AUTHMODE_CHANGE:
         if (debug) Serial.println(F("WiFi client authentication mode changed."));
         break;
-      //case WIFI_STAMODE_DHCP_TIMEOUT:                             THIS IS A NEW CONSTANT ENABLE WITH UPDATED SDK
+      //case WIFI_STAMODE_DHCP_TIMEOUT:                             THIS IS A NEW CONSTANT ENABLE WITH D SDK
       //  Serial.println("WiFi client DHCP timeout reached.");
       //break;
       case WIFI_EVENT_SOFTAPMODE_STACONNECTED:
@@ -238,17 +195,15 @@ void setup ( void ) {
 
   pinMode(PIN_FACTORYRESET, INPUT); //, INPUT_PULLUP); use INPUT_PULLUP in case we put reset to ground; currently reset is doing a 3V signal
 
-
   ledsSetup();
-
 
   // initialize ESP8266 file system
   SPIFFS.begin();
   printSpiffsContents();
 
   // load non-wifi config from SPIFFS config.json file
-  if (configRead()) {
-    if (debug) Serial.println(String(F("Dynatrace envid: ")) + dynatraceEnvironmentID + String(F(" apikey: ")) + dynatraceApiKey);
+  if (dTConfig.Read()) {
+    if (debug) Serial.println(String(F("Dynatrace envid: ")) + dTConfig.dynatraceEnvironmentID + String(F(" apikey: ")) + dTConfig.dynatraceApiKey);
   } else {
     if (debug) Serial.println(F("Loading Dynatrace config failed!"));
   }
@@ -266,83 +221,13 @@ void setup ( void ) {
     //WiFi.printDiag(Serial);
   }
 
-  
-  
-  // start webserver in Access Point mode ALWAYS and in Station mode only when not using HTTPS polling (which requires HTTP server turned off to conserve memory)
-  if (wifiConfigMode || (dynatraceEnvironmentID.length() == 0) || (dynatraceApiKey.length() == 0)) {
-    httpClientOnlyMode = false;
-
-    // setup all web server routes; make sure to use / last
-    #define STATICFILES_CACHECONTROL F("private, max-age=0, no-cache, no-store")
-    String s =  F("/api");
-    httpServer.on(s.c_str(), apiHandler );
-    s = F("/dynatrace");
-    httpServer.on(s.c_str(), HTTP_POST, dynatracePostHandler); // webhook URL for Dynatrace SaaS/Managed problem notifications
-    s = F("/info");
-    httpServer.on(s.c_str(), infoHandler );
-    //httpServer.on ( "/gen", generateHandler );
-    //httpServer.serveStatic("/index.html", SPIFFS, "/index.html", STATICFILES_CACHECONTROL);
-    //httpServer.serveStatic("/app.js", SPIFFS, "/app.js", STATICFILES_CACHECONTROL);
-    
-    s = F("/phonon.min.css");
-    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
-    s = F("/phonon.min.js");
-    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
-    s = F("/phonon.min.js");
-    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
-    s = F("/forms.min.css");
-    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
-    s = F("/forms.min.js");
-    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
-    s = F("/icons.min.css");
-    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
-    s = F("/lists.min.css");
-    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
-    s = F("/phonon-base.min.css");
-    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
-    s = F("/phonon-core.min.js");
-    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
-    s = F("/font.woff");
-    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
-    s = F("/font.eot");
-    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
-    s = F("/font.svg");
-    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
-    s = F("/font.ttf");
-    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str());
-   
-    //if (wifiConfigMode) {
-    //    httpServer.serveStatic("/", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
-    //    httpServer.serveStatic("/index.html", SPIFFS, "/wifisettings.html", STATICFILES_CACHECONTROL);
-    //} else {
-    s = F("/index.html");
-    httpServer.serveStatic(String(F("/")).c_str(), SPIFFS, s.c_str(), String(STATICFILES_CACHECONTROL).c_str());
-    httpServer.serveStatic(s.c_str(), SPIFFS, s.c_str(),  String(STATICFILES_CACHECONTROL).c_str());
-    //}
-    //httpServer.on ( "/", HTTP_GET, handleRoot );
-    httpServer.onNotFound ( handleNotFound );
-  
-    // register firmware update HTTP server:
-    //    To upload through terminal you can use: curl -F "image=@ufo.ino.bin" ufo.local/update
-    //    Windows power shell use DOESNT WORK YET: wget -Method POST -InFile ufo.ino.bin -Uri ufo.local/update
-    //httpServer.on("/", indexHtmlHandler);
-    //httpServer.on("/update", HTTP_GET, indexHtmlHandler);
-  
-    s = F("/update");
-    httpServer.on(s.c_str(), HTTP_GET, updateHandler);
-    httpServer.on(s.c_str(), HTTP_POST, updatePostHandler, updatePostUploadHandler);
-    
-    httpServer.begin();
-  } else {
-    httpClientOnlyMode = true;
-    urlSetup();
-    if (debug) Serial.println(F("Entering HTTP Client only mode. Click the WIFI Reset button to reconfigure the UFO."));
-  }
+  httpServer.addHandler(new MyFunctionRequestHandler(&displayCharter_lowerring, &displayCharter_upperring, &ipDisplay, &ledstrip_logo, &dTConfig, debug));
+  httpServer.begin();
 
 }
 
 unsigned int tick = 0;
-unsigned long trigger = 0;
+unsigned long startMillis = millis();
 
 void loop ( void ) {
 
@@ -350,24 +235,16 @@ void loop ( void ) {
 
   handleFactoryReset();
 
-  if (httpClientOnlyMode) { // HTTP Server is turned off for less RAM usage!!
-    // poll the problem status from Dynatrace SaaS/Managed
-    if (dynatraceEnvironmentID.length() > 0) {
-      ipDisplay.StopShowingIp();
-      unsigned long m = millis();
-      if (trigger < m) {
-        pollDynatraceProblemAPI();
-        trigger = m + 30 * 1000; //60*1000; // poll every minute 60*1000ms
-      }
+  if (!wifiConfigMode && wifiStationOK){
+    unsigned long m = millis();
+    if (m - startMillis > dTConfig.pollingIntervalS * 1000){
+      startMillis = m;
+      dataPolling.Poll();
     }
-  } else {
-    httpServer.handleClient();
-    ipDisplay.ProcessTick();
+    ipDisplay.ProcessTick();   
   }
-
-
-  yield();
-  ledstrip_logo.show();
+  
+  httpServer.handleClient();
 
  
   displayCharter_lowerring.Display(ledstrip_lowerring);
@@ -398,10 +275,11 @@ void loop ( void ) {
     }
   }
 
-
   yield();
+  ledstrip_logo.show();
   ledstrip_upperring.show();
   ledstrip_lowerring.show();
+  
 }
 
 

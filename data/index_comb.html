@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height"
+	/>
+	<style type="text/css">
+	html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}article,aside,details,figcaption,figure,footer,header,hgroup,main,menu,nav,section,summary{display:block}audio,canvas,progress,video{display:inline-block;vertical-align:baseline}audio:not([controls]){display:none;height:0}[hidden],template{display:none}a{background-color:transparent}a:active,a:hover{outline:0}b,strong{font-weight:700}h1{font-size:2em;margin:.67em 0}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sup{top:-.5em}sub{bottom:-.25em}img{border:0}svg:not(:root){overflow:hidden}figure{margin:1em 40px}hr{box-sizing:content-box;height:0}pre{overflow:auto}button,input,optgroup,select,textarea{color:inherit;font:inherit;margin:0}button{overflow:visible}button,select{text-transform:none}button,html input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}button[disabled],html input[disabled]{cursor:default}button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}input{line-height:normal}input[type=checkbox],input[type=radio]{box-sizing:border-box;padding:0}input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{height:auto}input[type=search]{-webkit-appearance:textfield;box-sizing:content-box}input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-search-decoration{-webkit-appearance:none}fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}legend{border:0;padding:0}textarea{overflow:auto}optgroup{font-weight:700}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}*,:after,:before{box-sizing:border-box}body,html{position:relative;height:100%;width:100%;overflow-x:hidden}html{-ms-touch-action:pan-y;touch-action:pan-y}body{top:0;right:0;bottom:0;left:0;margin:0;padding:0;word-wrap:break-word;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;-webkit-backface-visibility:hidden;backface-visibility:hidden;-webkit-user-drag:none;-ms-content-zooming:none;background-color:#fff;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}body,button,input,label,p,select,textarea{font-size:14px;font-family:Helvetica Neue,Roboto,Segoe UI,sans-serif}body,button,input,label,p,select,textarea{font-weight:400;color:#333}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:10px;line-height:1;font-weight:400}h1{font-size:36px}h2{font-size:30px}h3{font-size:24px}h4{font-size:18px}h5{font-size:14px}h5,h6{margin-top:20px}h6{font-size:12px}p{margin-top:0;margin-bottom:10px}.content{position:absolute;top:0;right:0;bottom:0;left:0;overflow:auto;-webkit-overflow-scrolling:touch}.content>*{-webkit-transform:translateZ(0);transform:translateZ(0)}input,select,textarea{-webkit-touch-callout:default;-moz-user-select:all;-ms-user-select:all;user-select:all;-webkit-user-select:auto}a{color:#0084e7;text-decoration:none}button{border:none;outline:none}.app-page{display:block;visibility:hidden;position:absolute;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden;-webkit-transform:translateZ(0);transform:translateZ(0);overflow:hidden;z-index:1;background-color:#fff}.app-page.app-active{visibility:visible;z-index:2}.app-page.page-sliding.left{z-index:3;-webkit-animation:a .3s ease-out;animation:a .3s ease-out}.app-page.page-sliding.right{z-index:4;-webkit-animation:b .3s ease-out;animation:b .3s ease-out}@-webkit-keyframes a{0%{opacity:1;-webkit-transform:translateZ(0);transform:translateZ(0)}to{opacity:0;-webkit-transform:translate3d(-50%,0,0);transform:translate3d(-50%,0,0)}}@keyframes a{0%{opacity:1;-webkit-transform:translateZ(0);transform:translateZ(0)}to{opacity:0;-webkit-transform:translate3d(-50%,0,0);transform:translate3d(-50%,0,0)}}@-webkit-keyframes b{0%{opacity:1;-webkit-transform:translateZ(0);transform:translateZ(0)}to{opacity:0;-webkit-transform:translate3d(50%,0,0);transform:translate3d(50%,0,0)}}@keyframes b{0%{opacity:1;-webkit-transform:translateZ(0);transform:translateZ(0)}to{opacity:0;-webkit-transform:translate3d(50%,0,0);transform:translate3d(50%,0,0)}}.btn.negative,.btn.positive,.btn.primary{color:#fff!important}.primary{background-color:#0084e7!important}.primary.btn-flat{color:#0084e7!important}.positive{background-color:#0ae700!important}.positive.btn-flat{color:#0ae700!important}.negative{background-color:#f40b00!important}.negative.btn-flat{color:#f40b00!important}.light-primary{background-color:#b9d3e7!important}.light-positive{background-color:#bbe7b9!important}.light-negative{background-color:#f4c5c3!important}.btn{position:relative;padding:0 12px;min-height:42px;color:#333;text-align:center;vertical-align:top;cursor:pointer;outline:none;text-transform:uppercase;border:none;border-radius:3px;background-color:#f1f1f1;-webkit-transition:background-color .25s ease-in-out;transition:background-color .25s ease-in-out}.btn,.btn .icon{display:inline-block;line-height:1}.btn .icon{font-size:inherit;color:inherit}.btn:not(.btn-progress):disabled{opacity:.75}.btn-flat{background-color:transparent!important}.btn:active{opacity:.85}.floating-action{position:fixed;padding:16px;border-radius:50%;box-shadow:0 2px 3px #8a8a8a;z-index:10;right:0;bottom:0;color:#fff;opacity:.5;-webkit-transform:.3s,opacity .25s linear;transform:.3s,opacity .25s linear}.floating-action.active,.floating-action:active{opacity:1}.buttons{list-style:none;text-align:right;margin:0;padding:0}.buttons li{display:inline-block}.buttons li a{height:48px;line-height:48px;vertical-align:middle;font-weight:700;min-width:60px;padding:0 8px}.header-bar{position:fixed;right:0;left:0;z-index:20;width:100%;height:52px;overflow:hidden;background-color:#0084e7;border-bottom:0 solid #2e2bc9;-webkit-backface-visibility:hidden;backface-visibility:hidden}.header-bar .center{position:absolute;text-align:center;top:0;right:0;left:0}.header-bar .pull-left{padding-left:16px}.header-bar .pull-right{padding-right:16px}.header-bar .title{z-index:21;font-size:20px;color:#fff;height:52px;line-height:52px}.header-bar .center .title{margin:0 auto}.header-bar .arrow{cursor:pointer}.header-bar .arrow:after{position:relative;width:0;height:0;top:16px;left:6px;content:'';border-right:4px solid transparent;border-top:5px solid #fff;border-left:4px solid transparent}.header-bar .btn{position:relative;z-index:22;padding:0 12px;height:52px;line-height:52px;color:#fff;background-color:transparent;border:none;border-radius:0}.header-bar .btn:active{opacity:1;background-color:#0084e7;background-color:rgba(0,0,0,.1)}.header-bar .search-input{width:75%;position:absolute;height:52px;color:#fff;background-color:transparent;border:none}.header-bar .search-input::-webkit-input-placeholder{color:#fff}.header-bar .search-input:-moz-placeholder,.header-bar .search-input::-moz-placeholder{color:#fff}.header-bar .search-input:-ms-input-placeholder{color:#fff}.header-bar~.content{margin-top:52px}.header-bar~.header-tabs{top:52px}.header-bar~.header-tabs~.content{margin-top:102px}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.text-justify{text-align:justify}.pull-left{float:left!important}.pull-right{float:right!important}.fit-parent{width:100%}.show-for-android-only,.show-for-ios-only,.show-for-large-only,.show-for-phone-only,.show-for-tablet-only,.show-for-tablet-up,.show-for-web-only{display:none!important}.android .show-for-android-only,.ios .show-for-ios-only,.web .show-for-web-only{display:inherit!important}@media only screen and (max-width:640px){.show-for-phone-only{display:inherit!important}.padded-full{margin:16px}.padded-top{margin-top:16px}.padded-left{margin-left:16px}.padded-right{margin-right:16px}.padded-bottom{margin-bottom:16px}}@media only screen and (min-width:641px) and (max-width:1024px){.show-for-tablet-only{display:inherit!important}}@media only screen and (min-width:641px){.show-for-tablet-only,.show-for-tablet-up{display:inherit!important}.padded-full{margin:32px}.padded-top{margin-top:32px}.padded-left{margin-left:32px}.padded-right{margin-right:32px}.padded-bottom{margin-bottom:32px}.notification{width:450px!important}.dialog{width:380px!important}.side-panel{width:28%!important}.header-bar .pull-left{padding-left:32px}.header-bar .pull-right{padding-right:32px}.expose-aside-left,.expose-aside-left .panel-full{width:72%;margin-left:28%}.expose-aside-left .notification{left:28%}.expose-aside-right{width:72%}.expose-aside-right .panel-full{width:72%;margin-right:28%}}@media only screen and (min-width:1025px){.show-for-tablet-only{display:none!important}.show-for-large-only,.show-for-tablet-up{display:inherit!important}}
+	</style>
+	<style type="text/css">
+	.list{position:relative;padding:0;margin:0;list-style:none}.list li{height:auto;min-height:51px;line-height:52px;overflow:hidden;display:block;border-bottom:1px solid #eee}.list li a{width:100%;height:100%;display:block;color:#000;-webkit-transition:background-color .25s ease-in-out;transition:background-color .25s ease-in-out}.list li a:active{background-color:#eee}.list li .pull-left,.list li .pull-right{width:52px;height:52px;line-height:52px;vertical-align:middle;text-align:center;z-index:1}.list li .item-content{display:inline-block;padding:8px 15px;line-height:78px}.list li .accordion-content{position:absolute;height:auto;visibility:hidden;padding:0 16px;background-color:#f9f9f9}.list li .accordion-active,.list li .accordion-content{-webkit-transition:max-height .3s ease-in-out;transition:max-height .3s ease-in-out}.list li .accordion-active{position:relative;visibility:visible}.list li .body,.list li .title{line-height:31px;display:block}.list li .body{font-size:13px;color:#777}.list .item-expanded{height:78px;line-height:78px}.list .item-expanded .pull-left,.list .item-expanded .pull-right{width:78px;height:78px;line-height:78px}.list .divider{height:48px;line-height:48px;font-size:16px;background-color:#f5f5f5}.list .divider,.list .padded-list{padding:0 16px}
+	</style>
+	<style type="text/css">
+	input[type=button],input[type=reset],input[type=submit]{width:100%}input[type=color],input[type=date],input[type=datetime-local],input[type=datetime],input[type=email],input[type=month],input[type=number],input[type=password],input[type=search],input[type=tel],input[type=text],input[type=time],input[type=url],input[type=week],select,textarea{width:100%;height:48px;line-height:16px;-webkit-appearance:none;-moz-appearance:none;appearance:none;color:#636363;background-color:#fff;border:none;border-bottom:1px solid #ddd;outline:none}.input-invalid,input:invalid{border-bottom-width:2px!important;border-color:#e53935!important}input::-webkit-input-placeholder{padding:0;font-size:15px;color:#999}input[type=color]:focus,input[type=date]:focus,input[type=datetime-local]:focus,input[type=datetime]:focus,input[type=email]:focus,input[type=month]:focus,input[type=number]:focus,input[type=password]:focus,input[type=search]:focus,input[type=tel]:focus,input[type=text]:focus,input[type=time]:focus,input[type=url]:focus,input[type=week]:focus,select:focus,textarea:focus{border-bottom-width:2px;border-color:#0084e7}label{width:100%;display:inline-block;height:48px;line-height:48px}.list label{height:52px;line-height:52px}.checkbox input[type=checkbox],.radio input[type=radio]{display:none}.checkbox span,.radio span{transition:all .3s ease-in-out;content:"";position:absolute;float:right;top:16px;right:0;width:20px;height:20px;border:2px solid #ddd}.checkbox :checked+span,.radio :checked+span{-webkit-transform:rotate(-45deg);transform:rotate(-45deg);border-radius:0;height:.65rem;border-color:#0084e7;border-top-style:none;border-right-style:none}.radio span{border-radius:50%}.input-wrapper{margin-top:24px;position:relative;vertical-align:top}.floating-label,.input-wrapper{width:100%;display:inline-block}.floating-label{position:absolute;top:0;left:0;text-align:left;line-height:48px;height:auto;font-size:15px;color:#999;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-webkit-transform:translateZ(0);transform:translateZ(0);transition:all .2s}.input-filled .floating-label,.with-label:focus+.floating-label{-webkit-transform:translate3d(0,-60%,0);transform:translate3d(0,-60%,0);font-size:12px}
+	</style>
+	<style type="text/css">
+	@font-face{font-family:MaterialDesignIcons;src:url(font.eot?-613f9d);src:url(font.eot?#iefix-613f9d) format('embedded-opentype'),url(font.woff?-613f9d) format('woff'),url(font.ttf?-613f9d) format('truetype'),url(font.svg?-613f9d#material-design-icons) format('svg');font-weight:400;font-style:normal}.icon{display:inline-block;font-family:MaterialDesignIcons;font-size:24px;line-height:1;text-decoration:none;text-rendering:auto;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.icon-home:before{content:"\e600"}.icon-info-outline:before{content:"\e601"}.icon-settings:before{content:"\e606"}.icon-add:before{content:"\e602"}.icon-edit:before{content:"\e603"}.icon-arrow-back:before{content:"\e604"}.icon-arrow-forward:before{content:"\e60a"}.icon-check:before{content:"\e605"}.icon-chevron-left:before{content:"\e609"}.icon-chevron-right:before{content:"\e60f"}.icon-close:before{content:"\e608"}.icon-expand-less:before{content:"\e610"}.icon-expand-more:before{content:"\e611"}.icon-menu:before{content:"\e60b"}.icon-more-horiz:before{content:"\e60c"}.icon-more-vert:before{content:"\e60d"}.icon-sync:before{content:"\e60e"}.icon-sync-problem:before{content:"\e607"}.icon-star:before{content:"\e612"}.icon-star-outline:before{content:"\e613"}i.icon{font-style:normal}.with-circle{padding:10px;border-radius:50%;border:1px solid #eee}
+	</style>
+	<title>Dynatrace UFO</title>
+</head>
+
+<body>
+	<!-- the home page is the default one. This page does not require to call its content because we define on its tag.-->
+	<home data-page="true">
+		<header class="header-bar">
+			<div class="center">
+				<h1 class="title">Dynatrace UFO</h1>
+			</div>
+		</header>
+
+		<div class="content">
+			<ul class="list">
+				<li class="divider">UFO communication examples (REST calls)</li>
+				<li>
+					<span class="padded-list">/api?logo=on|off</span>
+					<button class="btn btn-flat primary pull-right" data-api="logo=off" id="led1off">Off</button>
+					<button class="btn btn-flat primary pull-right" data-api="logo=on" id="led1on">On</button>
+				</li>
+				<li>
+					<span class="padded-list">/api?top_init=1&top=0|3|FF0000&top_bg=00FF00</span>
+					<button class="btn btn-flat primary pull-right" data-api="top_init=1&top=0|3|FF0000&top_bg=00FF00" id="apisample1">Set</button>
+				</li>
+				<li>
+					<span class="padded-list">/api?top_init=1&top=0|1|FFC000|1|3|FF0000|4|1|FFC000&top_bg=00A00a&top_whirl=220</span>
+					<button class="btn btn-flat primary pull-right" data-api="top_init=1&top=0|1|FFC000|1|3|FF0000|4|1|FFC000&top_bg=00A00a&top_whirl=220" id="apisample2">Set</button>
+				</li>
+				<li>
+					<span class="padded-list">/api?bottom_init=1&bottom=0|15|FF0000&bottom_bg=0000FF&bottom_morph=500|6</span>
+					<button class="btn btn-flat primary pull-right" data-api="bottom_init=1&bottom=0|15|FF0000&bottom_bg=0000FF&bottom_morph=500|6" id="apisample3">Set</button>
+				</li>
+				<li class="divider">UFO machine room</li>
+				<li>
+					<a href="#!pageinfo" class="padded-list">Info</a>
+				</li>
+				<li>
+					<a href="#!pagefirmwareupdate" class="padded-list">Firmware update</a>
+				</li>
+				<li>
+					<a href="#!pagedynatraceintegrationsettings" class="padded-list">Dynatrace integration</a>
+				</li>
+				<li>
+					<!--<a href="wifisettings.html" class="padded-list">Wifi settings</a>-->
+					<a href="#!pagewifisettings" class="padded-list">WIFI Settings</a>
+				</li>
+			</ul>
+
+
+		</div>
+
+	</home>
+
+	<!-- for the second page, Phonon will load its content. -->
+	<pageinfo data-page="true">
+		<header class="header-bar">
+			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
+			<div class="center">
+				<h1 class="title">Info</h1>
+			</div>
+		</header>
+		<div class="content">
+			<ul class="list">
+				<li class="divider">System</li>
+				<!-- TODO class=pull-right doesnt work for wider strings -->
+				<li class="padded-list">Heap: <span class="pull-right" id="infoheap">-</span></li>
+				<li class="padded-list">Firmware: <span id="infofirmwareversion">-</span></li>
+				<li class="divider">Network</li>
+				<li class="padded-list">SSID: <span id="infossid">-</span></li>
+				<li class="padded-list">IP: <span id="infoipaddress">-</span></li>
+				<li class="padded-list">Subnetmask: <span id="infoipsubnetmask">-</span></li>
+				<li class="padded-list">Gateway: <span id="infoipgateway">-</span></li>
+				<li class="padded-list">DNS: <span id="infoipdns">-</span></li>
+				<li class="padded-list">Hostname: <span id="infohostname">-</span></li>
+				<li class="padded-list">Macaddress: <span id="infomacaddress">-</span></li>
+				<li class="padded-list">Wifi autoconnect: <span id="infowifiautoconnect">-</span></li>
+				<li class="divider">Accesspoint</li>
+				<li class="padded-list">IP: <span id="infoapipaddress">-</span></li>
+				<li class="padded-list">Connected stations: <span id="infoapconnectedstations">-</span></li>
+			</ul>
+		</div>
+	</pageinfo>
+
+	<pagefirmwareupdate data-page="true">
+		<header class="header-bar">
+			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
+			<div class="center">
+				<h1 class="title">Firmware upload</h1>
+			</div>
+		</header>
+		<div class="content">
+			<div class="input-wrapper list">
+				<form method='POST' action='/update' enctype='multipart/form-data'>
+					<span class="padded-list">Select firmware file like ufo.ino.bin or index.html (do not upload the ufo.spiffs.bin here)</span>
+					<li>
+						<input class="padded-full" type="file" name="update" id="firmwarefilename"/>
+					</li>
+					<li>
+						<button class="btn btn-submit fit-parent primary" type="submit">Update</button>
+					</li>
+				</form>
+			</div>
+
+		</div>
+	</pagefirmwareupdate>
+
+	<pagewifisettings data-page="true">
+		<header class="header-bar">
+			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
+			<div class="center">
+				<h1 class="title">Dynatrace UFO - Configure WIFI</h1>
+			</div>
+		</header>
+		<div class="content">
+			<div class="padded-full">
+				<ul style="color:dimgrey">
+					<b>Welcome to the Dynatrace UFO</b><br/>Firmware version: <span id="firmwareversion">---</span>
+					<p/><br/>
+						<span style="color:dimgrey">Please configure the Wifi settings of your UFO first. In order to access the UFO AFTER submitting the Wifi settings, you may do the following:</span>
+						<li>Option 1: The lower ring visualizes the current IP address digit by digit. 192.168... will light 1 led then 9 (5+4) then 2 and so on. A dot is visualized as 3 white leds. The individuL digits are separated by a short white flash. The IP is visualized over and over again until the first api rest call is issued. To stay in sync every IP address visualization run uses a different color.</li>
+						<li>Option 2: Open Windows file explorer and click on "Network" to display all devices that are discovered through SSDP.
+						</li>
+						<li>Option 3: by default the UFO registers with hostname <b id="hostname">---</b> at you access point. so try <span id="ufourl">http://hostname</span>:
+							TODO: add auto-redirect to URL.
+						</li>
+						<li>Option 4: Remember your MAC address <b><span id="macaddress">---</span></b> 
+						as you may want to lookup the IP address
+							in your Wifi Accesspoint.</li>
+				</ul>
+				
+				<form method='GET' action='/api'>
+					<div class="padded-full">
+						<input type="text" name="ssid" placeholder="SSID" id="ssid" />
+						<input type="password" name="pwd" placeholder="*************" id="wifipwd" />
+					</div>
+					<div class="padded-full">
+						<button class="btn btn-submit fit-parent primary" type="submit">Apply WIFI settings and reboot.</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</pagewifisettings>
+
+	<pagedynatraceintegrationsettings data-page="true">
+		<header class="header-bar">
+			<button class="btn icon icon-arrow-back pull-left" data-navigation="$previous-page"></button>
+			<div class="center">
+				<h1 class="title">Dynatrace Integration Settings</h1>
+			</div>
+		</header>
+		<div class="content">
+			<div class="input-wrapper list">
+				<form method='GET' action='/api'>
+					<span class="padded-list">Configure Dynatrace integration. Submit empty fields to disable integration.</span>
+					<div class="padded-full">
+						<input type="checkbox" name="dynatrace-on" id="dynatrace-on" />
+						<input type="text" name="dynatrace-environmentid" placeholder="environment-id" id="dynatrace-environmentid" />
+						<input type="password" name="dynatrace-apikey" placeholder="api-key" id="dynatrace-apikey" />
+						<input type="number" min="30" max="300" placeholder="interval in sec" name="dynatrace-interval" id="dynatrace-interval" />
+					</div>
+					<div class="padded-full">
+						<button class="btn btn-submit fit-parent primary" type="submit">Apply settings.</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</pagedynatraceintegrationsettings>
+
+
+
+	<!-- scripts -->
+	<script>
+	"use strict";!function(e,n){var t={},a=[];t.onReady=function(e){a.push(e)},t.dispatchGlobalReady=function(){for(var e=a.length-1;e>=0;e--)a[e]();a=[],t.dispatchGlobalReady=n},function(){function t(e,t){t=t||{bubbles:!1,cancelable:!1,detail:n};var a=document.createEvent("CustomEvent");return a.initCustomEvent(e,t.bubbles,t.cancelable,t.detail),a}t.prototype=e.Event.prototype,e.CustomEvent=t}(),t.device=function(){var e=navigator.appVersion,n=navigator.userAgent,t="-",a=[{s:"Windows 10",r:/(Windows 10.0|Windows NT 10.0)/},{s:"Windows 8.1",r:/(Windows 8.1|Windows NT 6.3)/},{s:"Windows 8",r:/(Windows 8|Windows NT 6.2)/},{s:"Windows 7",r:/(Windows 7|Windows NT 6.1)/},{s:"Windows Vista",r:/Windows NT 6.0/},{s:"Windows Server 2003",r:/Windows NT 5.2/},{s:"Windows XP",r:/(Windows NT 5.1|Windows XP)/},{s:"Windows 2000",r:/(Windows NT 5.0|Windows 2000)/},{s:"Windows ME",r:/(Win 9x 4.90|Windows ME)/},{s:"Windows 98",r:/(Windows 98|Win98)/},{s:"Windows 95",r:/(Windows 95|Win95|Windows_95)/},{s:"Windows NT 4.0",r:/(Windows NT 4.0|WinNT4.0|WinNT|Windows NT)/},{s:"Windows CE",r:/Windows CE/},{s:"Windows 3.11",r:/Win16/},{s:"Android",r:/Android/},{s:"Open BSD",r:/OpenBSD/},{s:"Sun OS",r:/SunOS/},{s:"Linux",r:/(Linux|X11)/},{s:"iOS",r:/(iPhone|iPad|iPod)/},{s:"Mac OS X",r:/Mac OS X/},{s:"Mac OS",r:/(MacPPC|MacIntel|Mac_PowerPC|Macintosh)/},{s:"QNX",r:/QNX/},{s:"UNIX",r:/UNIX/},{s:"BeOS",r:/BeOS/},{s:"OS/2",r:/OS\/2/},{s:"Search Bot",r:/(nuhk|Googlebot|Yammybot|Openbot|Slurp|MSNBot|Ask Jeeves\/Teoma|ia_archiver)/}];for(var o in a){var i=a[o];if(i.r.test(n)){t=i.s;break}}var r="-";switch(/Windows/.test(t)&&(r=/Windows (.*)/.exec(t)[1],t="Windows"),t){case"Mac OS X":r=/Mac OS X (10[\.\_\d]+)/.exec(n)[1];break;case"Android":r=/Android ([\.\_\d]+)/.exec(n)[1];break;case"iOS":r=/OS (\d+)_(\d+)_?(\d+)?/.exec(e),r=r[1]+"."+r[2]+"."+(0|r[3])}return{os:t,osVersion:r}}(),t.browser=function(){var e,n,t,a=navigator.userAgent,o=navigator.appName,i=""+parseFloat(navigator.appVersion),r=parseInt(navigator.appVersion,10);return-1!=(n=a.indexOf("Opera"))&&(o="Opera",i=a.substring(n+6),-1!=(n=a.indexOf("Version"))&&(i=a.substring(n+8))),-1!=(n=a.indexOf("OPR"))?(o="Opera",i=a.substring(n+4)):-1!=(n=a.indexOf("MSIE"))?(o="Microsoft Internet Explorer",i=a.substring(n+5)):-1!=(n=a.indexOf("Chrome"))?(o="Chrome",i=a.substring(n+7)):-1!=(n=a.indexOf("Safari"))?(o="Safari",i=a.substring(n+7),-1!=(n=a.indexOf("Version"))&&(i=a.substring(n+8))):-1!=(n=a.indexOf("Firefox"))?(o="Firefox",i=a.substring(n+8)):-1!=a.indexOf("Trident/")?(o="Microsoft Internet Explorer",i=a.substring(a.indexOf("rv:")+3)):(e=a.lastIndexOf(" ")+1)<(n=a.lastIndexOf("/"))&&(o=a.substring(e,n),i=a.substring(n+1),o.toLowerCase()==o.toUpperCase()&&(o=navigator.appName)),-1!=(t=i.indexOf(";"))&&(i=i.substring(0,t)),-1!=(t=i.indexOf(" "))&&(i=i.substring(0,t)),-1!=(t=i.indexOf(")"))&&(i=i.substring(0,t)),r=parseInt(""+i,10),isNaN(r)&&(i=""+parseFloat(navigator.appVersion),r=parseInt(navigator.appVersion,10)),{name:o,version:i}}(),t.ajax=function(){var n=function(e){var n=null;try{n=new XMLHttpRequest,"withCredentials"in n&&e&&(n.withCredentials=!0)}catch(t){console.error(t)}return n},t=function(e){var n=null;try{n=JSON.parse(e)}catch(t){n=null}return n},a=function(e){var n,t="";for(n in e)t+=n+"="+e[n]+"&";var a=t.lastIndexOf("&");return-1!==a&&(e=t.substring(0,a)),t};return function(o){var i=o.method,r=o.url,s="boolean"==typeof o.crossDomain?o.crossDomain:!1,c=o.contentType,l=o.dataType,f=o.data,u=o.timeout,d=o.success,p=o.error,h=o.headers;if("string"!=typeof i)throw new TypeError("method must be a string");if("string"!=typeof r)throw new TypeError("url must be a string");if("object"==typeof f&&(f="application/json"===c?JSON.stringify(f):a(f)),"function"!=typeof d)throw new TypeError("success must be a function");var v=n(s),g="NO_INTERNET_ACCESS";if(v){if(v.open(i,r,!0),"string"==typeof c&&v.setRequestHeader("Content-type",c),"xml"===l&&v.overrideMimeType&&v.overrideMimeType("application/xml; charset=utf-8"),"object"==typeof h){var m;for(m in h)v.setRequestHeader(m,h[m])}v.onreadystatechange=function(n){if(4===v.readyState){var a=null;"json"===l?(a=t(v.responseText),null===a&&(g="JSON_MALFORMED")):a="xml"===l?v.responseXML:v.responseText;var o=v.status.toString();"2"===o[0]?d(a,v):"function"==typeof p&&e.setTimeout(function(){p(a,g,v)},1),v=null}},"number"==typeof u&&(v.timeout=u,v.ontimeout=function(){g="TIMEOUT_EXCEEDED"}),v.send(f)}else"function"==typeof p&&(g="XMLHTTPREQUEST_UNAVAILABLE",p(g));return{cancel:function(){g="REQUEST_CANCELED",v&&v.abort()}}}}(),t.event=function(){var a=["mousedown","mousemove","mouseup"],o=!1;("ontouchstart"in e||e.DocumentTouch&&document instanceof DocumentTouch)&&(o=!0,a=["touchstart","touchmove","touchend","touchcancel"]),e.navigator.pointerEnabled?a=["pointerdown","pointermove","pointerup","pointercancel"]:e.navigator.msPointerEnabled&&(a=["MSPointerDown","MSPointerMove","MSPointerUp","MSPointerCancel"]);var i={};i.hasTouch=o,i.start=a[0],i.move=a[1],i.end=a[2],i.cancel="undefined"==typeof a[3]?null:a[3],i.tap="tap";var r=document.createElement("div"),s=[{name:"transition",end:"transitionend"},{name:"MozTransition",end:"transitionend"},{name:"msTransition",end:"msTransitionEnd"},{name:"WebkitTransition",end:"webkitTransitionEnd"}],c=[{name:"animation",end:"animationend"},{name:"MozAnimation",end:"animationend"},{name:"msAnimation",end:"msAnimationEnd"},{name:"WebkitAnimation",end:"webkitAnimationEnd"}],l=null,f=null,u=s.length-1;for(u in s)if(r.style[s[u].name]!==n){l=s[u].end;break}var d=c.length-1;for(d in c)if(r.style[c[d].name]!==n){f=c[d].end;break}var p=t.device.osVersion;p.length>2&&(p=t.device.osVersion.substring(0,3)),"android"===t.device.os.toLowerCase()&&"4.1"===p&&(l="webkitTransitionEnd",f="webkitAnimationEnd"),i.transitionEnd=l,i.animationEnd=f;var h=[],v=function(){function e(e,n){this.el=e,this.callback=n,this.moved=!1,this.startX=0,this.startY=0,this.el.addEventListener(i.start,this,!1)}return e.prototype.start=function(e){this.el.addEventListener(i.move,this,!1),this.el.addEventListener(i.end,this,!1),this.moved=!1,this.startX=e.clientX||e.touches[0].clientX,this.startY=e.clientY||e.touches[0].clientY},e.prototype.move=function(e){var n=e.clientX||e.touches[0].clientX,t=e.clientY||e.touches[0].clientY;(Math.abs(n-this.startX)>10||Math.abs(t-this.startY)>10)&&(this.moved=!0)},e.prototype.end=function(e){this.el.removeEventListener(i.move,this,!1),this.el.removeEventListener(i.end,this,!1),null!==i.cancel&&this.el.removeEventListener(i.cancel,this,!1),this.moved||this.callback(e)},e.prototype.cancel=function(){this.moved=!1,this.startX=0,this.startY=0},e.prototype.off=function(){this.el.removeEventListener(i.start,this,!1),this.el.removeEventListener(i.move,this,!1),this.el.removeEventListener(i.end,this,!1),null!==i.cancel&&this.el.removeEventListener(i.cancel,this,!1)},e.prototype.handleEvent=function(e){switch(e.type){case i.start:this.start(e);break;case i.move:this.move(e);break;case i.end:this.end(e);break;case i.cancel:this.cancel(e)}},e}();return t.on=function(e,n,t,a){if(n===i.tap){var o=new v(e,t);return void h.push(o)}e.addEventListener?e.addEventListener(n,t,a):e.attachEvent&&e.attachEvent("on"+n,t,a)},e.on=document.on=HTMLElement.prototype.on=function(e,n,a){t.on(this,e,n,a)},t.off=function(e,n,t,a){if(n!==i.tap)e.removeEventListener?e.removeEventListener(n,t,a):e.attachEvent&&e.detachEvent("on"+n,t,a);else for(var o=h.length-1;o>=0;o--)if(h[o].el===e){h[o].off(),h.splice(o,1);break}},e.off=document.off=HTMLElement.prototype.off=function(e,n,a){t.off(this,e,n,a)},i}(),t.tagManager=function(){if("undefined"!=typeof riot){var e=[],n=function(n,t){n[0].tagName=t,e.push(n[0])},t=function(){return e},a=function(n,t,a){for(var o=[],i=e.length-1;i>=0;i--)if(e[i].tagName===n){o.push(t);var r=o.concat(a);e[i].trigger.apply(this,r);break}};return{addTag:n,getAll:t,trigger:a}}}(),t.options=function(e){var n=!1;"object"==typeof e.i18n&&null!==e.i18n&&(t.i18n(e.i18n),n=!0),e.navigator.useI18n=n,t.navigator(e.navigator)},t.alert=function(e,n,a,o){return t.dialog().alert(e,n,a,o)},t.confirm=function(e,n,a,o,i){return t.dialog().confirm(e,n,a,o,i)},t.prompt=function(e,n,a,o,i){return t.dialog().prompt(e,n,a,o,i)},t.indicator=function(e,n){return t.dialog().indicator(e,n)},t.updateLocale=function(e){var n="undefined"!=typeof riot;t.i18n().setPreference(e).getAll(function(e){if(n){for(var a=t.tagManager.getAll(),o=a.length-1;o>=0;o--)a[o].i18n=e;riot.update()}else t.i18n().bind()})},e.phonon=t,"object"==typeof exports?module.exports=t:"function"==typeof define&&define.amd&&define(function(){return e.phonon=t})}("undefined"!=typeof window?window:this),function(e,n){function t(e){if(f.initCalled)throw new Error("The i18n module has already been instantiated");"string"==typeof e.directory&&(e.directory=-1!==e.directory.indexOf("/",e.directory.length-"/".length)?e.directory:e.directory+"/");var n;for(n in e)f[n]=e[n];f.initCalled=!0}function a(e){if(!f.initCalled)throw new Error("Please, initialize The i18n module using the init method");if("function"!=typeof e)throw new Error("callback must be a function");if(null!==l)return void e(l);var n=new XMLHttpRequest,t=f.localePreferred?f.localePreferred:f.localeFallback;n.open("GET",f.directory+t+".json",!0),n.overrideMimeType&&n.overrideMimeType("application/json; charset=utf-8"),n.onreadystatechange=function(){if(4===n.readyState)if(200===n.status)l=JSON.parse(n.responseText),e(JSON.parse(n.responseText));else{if(!f.localePreferred)throw new Error("The default locale ["+f.directory+f.localeFallback+".json] file is not found");f.localePreferred=null,console.log("The language ["+t+"] is not available, loading "+f.localeFallback),a(function(n){l=n,e(n)})}},n.send("")}function o(e,n){if("string"!=typeof e&&!(e instanceof Array))throw new Error("key must be a string or an array");var t=e instanceof Array;if(null===l)a(function(a){if(t){for(var o=e.length,i=o-1,r={};i>=0;i--)r[e[i]]=a[e[i]];n(r)}else n(a[e])});else if(t){for(var o=e.length,i=o-1,r={};i>=0;i--)r[e[i]]=l[e[i]];n(r)}else n(l[e])}function i(e,t){var o=e||n,i=t;if(1===arguments.length&&"function"==typeof e&&(o=n,i=e),!u(o))throw new TypeError("Not valid element object "+o);var r=o.querySelectorAll("[data-i18n]");null===l?a(function(e){v(r,e),"function"==typeof i&&i()}):(v(r,l),"function"==typeof i&&i())}function r(e){if("string"!=typeof e)throw new Error("The language must be a string");return f.localePreferred=e,l=null,g}function s(){return f.localePreferred}function c(){return e.navigator.userLanguage||e.navigator.language}var l=null,f={localeFallback:null,localePreferred:e.navigator.userLanguage||e.navigator.language,directory:"./",initCalled:!1},u=function(e){return"object"==typeof Node?e instanceof Node:e&&"object"==typeof e&&"number"==typeof e.nodeType&&"string"==typeof e.nodeName},d=function(e,n){"textContent"in e?e.textContent=n:e.innerText=n},p=function(e,n){e.value=n},h=function(e,n){e.setAttribute("placeholder",n)},v=function(e,n){for(var t=e.length-1;t>=0;t--)for(var a,o=e[t],i=o.getAttribute("data-i18n").trim(),r=/(?:\s|^)(\w+):\s*(.*?)(?=\s+\w+:|$)/g;a=r.exec(i);){var s=a[1].trim(),c=a[2].trim().replace(",","");if(void 0!==n[c])if("text"===s)d(o,n[c]);else if("value"===s)p(o,n[c]);else{if("placeholder"!==s)throw new Error("The property: "+s+" is unknown");h(o,n[c])}else console.error("The value: "+c+" does not exist in the JSON file")}},g={};g.init=t,g.getAll=a,g.get=o,g.bind=i,g.setPreference=r,g.getPreference=s,g.getLocale=c,phonon.i18n=function(e){return"object"==typeof e&&t(e),{getAll:function(e){return a(e),this},get:function(e,n){return o(e,n),this},bind:function(e,n){return i(e,n),this},setPreference:function(e){return r(e),this},getPreference:function(){return s()},getLocale:function(){return c()}}}}(window,document),function(e,n,t){function a(e){var n=document.createElement("script");n.text=e,document.head.appendChild(n).parentNode.removeChild(n)}function o(){if(X.animatePages){var e=this;e.classList.remove("page-sliding"),e.classList.remove("left"),e.off(t.event.animationEnd,o,!1),e.classList.remove("app-active")}l(W),f(A),N=!1}function i(){if(X.animatePages){var e=this;e.classList.remove("page-sliding"),e.classList.remove("right"),e.off(t.event.animationEnd,i,!1),e.classList.remove("app-active")}l(W),f(A),N=!1}function r(n,t,a){var o={detail:{page:t},bubbles:!0,cancelable:!0};"undefined"!=typeof a&&(o.detail.req=a);var i=new e.CustomEvent(n,o);document.dispatchEvent(i)}function s(e){R&&t.tagManager.trigger(e,"create"),r("pagecreated",e);var n=I(e);n.activity instanceof j&&"function"==typeof n.activity.onCreateCallback&&n.activity.onCreateCallback()}function c(n){var a=I(n);e.setTimeout(function(){R&&t.tagManager.trigger(n,"ready"),r("pageopened",n),a.activity instanceof j&&"function"==typeof a.activity.onReadyCallback&&a.activity.onReadyCallback()},a.readyDelay)}function l(e){R&&t.tagManager.trigger(e,"transitionend"),r("pagetransitionend",e);var n=I(e);n.activity instanceof j&&"function"==typeof n.activity.onTransitionEndCallback&&n.activity.onTransitionEndCallback()}function f(e){R&&t.tagManager.trigger(e,"hidden"),r("pagehidden",e);var n=I(e);n.activity instanceof j&&"function"==typeof n.activity.onHiddenCallback&&n.activity.onHiddenCallback()}function u(e,n){R&&t.tagManager.trigger(e,"tabchanged",n),r("pagetabchanged",e);var a=I(e);a.activity instanceof j&&"function"==typeof a.activity.onTabChangedCallback&&a.activity.onTabChangedCallback(n)}function d(n,a,o){function i(){r("pageclosed",n);var t=e.location.hash.split("#")[1];t!==o&&X.useHash?e.location.hash=o:P(o)}if(!b()){var s=I(n);if(!s.async)return void i(!0);var c={close:i};if(R&&t.tagManager.trigger(n,"close",c),s.activity instanceof j&&"function"==typeof s.activity.onCloseCallback)s.activity.onCloseCallback(c);else if(!R)throw new Error("The page "+s.name+" prevents close, but its callback (onClose) is undefined")}}function p(e,n){if("undefined"!=typeof n){R&&t.tagManager.trigger(e,"hashchanged",n),r("pagehash",e,n);var a=I(e);a.activity instanceof j&&"function"==typeof a.activity.onHashChangedCallback&&a.activity.onHashChangedCallback(n)}}function h(e,n){"tabchanged"===e&&u(n.page,n.tabNumber)}function v(e,o){if(R&&n.compile(function(){X.useI18n?t.i18n().getAll(function(a){t.tagManager.addTag(n.mount(e,{i18n:a}),e),o()}):(t.tagManager.addTag(n.mount(e,{i18n:null}),e),o())}),!R){var i=I(e);null!==i.content?g(i.content,function(n){var r=B(e),s=document.createElement("div");s.innerHTML=n;var c=s.querySelector(e);if(null===c)throw new Error("Error with "+i.content+" : the template for "+e+" must start with the parent node <"+e+' class="app-page">');for(var l=c.attributes,f=l.length-1;f>=0;f--){var u=l.item(f);"class"!==u.nodeName&&"app-page"!==u.nodeValue&&r.setAttribute(u.nodeName,u.nodeValue)}var d=function(e){for(var n=e.getElementsByTagName("script"),t=0;t<n.length;t++)a(n[t].innerHTML)};X.useI18n?t.i18n().bind(c,function(){r.innerHTML=c.innerHTML,d(s),o()}):(r.innerHTML=c.innerHTML,d(s),o())}):o()}}function g(e,n){var t=new XMLHttpRequest;t.overrideMimeType&&t.overrideMimeType("text/html; charset=utf-8"),t.onreadystatechange=function(){4===t.readyState&&(200===t.status||!t.status&&t.responseText.length)&&n(t.responseText,X,e)},t.open("GET",X.templateRootDirectory+e,!0),t.send("")}function m(e,n){n="object"==typeof n?n:{};var t,a={name:e,mounted:!1,async:!1,activity:null,content:null,readyDelay:1};for(t in n)a[t]=n[t];return a}function y(e,n){n="object"==typeof n?n:{};var t=I(e);if(null===t)return M.push(m(e,n));var a;for(a in n)t[a]=n[a];return!0}function b(){return"undefined"!=typeof t.dialog&&t.dialog().closeActive()?!0:"undefined"!=typeof t.popover&&t.popover().closeActive()?!0:"undefined"!=typeof t.panel&&t.panel().closeActive()?!0:!("undefined"==typeof t.sidePanel||!t.sidePanel().closeActive())}function w(){var e={page:X.defaultPage,params:""};if(O.length>0){for(var n=-1,t=O.length-1;t>=0;t--)if(O[t].page===W){n=t-1;break}n>-1&&(e=O[n],O.slice(n,1))}return e}function E(e){H=!0;for(var n=e.target,t=null,a=!1,o="";n&&n!==document;n=n.parentNode){var i=n.getAttribute("data-navigation");if("undefined"!=typeof n.href&&-1!==n.href.indexOf("#!")){a=!0;break}if(i){t=i;break}}if((!a||!X.useHash)&&(null!==t||a)){var r=X.defaultPage;if(null!==t)if("$previous-page"===t){var s=w();r=s.page,o=s.params}else r=t;else{var c=n.href.match("/#"+X.hashPrefix+"([A-Za-z0-9-.]+)?(.*)/");c&&(r=c[1],o=c[2])}var l=X.hashPrefix+r;""!==o&&(l=l+"/"+o,l=l.replace("//","/")),d(W,r,l)}}function T(e,n){var a=B(e),r=B(n);r.classList.add("app-active"),X.animatePages?(a.classList.add("page-sliding"),D?(a.classList.add("left"),a.on(t.event.animationEnd,o,!1)):(a.classList.add("right"),a.on(t.event.animationEnd,i,!1))):(a.classList.remove("app-active"),D?o():i());for(var s=r.querySelectorAll(".content"),c=s.length-1;c>=0;c--){var l=s[c];null!==l&&0!==l.scrollTop&&(l.scrollTop=0)}n===X.defaultPage&&(O=[])}function C(e,n){if(N&&"function"==typeof n)return n();var a=I(e);S&&(N=!0,A=W,W=e),a.mounted?(c(e),T(A,e),"function"==typeof n&&n()):v(a.name,function(){if(a.mounted=!0,s(e),c(e),S||t.dispatchGlobalReady(),S&&T(A,e),!S){S=!0;var o=B(e);o.classList.contains("app-active")||o.classList.add("app-active")}"function"==typeof n&&n()})}function x(e){"string"==typeof e.templateRootDirectory&&""!==e.templateRootDirectory&&(e.templateRootDirectory=-1!==e.templateRootDirectory.indexOf("/",e.templateRootDirectory.length-"/".length)?e.templateRootDirectory:e.templateRootDirectory+"/"),"object"==typeof e.hashPrefix&&(e.hashPrefix="");var n;for(n in e)X[n]=e[n];X.enableBrowserBackButton&&(H=!0);for(var t=document.querySelectorAll("[data-page]"),a=t.length-1;a>=0;a--){var o=t[a];o.classList.contains("app-page")||o.classList.add("app-page"),y(o.tagName.toLowerCase())}}function k(){if(S)throw new Error("The app has been already started");var e=t.device.os.toLowerCase(),n="web";"android"===e?n="android":"ios"===e&&(n="ios"),document.body.classList.contains(n)||document.body.classList.add(n),P()}function L(n,t){var a=I(W),o=I(n);if(!o)throw new Error("The following page: "+n+" does not exists");var i="string"==typeof t?X.hashPrefix+o.name+"/"+t:X.hashPrefix+o.name;if(a.async)d(W,o.name,i);else{var r=e.location.hash.split("/");-1===r[0].indexOf(o.name)&&X.useHash&&(e.location.hash=i)}}function P(n){var t,a="string"==typeof n?n:e.location.href.split("#")[1]||"",o=a.split("/"),i=o.slice(1,o.length),r=o[0],s=X.hashPrefix.indexOf("/");-1!==s?(r="undefined"==typeof o[1]?"":o[1],i=o.slice(2,o.length),t=r.substring(s+1,r.length)):t=r.substring(X.hashPrefix.length,r.length);var c=I(t);if(S||c)!S&&c&&(W=c.name);else if(W=X.defaultPage,c=I(X.defaultPage),X.useHash)return void(e.location.hash=X.hashPrefix+X.defaultPage);if(c){if(b(),c.name===W&&S)return void p(c.name,i);if(S&&!H)return;for(var l=!1,f=O.length-1;f>=0;f--)if(O[f].page===c.name){l=!0;break}if(O.length>0?c.name===X.defaultPage&&(D=!1):D=!0,O.length>1&&O[O.length-2].page===c.name&&(D=!1),!l){var u=i.join("/");O.push({page:c.name,params:u})}"function"!=typeof c.callback||c.mounted||c.callback(c.activity),c.mounted?(C(c.name),p(c.name,i)):C(c.name,function(){p(c.name,i)}),X.enableBrowserBackButton||(H=!1)}}var M=[],O=[],S=!1,N=!1,W=null,A=null,D=!0,H=!1,R=void 0!==n,X={defaultPage:null,hashPrefix:"!",animatePages:!0,templateRootDirectory:"",useI18n:!0,enableBrowserBackButton:!1,useHash:!0},j=function(){function e(e){if("object"==typeof e){var n;for(n in e)void 0!==this[n]&&"constructor"!==this[n]&&(this[n+"Callback"]=e[n])}}return e.prototype.onCreate=function(e){this.onCreateCallback=e},e.prototype.onReady=function(e){this.onReadyCallback=e},e.prototype.onClose=function(e){this.onCloseCallback=function(n){e(n)}},e.prototype.onHidden=function(e){this.onHiddenCallback=e},e.prototype.onTransitionEnd=function(e){this.onTransitionEndCallback=e},e.prototype.onHashChanged=function(e){this.onHashChangedCallback=function(n){e.apply(this,n)}},e.prototype.onTabChanged=function(e){this.onTabChangedCallback=function(n){e(n)}},e}(),I=function(e){for(var n=M.length-1;n>=0;n--)if(M[n].name===e)return M[n];return null},B=function(e){for(var n=document.querySelectorAll("[data-page]"),t=n.length-1,a=null;t>=0;t--)if(n[t].tagName.toLowerCase()===e){a=n[t];break}return a};document.on("tap",E),X.useHash&&e.on("hashchange",P),document.on("backbutton",function(){var e=w();d(W,e.page,X.hashPrefix+e.page+"/"+e.params)}),t.navigator=function(n){return"object"==typeof n&&x(n),{currentPage:W,previousPage:A,start:k,changePage:function(n,t){H=!0;var a=b()?400:1;e.setTimeout(function(){L(n,t)},a)},on:function(e,n){if("string"!=typeof e.page)throw new Error("Page name must be a string");if("undefined"!=typeof e.preventClose&&"boolean"!=typeof e.preventClose)throw new Error("preventClose option must be a boolean");if("undefined"!=typeof e.readyDelay&&"number"!=typeof e.readyDelay)throw new Error("readyDelay option must be a number");var t=I(e.page),a=null!==t;a||(t=m(e.page)),"function"==typeof n||"object"==typeof n?t.activity=new j(n):t.activity=null,t.callback=n,t.async="boolean"==typeof e.preventClose?e.preventClose:!1,t.content="string"==typeof e.content?e.content:null,t.readyDelay="number"==typeof e.readyDelay?e.readyDelay:1,y(e.page.toLowerCase(),t)},callCallback:h}}}("undefined"!=typeof window?window:this,"undefined"!=typeof riot?riot:void 0,phonon);
+	</script>
+
+	<!-- our app config -->
+	<!-- <script src="app.js"></script> -->
+	<script>
+		phonon.options({
+				navigator: {
+					defaultPage: 'home',
+					animatePages: true,
+					enableBrowserBackButton: true
+					//templateRootDirectory: ''
+				},
+				i18n: null // for this example, we do not use internationalization
+			});
+
+
+			var app = phonon.navigator();
+
+			/**
+			 * The activity scope is not mandatory.
+			 * For the home page, we do not need to perform actions during
+			 * page events such as onCreate, onReady, etc
+			*/
+			app.on({page: 'home', preventClose: false, content: null} , function(activity) {
+				var onApi = function(evt) {
+					var target = evt.target;
+					var apicall = target.getAttribute('data-api');
+					console.log(apicall);
+
+					var req = phonon.ajax({
+						method: 'GET',
+						url: 'api?'+apicall,
+						dataType: 'json',
+						//contentType: '',
+						//data: {'ssid': document.querySelector('#ssid').value, 'pwd': document.querySelector('#wifipwd').value}, 
+						//data: { 'key1': 'val1', 'key2': 'val2'},
+						//timeout: 5000,
+						success: function(res, xhr) {
+							console.log(res);
+						},
+						
+						error: function(res, flagError, xhr) {
+							console.error(flagError);
+							console.log(res);
+						}
+					}); 
+
+				}; 
+                
+				activity.onCreate(function() {
+					// document.querySelector('#submitwifisettings').on('tap', onWifiSettingsSubmit);
+					document.querySelector('#led1on').on('tap', onApi);
+					document.querySelector('#led1on').on('click', onApi);
+					document.querySelector('#led1off').on('tap', onApi);
+					document.querySelector('#led1off').on('click', onApi);
+					document.querySelector('#apisample1').on('tap', onApi);
+					document.querySelector('#apisample1').on('click', onApi);
+					document.querySelector('#apisample2').on('tap', onApi);
+					document.querySelector('#apisample2').on('click', onApi);
+					document.querySelector('#apisample3').on('tap', onApi);
+					document.querySelector('#apisample3').on('click', onApi);
+				}) 
+			});
+			
+			document.on('pageopened', function(evt) {
+				console.log(evt.detail.page + ' is opened');
+				if (evt.detail.page == "pageinfo") {
+					
+						var req = phonon.ajax({
+						method: 'GET',
+						url: 'info',
+						//crossDomain: false,
+						dataType: 'text/json',
+						success: function(res, xhr) {
+							console.log(xhr.response);
+							var result = JSON.parse(xhr.response);
+							document.getElementById('infossid').innerHTML = result.ssid;
+							document.getElementById('infoipaddress').innerHTML = result.ipaddress;
+							document.getElementById('infoheap').innerHTML = result.heap;
+							document.getElementById('infoipgateway').innerHTML = result.ipgateway;
+							document.getElementById('infoipdns').innerHTML = result.ipdns;
+							document.getElementById('infoipsubnetmask').innerHTML = result.ipsubnetmask;
+							document.getElementById('infomacaddress').innerHTML = result.macaddress;
+							document.getElementById('infohostname').innerHTML = result.hostname;
+							document.getElementById('infoapipaddress').innerHTML = result.apipaddress;
+							document.getElementById('infoapconnectedstations').innerHTML = result.apconnectedstations;
+							document.getElementById('infowifiautoconnect').innerHTML = result.wifiautoconnect;
+							document.getElementById('infofirmwareversion').innerHTML = result.firmwareversion;
+						},
+						error: function(res, flagError, xhr) {
+							console.error(flagError);
+							console.log(res);
+						}
+					}); 
+				}
+				if (evt.detail.page == "pagewifisettings") {
+					var req = phonon.ajax({
+						method: 'GET',
+						url: 'info',
+						dataType: 'text/json',
+						success: function(res, xhr) {
+							console.log(xhr.response);
+                            var result = JSON.parse(xhr.response);
+                            document.getElementById('ssid').value = result.ssid;
+							document.getElementById('macaddress').innerHTML = result.macaddress;
+							document.getElementById('hostname').innerHTML = result.hostname;
+							document.getElementById('ufourl').href = "http://"+result.hostname;
+							document.getElementById('firmwareversion').innerHTML = result.firmwareversion;
+						},
+						error: function(res, flagError, xhr) {
+							console.error(flagError);
+							console.log(res);
+						}
+					}); 
+				}
+				if (evt.detail.page == "pagedynatraceintegrationsettings") {
+						var req = phonon.ajax({
+						method: 'GET',
+						url: 'dtintinfo',
+						//crossDomain: false,
+						dataType: 'text/json',
+						success: function(res, xhr) {
+							console.log(xhr.response);
+							var result = JSON.parse(xhr.response);
+							document.getElementById('dynatrace-on').checked = result.enabled;
+							document.getElementById('dynatrace-environmentid').value = result.environmentid;
+							document.getElementById('dynatrace-apikey').value = result.apikey;
+							document.getElementById('dynatrace-interval').value = result.interval;
+						},
+						error: function(res, flagError, xhr) {
+							console.error(flagError);
+							console.log(res);
+						}
+					}); 
+				}
+			});
+
+			app.on({page: 'pageinfo', preventClose: false, content: null} , function(activity) {
+			});
+	</script>
+
+
+	<script>
+		// Let's go!
+		app.start();
+	</script>
+
+
+
+
+
+</body>
+
+</html>
