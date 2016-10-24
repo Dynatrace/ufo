@@ -165,11 +165,31 @@
 				<form method='GET' action='/api'>
 					<span class="padded-list">Configure Dynatrace integration. Submit empty fields to disable integration.</span>
 					<div class="padded-full">
-						<input type="text" name="dynatrace-environmentid" placeholder="environment-id" id="dynatrace-environmentid" />
-						<input type="text" name="dynatrace-apikey" placeholder="api-key" id="dynatrace-apikey" />
-					</div>
+                    <ul class="list">
+                        <li class="">
+                            <label class="checkbox">
+                                <input type="checkbox" class="" name="dynatrace-on" id="dynatrace-on">
+                                Enabled
+                                <span></span>
+                            </label>
+                        </li>
+                    </ul>
+                    
+					<input type="text" name="dynatrace-environmentid" placeholder="environment-id" id="dynatrace-environmentid" />
+					<input type="password" name="dynatrace-apikey" placeholder="api-key" id="dynatrace-apikey" />
+					<input type="number" min="30" max="300" placeholder="interval in sec" name="dynatrace-interval" id="dynatrace-interval" />
+					<!--<ul class="list">
+                        <li class="padded-for-list">
+                            <label class="radio">
+                                <input type="radio" name="test">
+                                Radio1
+                                <span></span>
+                            </label>
+                        </li>
+					 </ul>-->
+					 </div>
 					<div class="padded-full">
-						<button class="btn btn-submit fit-parent primary" type="submit">Apply settings and reboot.</button>
+						<button class="btn btn-submit fit-parent primary" type="submit">Apply settings.</button>
 					</div>
 				</form>
 			</div>
@@ -287,6 +307,26 @@
 							document.getElementById('hostname').innerHTML = result.hostname;
 							document.getElementById('ufourl').href = "http://"+result.hostname;
 							document.getElementById('firmwareversion').innerHTML = result.firmwareversion;
+						},
+						error: function(res, flagError, xhr) {
+							console.error(flagError);
+							console.log(res);
+						}
+					}); 
+				}
+				if (evt.detail.page == "pagedynatraceintegrationsettings") {
+						var req = phonon.ajax({
+						method: 'GET',
+						url: 'dtintinfo',
+						//crossDomain: false,
+						dataType: 'text/json',
+						success: function(res, xhr) {
+							console.log(xhr.response);
+							var result = JSON.parse(xhr.response);
+							document.getElementById('dynatrace-on').checked = result.enabled;
+							document.getElementById('dynatrace-environmentid').value = result.environmentid;
+							document.getElementById('dynatrace-apikey').value = result.apikey;
+							document.getElementById('dynatrace-interval').value = result.interval;
 						},
 						error: function(res, flagError, xhr) {
 							console.error(flagError);

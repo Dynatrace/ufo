@@ -13,6 +13,7 @@
 
 Config::Config(bool debug){
   mDebug = debug;
+  mChanged = true;
 }
 
 bool Config::Read() {
@@ -83,5 +84,13 @@ bool Config::Delete() {
 
 bool Config::Enabled(){
   return enabled && (dynatraceEnvironmentID.length() > 0) && (dynatraceApiKey.length() > 0);
+}
+
+bool Config::Changed(){
+  if (mChanged){
+    mChanged = false;
+    return true;
+  }
+  return false;
 }
 

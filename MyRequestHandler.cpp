@@ -391,6 +391,7 @@ void MyFunctionRequestHandler::apiHandler(ESP8266WebServer& server) {
     mpConfig->dynatraceEnvironmentID = server.arg(F("dynatrace-environmentid"));
     mpConfig->dynatraceApiKey = server.arg(F("dynatrace-apikey"));
     mpConfig->pollingIntervalS = server.arg(F("dynatrace-interval")).toInt();
+    mpConfig->SignalChange();
     mpConfig->Write();
     server.sendHeader(F("location"), F("/"));
     server.send(302);

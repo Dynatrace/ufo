@@ -16,6 +16,10 @@ DataPolling::DataPolling(DisplayCharter* pDisplayLowerRing, DisplayCharter* pDis
 }
 
 bool DataPolling::Init(){
+
+  if (mpConfig->Changed()){
+     Shutdown();
+  }
   
   if (!mpConfig->Enabled()){
     Shutdown();
@@ -53,7 +57,7 @@ void DataPolling::Poll() {
   //       the fingerprint is needed to validate the server certificate
  // httpClient.begin(String(F("https://")) + dynatraceEnvironmentID + F(".live.dynatrace.com/api/v1/problem/status?Api-Token=") + dynatraceApiKey, F("CD:57:0F:00:D7:50:2D:8A:F1:2C:5D:6C:AB:5E:E5:B1:3C:08:99:AC"));
     
-  if (mDebug) Serial.println(String(F("http.begin executed. free heap: "))  + String(ESP.getFreeHeap()));
+  if (mDebug) Serial.println(String(F("Before GET. free heap: "))  + String(ESP.getFreeHeap()));
   if (mDebug) Serial.flush();
 
 
