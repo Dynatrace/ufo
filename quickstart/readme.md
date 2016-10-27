@@ -7,9 +7,13 @@ e.g. the iPad or Windows Surface charger should work fine, but check the specs b
 Note that the UFO draws more current than standard USB can provide. 
 Please be warned!    
 
+The intended use is pendant mounted at the ceiling. 
+But some geeks use it mobile, so they take it into their office park for example.
+![mobile ufo](mobile ufo.jpg) 
+
 ##Check Firmware Version
 
-This description is for firmware versions dated after 25th of October 2016. 
+This description is for firmware versions dated after 20th of October 2016. 
 If you have older firmware, please follow the firmware updated procedures in the howto guide.
 
 ##Configure Wifi
@@ -65,7 +69,7 @@ The Dynatrace UFO polls the Dynatrace SaaS problem status using HTTPS.
 For that you need to create in the Dynatrace SaaS user interface 
 an access token. (and please don't try to use the token in the screenshot,
 its of course an invalid one).
-![generate api token](generate dynatrace saas api token.png)
+![generate api token](generate dynatrace saas api key.png)
 
 Dynatrace SaaS default integration shows currently following color codes 
 * green: no open problem
