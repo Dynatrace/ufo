@@ -101,7 +101,7 @@ Once you have that completed, you can use the UFO web UI to upload the firmware.
 ![flashtool](flashtool.png)
 
 ###Build the firmware yourself
-1. Install Arduino IDE 1.6.7 and in the Preferences dialog, type this board manager URL: `http://arduino.esp8266.com/stable/package_esp8266com_index.json`
+1. Install Arduino IDE 1.6.7+ and in the Preferences dialog, type this board manager URL: `http://arduino.esp8266.com/stable/package_esp8266com_index.json`
 ![Arduino IDE preferences](arduino preferences.png) Make sure to restart the IDE afterwards.
 1. Install the ESP8266 board using Arduino IDE Board Manager under the Tools menu.
 ![Arduino board manager](install esp8266 board.png)
@@ -112,8 +112,8 @@ Once you have that completed, you can use the UFO web UI to upload the firmware.
  * USBtinyISP as Programmer
  * 115200bps 
 ![board config](board config.png)
-1. Add *Adafruit NeoPixel* library, needed to control the LED strips
-![neopixel library](install dotstar library.png)
+1. Add *Adafruit DotStar* library, needed to control the LED strips
+![dotstar library](install dotstar library.png)
 1. Use *Tools->Serial Monitor* to see the output of the ESP8266
 ![serial monitor](serial monitor.png)
 1. Place the ESP8266 in firmware programming mode by pressing the buttons in the following sequence:
@@ -151,7 +151,6 @@ Note: If you have troubles using the web UI for setting the wifi config, you mig
 
 
 ##Todo
-* implement the original UFO api calls also on ESP8266
 * publish the Dynatrace Application Monitoring and Ruxit API infos, DCRUM and Synthetic to follow
 * ~~publish pre-compiled binaries and instructions to use the flashing tool~~ initial alpha versions are done, but watch out for updates.
 * update web UI to implement desired use-cases  
