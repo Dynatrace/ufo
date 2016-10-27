@@ -17,18 +17,24 @@ This description is for firmware versions dated after 20th of October 2016.
 If you have older firmware, please follow the firmware updated procedures in the howto guide.
 
 ##Configure Wifi
+
 1. As default and when clicking the hardware reset button at the top of the UFO, 
 the UFO starts a Wifi access point with an SSID named "ufo". 
 (if you cannot see the "ufo" SSID, click the wifi reset button) - 
 the UFO alternates a single blue ring
+
 2. Connect a Web browser enabled device (laptop, tablet, smartphone) 
 to the UFO's Wifi with the SSID "ufo" and navigate to http://192.168.4.1 - 
 Once connected the UFO blinks with a second blue ring
-![](configure wifi.png)
+
 3. Configure UFO wifi settings so that the UFO connects to your wifi 
 (Note: WPA2 works well, but enterprise WPA2 and PEAP authentication is not yet available) - 
 whenever the UFO is trying to connect to your wifi, the UFO blinks yellow. 
 So you can declare connection success when the yellow stops blinking.
+
+
+![](configure wifi.png)
+
 Note: If you have troubles using the web UI for setting the wifi config, 
 you might have more success using the REST API directly:
 `http://192.168.4.1/api?ssid=<ssid>&pwd=<pwd>`
