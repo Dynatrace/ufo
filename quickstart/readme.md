@@ -5,7 +5,8 @@
 Connect the UFO to a 2000mA USB charging adapter. 
 e.g. the iPad or Windows Surface charger should work fine, but check the specs beforehand. 
 Note that the UFO draws more current than standard USB can provide. 
-Please be warned!    
+Please be warned! Also note that the USB cable is for power only, 
+there is no data-connection through it.   
 
 The intended use is pendant mounted at the ceiling. 
 But some geeks use it mobile, so they take it into their office park for example.
