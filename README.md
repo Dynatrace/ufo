@@ -19,6 +19,7 @@
 * [__UFO.ino__](ufo.ino) is the Arduino IDE main program: requires Arduino IDE 1.6.7+ plus additional modules. see ufo.ino source file for more details about requirements
 * [__Data__](data) folder contains all files that will be loaded into the ESP8266 flash memory SPIFF drive to contain website data 
 * [__Node.js test server__](nodejs testserver) contains source files to simulate the ESP8266 webserver for testing purposes; requires Node.js server + static-server module
+* [__buy?__](buy) would you prefer to buy vs. build?
  
 
 ###Example use case at Dynatrace Ruxit
