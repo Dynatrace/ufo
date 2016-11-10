@@ -87,8 +87,9 @@ void handleFactoryReset() {
       //WiFi.printDiag(Serial);
     }
 
-    //delete config file to make sure we exit client only mode that disables the webserver
-    //dTConfig.Delete();
+    //disable dynatrace polling mode - otherwise the IP display wont be visible
+    dTConfig.enabled = false;
+    dTConfig.Write();
     
     WiFi.disconnect(false); //disconnect and disable station mode; delete old config
     // default IP address for Access Point is 192.168.4.1
