@@ -12,6 +12,7 @@
 ***
 
 * [__Story__](story) The original UFO was created by Helmut, Dynatrace Chief Software Architect. Read his story.  
+* [__QuickStart__](quickstart) Quick guide to configuring the UFO
 * [__How to__](howto) Step-by-step instructions for building your own UFO
 * [__Parts list__](partlist/readme.md#ufo-partlist)
 (folder must use this name for Arduino IDE to automatically upload to ESP8266)
