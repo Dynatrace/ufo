@@ -107,7 +107,7 @@ Once you have that completed, you can use the UFO web UI to upload the firmware.
 ![Arduino board manager](install esp8266 board.png)
 1. Configure the microcontroller in IDE 
  * Adafruit Huzzah ESP8266 board
- * 3MB SPIFFS
+ * 3MB SPIFFS 
  * serial port that's connected to the FTDI serial cable
  * USBtinyISP as Programmer
  * 115200bps 
@@ -115,6 +115,8 @@ Once you have that completed, you can use the UFO web UI to upload the firmware.
 1. Add *Adafruit DotStar* library, needed to control the LED strips
 ![dotstar library](install dotstar library.png)
 1. Use *Tools->Serial Monitor* to see the output of the ESP8266
+![JSON library](arduino_library_json.png)
+1. Arduino JSON library
 ![serial monitor](serial monitor.png)
 1. Place the ESP8266 in firmware programming mode by pressing the buttons in the following sequence:
  * Press and hold Reset
@@ -135,24 +137,6 @@ Read more here: [compile and upload firmware through serial](https://learn.adafr
  those files will be automatically put on the ESP8266 file system.
 
 ##Configure the UFO
-1. Once firmware is uploaded to the UFO, it starts an access point with an SSID named "ufo". (if you cannot see the "ufo" SSID, click the wifi reset button) - the UFO alternates a single blue ring
-2. Connect to the "ufo" wifi and navigate to http://192.168.4.1 - Once connected the UFO blinks with a second blue ring
-![](configure wifi.png)
-3. Configure wifi settings so that the UFO connects to your wifi (Note: enterprise PEAP authentication is not yet available) - whenever the UFO is trying to connect to your wifi, the UFO blinks yellow. So you can declare connection success when the yellow stops blinking.
-Note: If you have troubles using the web UI for setting the wifi config, you might have more success using the API directly:
-`http://192.168.4.1/api?ssid=<ssid>&pwd=<pwd>`
-1. Once Wifi is configured, you have multiple options to access the UFO
-  * Option 1: The lower ring visualizes the current IP address digit by digit. 192.168... will light 1 led then 9 (5+4) then 2 and so on. A dot is visualized as 3 white leds. The individuL digits are separated by a short white flash. The IP is visualized over and over again until the first api rest call is issued. To stay in sync every IP address visualization run uses a different color.
-  * Option 2: in Windows you can use the UPNP (SSDP) discovery 
-  in the File Explorers Network view ![windows discovers the ufo](windows discovers ufo.png)
-  * Option 3: try http://ufo as the UFO uses the default hostname "UFO" when it registers with DHCP.
-  * Option 4: lookup the MAC address in your Wifi Access Point and get the IP address assigned by DHCP
-4. Access the web UI of the UFO as well as the REST interface /API    ***TODO FOR MORE***
-
-
-##Todo
-* publish the Dynatrace Application Monitoring and Ruxit API infos, DCRUM and Synthetic to follow
-* ~~publish pre-compiled binaries and instructions to use the flashing tool~~ initial alpha versions are done, but watch out for updates.
-* update web UI to implement desired use-cases  
+Check out the ![__Quickstart guide__](../quickstart/readme.md) to configure the UFO.
 
 
