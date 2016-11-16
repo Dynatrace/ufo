@@ -56,7 +56,6 @@ The DotStar LED strips use 4 wires
 ![](dotstar wiring.jpg)
 
 ##Wiring
-TODO: update for Dotstar - add clock wire pin 14 to LED strips
 ![Wiring](ufo wiring sketch.png)
 
 USB cables 5V power goes to "VBat" and the black ground cable goes to "GND"
@@ -114,9 +113,9 @@ Once you have that completed, you can use the UFO web UI to upload the firmware.
 ![board config](board config.png)
 1. Add *Adafruit DotStar* library, needed to control the LED strips
 ![dotstar library](install dotstar library.png)
-1. Use *Tools->Serial Monitor* to see the output of the ESP8266
-![JSON library](arduino_library_json.png)
 1. Arduino JSON library
+![JSON library](arduino_library_json.png)
+1. Use *Tools->Serial Monitor* to see the output of the ESP8266
 ![serial monitor](serial monitor.png)
 1. Place the ESP8266 in firmware programming mode by pressing the buttons in the following sequence:
  * Press and hold Reset
