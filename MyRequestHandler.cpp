@@ -32,7 +32,7 @@ bool MyFunctionRequestHandler::handle(ESP8266WebServer& server, HTTPMethod reque
     if (requestUri.equals(F("/")) || requestUri.equals(F("/index.html"))){
       server.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
       server.sendHeader(F("Content-Encoding"), F("gzip"));
-      server.send_P(200, String(F("text/html")).c_str(), index_comb_html_gz, sizeof(index_comb_html_gz));
+      server.send_P(200, String(F("text/html")).c_str(), index_html_gz, sizeof(index_html_gz));
       return true;
     }
     if (requestUri.equals(F("/font.woff"))){

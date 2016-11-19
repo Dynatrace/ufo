@@ -1,5 +1,11 @@
+import gzip
+import shutil
 import sys
 import binascii
+import cStringIO
+import io
+import os
+
 
 
 def convert_file(file, output):
@@ -45,11 +51,27 @@ if len(sys.argv) <= 1:
 
     exit()
 
+
+try: 
+    src = open("data/index.html", "rb") 
+    gzf = gzip.GzipFile(filename="index.html.gz", mode='wb')
+    gzf.write(src.read())
+    src.close()
+    gzf.close()
+    
+except IOError:
+    print("cannot open index.html for reading or index.html.gz for writing")
+
 try:
     output = open('WebContent.h', "w")
-
+    convert_file("index.html.gz", output)
     for arg in sys.argv[1:]:
+        fobj = open(arg, "rb")
         convert_file(arg, output)
     output.close()
 except IOError:
     print("cannot open WebContent.h for writing")
+
+#cleanup
+os.remove("index.html.gz")
+
