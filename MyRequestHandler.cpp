@@ -311,6 +311,8 @@ void MyFunctionRequestHandler::dtIntegrationHandler(ESP8266WebServer& server) {
   server.send(200, F("text/json"), json);
 }
 
+void eepromSet(String content);
+
 void MyFunctionRequestHandler::apiHandler(ESP8266WebServer& server) {
   mpIpDisplay->StopShowingIp();
   //applicationProblems = -1;  //force repaint display in client mode
@@ -398,6 +400,11 @@ void MyFunctionRequestHandler::apiHandler(ESP8266WebServer& server) {
     return;
   }
 
+  if (server.hasArg(F("hostname"))) {
+    String newWifiHostname = server.arg(F("hostname"));
+    eepromSet(newWifiHostname);
+  }
+
   // note its required to provide both arguments SSID and PWD
   if (server.hasArg(F("ssid")) && server.hasArg(F("pwd"))) {
     String newWifiSSID = server.arg(F("ssid"));
@@ -418,11 +425,8 @@ void MyFunctionRequestHandler::apiHandler(ESP8266WebServer& server) {
     httpReboot(server, String(F("New WIFI settings accepted. Mac address: ")) + WiFi.macAddress() + String(F("<p/>")));
 
   }
-  if (server.hasArg(F("hostname"))) {
-    String newWifiHostname = server.arg(F("hostname"));
-    //TODO##################################################################
-  }
-  
+
+ 
   server.sendHeader(F("cache-control"), F("private, max-age=0, no-cache, no-store"));
   server.send(200);
 }

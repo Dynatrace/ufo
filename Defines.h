@@ -10,4 +10,5 @@
 #define PIN_DOTSTAR_CLOCK 14
 #define PIN_FACTORYRESET 15
 
+#define EEPROM_MAXSIZE 64 // max number of bytes to store in eeprom (can be up to 4k; its using one sector after the spiffs) 
 

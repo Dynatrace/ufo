@@ -1,6 +1,6 @@
 /*
    Requires Arduino IDE 1.6.8 or later
-   ESP8266 Arduino library v2.2.0 or later
+   ESP8266 Arduino library v2.3.0 or later
    Adafruit Huzzah ESP8266-E12, 4MB flash, uploads with 3MB SPIFFS (3MB filesystem of total 4MB) -- note that SPIFFS upload packages up everything from the "data" folder and uploads it via serial (same procedure as uploading sketch) or OTA. however, OTA is disabled by default
    Use Termite serial terminal software for debugging
 
@@ -9,17 +9,10 @@
     connect to SSID huzzah, and call http://192.168.4.1/api?ssid=<ssid>&pwd=<password> to set new SSID/PASSWORD
 
 
-
-   TODO
-       Web contents should provide
-       1) DONE: get quickly started by configuring WIFI
-       2) activate some demo scenarios (showcase fancy illumination patterns)
-       3) DONE - see homepage (index.html): providing help about available API calls
-       4) DONE: web based firmware upload; firmware s (load from github or upload to device? or both?)
 */
 //-------------------------------------------------------------------------------------------------------------------------
 
-boolean debug = true;
+boolean debug = false;
 
 //-------------------------------------------------------------------------------------------------------------------------
 
@@ -29,6 +22,7 @@ boolean debug = true;
 #include <ESP8266WebServer.h>
 #include <Wire.h>
 #include <FS.h>
+#include <EEPROM.h>
 #include <Adafruit_DotStar.h>
 #include <StreamString.h>
 #include "DisplayCharter.h"
@@ -58,6 +52,8 @@ boolean wifiStationOK = false;
 boolean wifiAPisConnected = false;
 boolean wifiConfigMode = true;
 boolean httpClientMode = false;
+
+
 
 //-------------------------------------------------------------------------------------------------------------------------
 
@@ -95,6 +91,10 @@ void handleFactoryReset() {
     // default IP address for Access Point is 192.168.4.1
     //WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0)); // IP, gateway, netmask -- NOT STORED TO FLASH!!
     WiFi.softAP(String(DEFAULT_APSSID).c_str()); // default is open Wifi
+
+    // reset eeprom to default hostname
+    eepromSet(DEFAULT_HOSTNAME);
+
     //WiFi.mode(WIFI_AP);
     if (debug) {
       Serial.println(String(F("Wifi reset to SSID: ")) + WiFi.SSID() + String(F(" pass: ")) + WiFi.psk());
@@ -190,6 +190,65 @@ void setupSerial() {
   }
 }
 
+
+String eepromRead() {
+  //EEPROM access to retreive the hostname
+  EEPROM.begin(EEPROM_MAXSIZE); // note this allocates a buffer in RAM
+  int address = 0;
+  //char eepromcontent[EEPROM_MAXSIZE]; 
+  String eepromcontent;
+  while (address < EEPROM_MAXSIZE) {
+    char val = EEPROM.read(address);
+    //eepromcontent[address] = val;
+    if (!val) {
+      break;
+    }
+    eepromcontent += val;
+    address++;
+  }
+
+  if (debug) {
+    Serial.println("EEPROM bytes: " + String(address) + " data: " + eepromcontent);
+  }
+
+  if (address >= EEPROM_MAXSIZE) { // no term zero found, so reset the EEPROM to the default
+    EEPROM.write(0, 'u');
+    EEPROM.write(1, 'f');
+    EEPROM.write(2, 'o');
+    for (address = 3; address < EEPROM_MAXSIZE; address++) {
+      EEPROM.write(address, 0); 
+    }
+    eepromcontent = "";
+  } 
+  EEPROM.end(); // commits EEPROM contents to flash if changed/written; releases allocated memory
+  return eepromcontent;
+}    
+
+
+void eepromSet(String content) {
+  EEPROM.begin(EEPROM_MAXSIZE); // note this allocates a buffer in RAM
+
+  // write string content
+  int len = content.length();
+  if (len >= EEPROM_MAXSIZE) {
+    len = EEPROM_MAXSIZE-1;
+  }
+  int addr = 0;
+  while (addr < len) {
+    EEPROM.write(addr, content.charAt(addr));
+    addr++;
+  }
+
+  // fill the remaining eeprom buffer with zeros
+  while (addr < EEPROM_MAXSIZE) {
+    EEPROM.write(addr, 0);
+    addr++;
+  }
+  EEPROM.end(); // commits EEPROM contents to flash if changed/written; releases allocated memory
+}    
+
+
+
 // initialization routines
 void setup ( void ) {
   setupSerial();
@@ -197,6 +256,8 @@ void setup ( void ) {
   pinMode(PIN_FACTORYRESET, INPUT); //, INPUT_PULLUP); use INPUT_PULLUP in case we put reset to ground; currently reset is doing a 3V signal
 
   ledsSetup();
+
+  String hostname = eepromRead(); // retrieves the hostname  ; DEFAULT_HOSTNAME
 
   // initialize ESP8266 file system
   SPIFFS.begin();
@@ -211,7 +272,7 @@ void setup ( void ) {
 
   // initialize Wifi based on stored config
   WiFi.onEvent(WiFiEvent);
-  WiFi.hostname(DEFAULT_HOSTNAME); // note, the hostname is not persisted in the ESP config like the SSID. so it needs to be set every time WiFi is started
+  WiFi.hostname(hostname); // note, the hostname is not persisted in the ESP config like the SSID. so it needs to be set every time WiFi is started
   wifiConfigMode = WiFi.getMode() & WIFI_AP;
 
   if (debug) {

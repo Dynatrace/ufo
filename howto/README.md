@@ -135,6 +135,9 @@ Read more here: [compile and upload firmware through serial](https://learn.adafr
  and upload the all files (*.html, *.css, font.*, ...) that are contained in the `data` folder through the Web UI using the firmware upload form. 
  those files will be automatically put on the ESP8266 file system.
 
+ Note: if you want to modify the contents of the webpage, you need to regenerate WebContent.h using Convert_bin2c.py .
+ For that to run you need to have Python 2.7+ installed.
+
 ##Configure the UFO
 Check out the ![__Quickstart guide__](../quickstart/readme.md) to configure the UFO.
 

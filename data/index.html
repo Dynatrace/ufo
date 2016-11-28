@@ -144,7 +144,9 @@
 						<li>Option 1: The lower ring visualizes the current IP address digit by digit. 192.168... will light 1 led then 9 (5+4) then 2 and so on. A dot is visualized as 3 white leds. The individuL digits are separated by a short white flash. The IP is visualized over and over again until the first api rest call is issued. To stay in sync every IP address visualization run uses a different color.</li>
 						<li>Option 2: Open Windows file explorer and click on "Network" to display all devices that are discovered through SSDP.
 						</li>
-						<li>Option 3: by default the UFO registers with hostname <b id="hostname">---</b> at you access point. so try <span id="ufourl">http://hostname</span>:
+						<li>Option 3: the Dynatrace UFO registers via DHCP a hostname 
+							<b id="hostname">---</b> with the DNS server (default: ufo). 
+							so try <span id="ufourl">http://hostname</span>:
 							TODO: add auto-redirect to URL.
 						</li>
 						<li>Option 4: Remember your MAC address <b><span id="macaddress">---</span></b> 
@@ -154,8 +156,12 @@
 				
 				<form method='GET' action='/api'>
 					<div class="padded-full">
+						SSID:<br>
 						<input type="text" name="ssid" placeholder="SSID" id="ssid" />
+						password:<br>
 						<input type="text" name="pwd" placeholder="pwd" id="wifipwd" />
+						hostname (default = "ufo"):<br>
+						<input type="text" name="hostname" placeholder="ufo" id="hostname" />
 						<!--input type="text" name="user" placeholder="user" id="wifiuser" />
 						<input type="text" name="userpwd" placeholder="userpwd" id="wifiuserpwd" />
 						<input type="checkbox" class="" name="noreboot" id="noreboot"-->
