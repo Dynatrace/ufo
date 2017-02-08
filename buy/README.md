@@ -1,7 +1,6 @@
 #Buy?
 If you would prefer to buy a Dynatrace UFO versus build it yourself, 
-then please let us know. In case we get enough requests, 
-we will let produce them for purchase. 
+then you can buy it here:
 
-Please post a comment to this issue [#13](../../../issues/13) in case you have interest to buy one.
- 
+https://www.dynatrace.com/solutions/devops/ufo/get/
+please note that this includes the more powerful ESP32 microcontroller, dual-core with Wifi and bluetooth.
