@@ -29,8 +29,8 @@ bool DataPolling::Init(){
     return true;
   }
   
-  if (httpClient.begin(String(F("https://")) + mpConfig->dynatraceEnvironmentID + F(".live.dynatrace.com/api/v1/problem/status?Api-Token=") + mpConfig->dynatraceApiKey, F("CD:57:0F:00:D7:50:2D:8A:F1:2C:5D:6C:AB:5E:E5:B1:3C:08:99:AC"))){
-  //if (httpClient.begin("http://192.168.183.31/api/v1/problem/status")){
+  if (httpClient.begin(String(F("https://")) + mpConfig->dynatraceEnvironmentID + F(".live.dynatrace.com/api/v1/problem/status?Api-Token=") + mpConfig->dynatraceApiKey, F("8e:51:d1:ea:eb:5a:97:ed:af:49:4e:54:22:b1:ab:ce:15:84:0e:f8"))){
+   //if (httpClient.begin("http://192.168.183.31/api/v1/problem/status")){
     httpClient.setReuse(true);
     mInitialized = true;
     return true;

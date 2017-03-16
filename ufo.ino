@@ -12,7 +12,7 @@
 */
 //-------------------------------------------------------------------------------------------------------------------------
 
-boolean debug = false;
+boolean debug = true;
 
 //-------------------------------------------------------------------------------------------------------------------------
 
@@ -49,6 +49,8 @@ boolean logo = true;
 ESP8266WebServer   httpServer(80);
 
 boolean wifiStationOK = false;
+boolean wifiStationConnected = false;
+unsigned int connectedCount = 0;
 boolean wifiAPisConnected = false;
 boolean wifiConfigMode = true;
 boolean httpClientMode = false;
@@ -119,9 +121,12 @@ void WiFiEvent(WiFiEvent_t event) {
       case WIFI_EVENT_STAMODE_DISCONNECTED:
         if (debug) Serial.println(F("WiFi client lost connection"));
         wifiStationOK = false;
+        wifiStationConnected = false;
         break;
       case WIFI_EVENT_STAMODE_CONNECTED:
         if (debug) Serial.println(F("WiFi client connected"));
+        wifiStationConnected = true;
+        connectedCount = 0;
         break;
       case WIFI_EVENT_STAMODE_AUTHMODE_CHANGE:
         if (debug) Serial.println(F("WiFi client authentication mode changed."));
@@ -331,9 +336,22 @@ void loop ( void ) {
       }
     }
   } else { // blink yellow while not connected to wifi when it should
-    if (!wifiStationOK && (tick % 500 > 375)) {
-      dotstarSetColor(ledstrip_upperring, 255, 200, 0);
-      dotstarSetColor(ledstrip_lowerring, 255, 200, 0);
+    if (!wifiStationOK)
+    {
+      unsigned int i = tick % 500;
+      if (!i)
+      {
+        if (wifiStationConnected && (++connectedCount >= 50))
+        {
+          if (debug) Serial.println(F("Could not get IP - restarting!"));
+          ESP.restart();
+        }
+      }
+      else if  (i > 375)
+      {
+        dotstarSetColor(ledstrip_upperring, 255, 200, 0);
+        dotstarSetColor(ledstrip_lowerring, 255, 200, 0);
+      }
     }
   }
 
