@@ -10,7 +10,7 @@ there is no data-connection through it.
 
 The intended use is pendant mounted at the ceiling. 
 But some geeks use it mobile, so they take it into their office park for example.
-![mobile ufo](mobile ufo.jpg) 
+![mobile ufo](mobile%20ufo.jpg) 
 
 ##Check Firmware Version
 
@@ -34,7 +34,7 @@ whenever the UFO is trying to connect to your wifi, the UFO blinks yellow.
 So you can declare connection success when the yellow stops blinking.
 
 
-![](configure wifi.png)
+![](configure%20wifi.png)
 
 Note: If you have troubles using the web UI for setting the wifi config, 
 you might have more success using the REST API directly:
@@ -43,7 +43,7 @@ you might have more success using the REST API directly:
 Tip: To test and play with the ufo despite enterprise wifi, 
 or in situations that require a wifi login, you can use following workaround: 
 e.g. Windows 10 (anniversary update) mobile hotspot feature or connect it your mobile devices hotspot capability.
-![](windows10 hotspot.png)
+![](windows10%20hotspot.png)
 
 1. The UFO will reboot after you configured its Wifi and start to blink 
 yellow while trying to connect and show color encoded IP address when connected. 
@@ -76,7 +76,7 @@ The Dynatrace UFO polls the Dynatrace SaaS problem status using HTTPS.
 For that you need to create in the Dynatrace SaaS user interface 
 an access token. (and please don't try to use the token in the screenshot,
 its of course an invalid one).
-![generate api token](generate dynatrace saas api key.png)
+![generate%20api%20token](generate dynatrace saas api key.png)
 
 Dynatrace SaaS default integration shows currently following color codes 
 * green: no open problem
@@ -93,7 +93,7 @@ Dynatrace SaaS default integration shows currently following color codes
 user impact, services, infrastructure
 
 This is how it looks when it is connected and showing a problem:
-![Ufo alerting of live problem](ufo connected to dynatrace saas.jpg)
+![Ufo%20alerting%20of%20live%20problem](ufo connected to dynatrace saas.jpg)
 
 ##Integration with Dynatrace Managed
 
