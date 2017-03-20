@@ -13,34 +13,34 @@ see also [partlist](../partlist)
 ####1. UFO case base + microcontroller holder, plus microcontroller clip
 
 black filament
-![](print base.jpg)
+![](print%20base.jpg)
 
 ####2. UFO case top + cable stabilizer + mini-switch-clip
 
 black filament
-![](print top.jpg)
+![](print%20top.jpg)
 
 ####3. Separator ring
 
 black filament
-![](print separatorring.jpg)
+![](print%20separatorring.jpg)
 
 ####4. Downlight inlay + first ring
 
 transparent filament
-![](print ledring plus downlightinlay.jpg)
+![](print%20ledring%20plus%20downlightinlay.jpg)
 
 ####5. Second ring
 
 transparent filament
-![](print ledring.jpg)
+![](print%20ledring.jpg)
 
 ## How it all fits together
-![](ufo explosion.png)
+![](ufo%20explosion.png)
 
 ##Prepare USB cable
 Cut off one end of the USB cable and use the 5V line (red) and ground (black) wire for powering the LED strips as well as the Huzzah ESP8266 microcontroller. Make sure to isolate the other wires to make sure you don't damage the USB source or get in contact with the other electronics.
-![Power through USB cable](power through usb cable.jpg)
+![Power through USB cable](power%20through%20usb%20cable.jpg)
 
 ##Prepare LED strips
 Cut the LED strip into 2 strips of 15 LEDs each and 2 strips of 2 LEDs each. Be sure to cut exactly in the middle of the soldering tabs because you will need to solder cables together here later. 
@@ -101,7 +101,7 @@ Once you have that completed, you can use the UFO web UI to upload the firmware.
 
 ###Build the firmware yourself
 1. Install Arduino IDE 1.6.7+ and in the Preferences dialog, type this board manager URL: `http://arduino.esp8266.com/stable/package_esp8266com_index.json`
-![Arduino IDE preferences](arduino preferences.png) Make sure to restart the IDE afterwards.
+![Arduino IDE preferences](arduino%20preferences.png) Make sure to restart the IDE afterwards.
 1. Install the ESP8266 board using Arduino IDE Board Manager under the Tools menu.
 ![Arduino board manager](install esp8266 board.png)
 1. Configure the microcontroller in IDE 
