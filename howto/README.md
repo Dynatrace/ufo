@@ -44,22 +44,22 @@ Cut off one end of the USB cable and use the 5V line (red) and ground (black) wi
 
 ##Prepare LED strips
 Cut the LED strip into 2 strips of 15 LEDs each and 2 strips of 2 LEDs each. Be sure to cut exactly in the middle of the soldering tabs because you will need to solder cables together here later. 
-![Cut the LED strip in pieces](cut a strip of 15 LEDs off and remove protective hull.jpg)
-![15 LEDs per long strip](15 LEDs per strip.jpg)
+![Cut the LED strip in pieces](cut%20a%20strip%20of%2015%20LEDs%20off%20and%20remove%20protective%20hull.jpg)
+![15 LEDs per long strip](15%20LEDs%20per%20strip.jpg)
 
 ##Solder short strips
 Solder the short strips in a series accordingly to the data-flow direction. There are arrows on the strip that show you the direction. Data for controlling the bus of LEDs flows from the microcontroller outbound in direction of arrow.
 (Note: image still shows 3-pin led strip, but we switched to 4-pin DotStar LED strips)
 ![Short LED strips soldered in series](arrows show how to place strip in series.jpg)
-![](2x2 LEDs in series on logo.jpg)
+![](2x2%20LEDs%20in%20series%20on%20logo.jpg)
 The DotStar LED strips use 4 wires
-![](dotstar wiring.jpg)
+![](dotstar%20wiring.jpg)
 
 ##Wiring
-![Wiring](ufo wiring sketch.png)
+![Wiring](ufo%20wiring%20sketch.png)
 
 USB cables 5V power goes to "VBat" and the black ground cable goes to "GND"
-![soldering power to huzzah](soldering huzzah.jpg)
+![soldering power to huzzah](soldering%20huzzah.jpg)
 
 The white data wires that control the LEDs are soldered as follows:
 * Pin 4 - Lower LED ring
@@ -79,7 +79,7 @@ Note that the LEDs need to be powered directly from the USB cable, and not from 
 
 ##Putting it all together
 The Huzzah ESP8266 microcontroller is mounted on top of the downlight inlay and also keeps the 2 short LED strips in their position. For proper isolation, put the printed platform with the 4 pins upside under the Huzzah board and then put all of it inside the clip that holds everything in place.
-![clip-in microcontroller](mounted microcontroller.jpg)
+![clip-in microcontroller](mounted%20microcontroller.jpg)
 
 ##Firmware
 The initial firmware needs to be programmed using the Serial-USB (FTDI) cable. 
@@ -94,7 +94,7 @@ Once you have that completed, you can use the UFO web UI to upload the firmware.
  * Release reset 
  * Release GPIO0 and make sure the red LED is still lit, as it's signaling that the ESP8266 expects a firmware download
 
-![esp8266 upload](esp8266 upload.jpg)
+![esp8266 upload](esp8266%20upload.jpg)
 1. Run the `ESP_DOWNLOAD_TOOL_V2.4.exe` from the `firmware/flashtool` folder, configure the proper COM port that's assigned to the FTDI cable and program the ESP8266.
 
 ![flashtool](flashtool.png)
@@ -103,16 +103,16 @@ Once you have that completed, you can use the UFO web UI to upload the firmware.
 1. Install Arduino IDE 1.6.7+ and in the Preferences dialog, type this board manager URL: `http://arduino.esp8266.com/stable/package_esp8266com_index.json`
 ![Arduino IDE preferences](arduino%20preferences.png) Make sure to restart the IDE afterwards.
 1. Install the ESP8266 board using Arduino IDE Board Manager under the Tools menu.
-![Arduino board manager](install esp8266 board.png)
+![Arduino board manager](install%20esp8266%20board.png)
 1. Configure the microcontroller in IDE 
  * Adafruit Huzzah ESP8266 board
  * 3MB SPIFFS 
  * serial port that's connected to the FTDI serial cable
  * USBtinyISP as Programmer
  * 115200bps 
-![board config](board config.png)
+![board config](board%20config.png)
 1. Add *Adafruit DotStar* library, needed to control the LED strips
-![dotstar library](install dotstar library.png)
+![dotstar library](install%20dotstar%20library.png)
 1. Arduino JSON library
 ![JSON library](arduino_library_json.png)
 1. Use *Tools->Serial Monitor* to see the output of the ESP8266
