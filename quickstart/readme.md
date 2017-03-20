@@ -93,7 +93,7 @@ Dynatrace SaaS default integration shows currently following color codes
 user impact, services, infrastructure
 
 This is how it looks when it is connected and showing a problem:
-![Ufo%20alerting%20of%20live%20problem](ufo connected to dynatrace saas.jpg)
+![Ufo%20alerting%20of%20live%20problem](ufo%20connected%20to%20dynatrace%20saas.jpg)
 
 ##Integration with Dynatrace Managed
 
