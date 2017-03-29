@@ -1,6 +1,6 @@
-#UFO Quickstart
+# UFO Quickstart
 
-##Power Supply
+## Power Supply
 
 Connect the UFO to a 2000mA USB charging adapter. 
 e.g. the iPad or Windows Surface charger should work fine, but check the specs beforehand. 
@@ -12,12 +12,12 @@ The intended use is pendant mounted at the ceiling.
 But some geeks use it mobile, so they take it into their office park for example.
 ![mobile ufo](mobile%20ufo.jpg) 
 
-##Check Firmware Version
+## Check Firmware Version
 
 This description is for ![firmware](../firmware) versions dated after 20th of October 2016. 
 If you have older firmware, please follow the firmware updated procedures in the howto guide.
 
-##Configure Wifi
+## Configure Wifi
 
 1. As default and when clicking the hardware reset button at the top of the UFO, 
 the UFO starts a Wifi access point with an SSID named "ufo". 
@@ -70,7 +70,7 @@ in case you need it:
  and get the IP address assigned by DHCP. 
 
 
-##Integration with Dynatrace SaaS
+## Integration with Dynatrace SaaS
 
 The Dynatrace UFO polls the Dynatrace SaaS problem status using HTTPS. 
 For that you need to create in the Dynatrace SaaS user interface 
@@ -95,7 +95,7 @@ user impact, services, infrastructure
 This is how it looks when it is connected and showing a problem:
 ![Ufo%20alerting%20of%20live%20problem](ufo%20connected%20to%20dynatrace%20saas.jpg)
 
-##Integration with Dynatrace Managed
+## Integration with Dynatrace Managed
 
 Coming soon. This will use webhooks. 
 Please use the Generic REST interface for now.
@@ -104,7 +104,7 @@ Please use the Generic REST interface for now.
 
 Coming soon. Please use the Generic REST interface for now.
 
-##Generic REST Integration
+## Generic REST Integration
 
 UFO communication examples (REST calls)
 
