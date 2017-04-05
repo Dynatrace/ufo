@@ -323,10 +323,14 @@ void loop ( void ) {
   // blinking alternatively in blue when no client is connected to AP;
   // binking both rings in blue when at least one client is connected to AP
   if (wifiConfigMode) {
-    if (wifiAPisConnected && (tick % 500 > 200)) {
+    // AG-04-05-2017: if a client is connected do no longer show the blue lights - that prevents the Demo Use Case when somebody connects to the "ufo" hotspot and changes colors
+    if (wifiAPisConnected) {
+      
+    }
+    /*if (wifiAPisConnected && (tick % 500 > 200)) {
       dotstarSetColor(ledstrip_upperring, 0, 0, 255);
       dotstarSetColor(ledstrip_lowerring, 0, 0, 255);
-    } else {
+    }*/ else {
       if (tick % 1000 > 500) {
         dotstarSetColor(ledstrip_upperring, 0, 0, 255);
         dotstarSetColor(ledstrip_lowerring, 0, 0, 0);
