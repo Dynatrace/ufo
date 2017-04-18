@@ -76,7 +76,7 @@ The Dynatrace UFO polls the Dynatrace SaaS problem status using HTTPS.
 For that you need to create in the Dynatrace SaaS user interface 
 an access token. (and please don't try to use the token in the screenshot,
 its of course an invalid one).
-![generate%20api%20token](generate dynatrace saas api key.png)
+![generate%20api%20token](generate%20dynatrace%20saas%20api%20key.png)
 
 Dynatrace SaaS default integration shows currently following color codes 
 * green: no open problem
