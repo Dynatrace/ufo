@@ -100,7 +100,7 @@ This is how it looks when it is connected and showing a problem:
 Coming soon. This will use webhooks. 
 Please use the Generic REST interface for now.
 
-##Integration with Dynatrace AppMon
+## Integration with Dynatrace AppMon
 
 Coming soon. Please use the Generic REST interface for now.
 
