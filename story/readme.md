@@ -24,6 +24,6 @@ A fast pipeline is especially crucial in our DevOps environment as we require th
 __Helmut:__ The UFO is directly fed with the pipeline state by our quickbuild server at the end of every run via a simple REST interface. One layer of the UFO visualizes the trunk pipeline while the other shows the sprint pipeline state. The DevOps team controls the UFO using Dynatrace Application Monitoring / UEM and Ruxit interfaces. But of course, you can control it from any software capable of performing REST calls.
 
 *Bernd:* We had several top customers who came to our office ask for such an UFO. Since you have built it yourself, what can we tell customers who want to build one themselves? Here are pictures of the original so everyone can see what I am talking about:
-![](original ufo1.JPG) ![](original ufo2.JPG)
+![](original%20ufo1.JPG) ![](original%20ufo2.JPG)
 
 __Helmut:__ Oh, yes. The original version used Raspberry PI and multiple PIC microcontrollers that I'd used in plenty of other projects. To reduce the total number of parts, we designed an open-source version of the UFO that is easily printable on a standard 3D printer and a single ESP8266 wifi microcontroller. The total cost is in the range of $80 including the wifi-enabled electronics. It's available at https://github.com/Dynatrace/ufo

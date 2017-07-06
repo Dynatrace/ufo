@@ -116,7 +116,7 @@ Once you have that completed, you can use the UFO web UI to upload the firmware.
 1. Arduino JSON library
 ![JSON library](arduino_library_json.png)
 1. Use *Tools->Serial Monitor* to see the output of the ESP8266
-![serial monitor](serial monitor.png)
+![serial monitor](serial%20monitor.png)
 1. Place the ESP8266 in firmware programming mode by pressing the buttons in the following sequence:
  * Press and hold Reset
  * Press GPIO0. You should see the red LED turn on
@@ -139,6 +139,6 @@ Read more here: [compile and upload firmware through serial](https://learn.adafr
  For that to run you need to have Python 2.7+ installed.
 
 ## Configure the UFO
-Check out the ![__Quickstart guide__](../quickstart/readme.md) to configure the UFO.
+Check out the [__Quickstart guide__](../quickstart/readme.md) to configure the UFO.
 
 
