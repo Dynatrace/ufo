@@ -1,53 +1,53 @@
-#Instructions for building the Dynatrace UFO
+# Instructions for building the Dynatrace UFO
 
 see also [partlist](../partlist)
 
-##Print the 10 pieces in 5 batches
+## Print the 10 pieces in 5 batches
 
-####We printed using with following settings:
+#### We printed using with following settings:
 * No supports
 * 3 shells
 * 0.2 mm layer height (0.1 mm layer worked well too)
 * 20% infill
 
-####1. UFO case base + microcontroller holder, plus microcontroller clip
+#### 1. UFO case base + microcontroller holder, plus microcontroller clip
 
 black filament
 ![](print%20base.jpg)
 
-####2. UFO case top + cable stabilizer + mini-switch-clip
+#### 2. UFO case top + cable stabilizer + mini-switch-clip
 
 black filament
 ![](print%20top.jpg)
 
-####3. Separator ring
+#### 3. Separator ring
 
 black filament
 ![](print%20separatorring.jpg)
 
-####4. Downlight inlay + first ring
+#### 4. Downlight inlay + first ring
 
 transparent filament
 ![](print%20ledring%20plus%20downlightinlay.jpg)
 
-####5. Second ring
+#### 5. Second ring
 
 transparent filament
 ![](print%20ledring.jpg)
 
-## How it all fits together
+##  How it all fits together
 ![](ufo%20explosion.png)
 
-##Prepare USB cable
+## Prepare USB cable
 Cut off one end of the USB cable and use the 5V line (red) and ground (black) wire for powering the LED strips as well as the Huzzah ESP8266 microcontroller. Make sure to isolate the other wires to make sure you don't damage the USB source or get in contact with the other electronics.
 ![Power through USB cable](power%20through%20usb%20cable.jpg)
 
-##Prepare LED strips
+## Prepare LED strips
 Cut the LED strip into 2 strips of 15 LEDs each and 2 strips of 2 LEDs each. Be sure to cut exactly in the middle of the soldering tabs because you will need to solder cables together here later. 
 ![Cut the LED strip in pieces](cut%20a%20strip%20of%2015%20LEDs%20off%20and%20remove%20protective%20hull.jpg)
 ![15 LEDs per long strip](15%20LEDs%20per%20strip.jpg)
 
-##Solder short strips
+## Solder short strips
 Solder the short strips in a series accordingly to the data-flow direction. There are arrows on the strip that show you the direction. Data for controlling the bus of LEDs flows from the microcontroller outbound in direction of arrow.
 (Note: image still shows 3-pin led strip, but we switched to 4-pin DotStar LED strips)
 ![Short LED strips soldered in series](arrows show how to place strip in series.jpg)
@@ -55,7 +55,7 @@ Solder the short strips in a series accordingly to the data-flow direction. Ther
 The DotStar LED strips use 4 wires
 ![](dotstar%20wiring.jpg)
 
-##Wiring
+## Wiring
 ![Wiring](ufo%20wiring%20sketch.png)
 
 USB cables 5V power goes to "VBat" and the black ground cable goes to "GND"
@@ -77,16 +77,16 @@ The blue wifi reset cables:
  
 Note that the LEDs need to be powered directly from the USB cable, and not from the 3V pin. So all the red 5V cables and separately all the black ground cables must be soldered together.
 
-##Putting it all together
+## Putting it all together
 The Huzzah ESP8266 microcontroller is mounted on top of the downlight inlay and also keeps the 2 short LED strips in their position. For proper isolation, put the printed platform with the 4 pins upside under the Huzzah board and then put all of it inside the clip that holds everything in place.
 ![clip-in microcontroller](mounted%20microcontroller.jpg)
 
-##Firmware
+## Firmware
 The initial firmware needs to be programmed using the Serial-USB (FTDI) cable. 
 You might need to install a driver on your PC for that cable.
 Once you have that completed, you can use the UFO web UI to upload the firmware. 
 
-###Upload firmware available on github
+### Upload firmware available on github
 1. Connect the ESP8266 to the FTDI cable and via USB to your computer
 1. Place the ESP8266 in firmware programming mode by pressing the buttons in the following sequence:
  * Press and hold Reset 
@@ -99,7 +99,7 @@ Once you have that completed, you can use the UFO web UI to upload the firmware.
 
 ![flashtool](flashtool.png)
 
-###Build the firmware yourself
+### Build the firmware yourself
 1. Install Arduino IDE 1.6.7+ and in the Preferences dialog, type this board manager URL: `http://arduino.esp8266.com/stable/package_esp8266com_index.json`
 ![Arduino IDE preferences](arduino%20preferences.png) Make sure to restart the IDE afterwards.
 1. Install the ESP8266 board using Arduino IDE Board Manager under the Tools menu.
@@ -138,7 +138,7 @@ Read more here: [compile and upload firmware through serial](https://learn.adafr
  Note: if you want to modify the contents of the webpage, you need to regenerate WebContent.h using Convert_bin2c.py .
  For that to run you need to have Python 2.7+ installed.
 
-##Configure the UFO
+## Configure the UFO
 Check out the ![__Quickstart guide__](../quickstart/readme.md) to configure the UFO.
 
 

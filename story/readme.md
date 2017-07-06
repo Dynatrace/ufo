@@ -1,4 +1,4 @@
-#The Dynatrace UFO story
+# The Dynatrace UFO story
 
 *Bernd:* Hi Helmut, you have invented the UFO, a multidimensional state visualization device, for Dynatrace to improve our agile development, build and continuous delivery processes. 
 So what exactly is the UFO and what motivated you to create it?
