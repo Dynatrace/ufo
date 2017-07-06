@@ -2,7 +2,7 @@
 
 You can print your own UFO. All you need to do is order an Adafruit Huzzah, some wires, and print the UFO in black and transparent filament. The Huzzahs ESP8266 hosts wifi and a web server so that REST calls plus a simple hybrid web app are used to configure and control the device.
 
-![UFO model for 3D print](ufo model.png)
+![UFO model for 3D print](ufo%20model.png)
 
 Prints have been tested so far with:
 * Makerbot replicator 5th generation
