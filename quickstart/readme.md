@@ -14,7 +14,7 @@ But some geeks use it mobile, so they take it into their office park for example
 
 ## Check Firmware Version
 
-This description is for ![firmware](../firmware) versions dated after 20th of October 2016. 
+This description is for [firmware](../firmware) versions dated after 20th of October 2016. 
 If you have older firmware, please follow the firmware updated procedures in the howto guide.
 
 ## Configure Wifi
@@ -100,7 +100,7 @@ This is how it looks when it is connected and showing a problem:
 Coming soon. This will use webhooks. 
 Please use the Generic REST interface for now.
 
-##Integration with Dynatrace AppMon
+## Integration with Dynatrace AppMon
 
 Coming soon. Please use the Generic REST interface for now.
 
