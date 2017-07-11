@@ -21,7 +21,7 @@
 * [__Data__](data) folder contains all files that will be loaded into the ESP8266 flash memory SPIFF drive to contain website data 
 * [__Node.js test server__](nodejs testserver) contains source files to simulate the ESP8266 webserver for testing purposes; requires Node.js server + static-server module
 
-## No time to print yourself? [Pre-order to buy](buy)
+## No time to print yourself? [Buy a 2nd Gen UFO now](https://www.dynatrace.com/solutions/devops/ufo/get/)
  
 
 ### Example use case at Dynatrace Ruxit
