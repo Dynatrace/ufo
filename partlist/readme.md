@@ -16,7 +16,7 @@
 * U.S.: Adafruit <http://www.adafruit.com>
 * U.S./Internationally: Mouser electronics <http://mouser.com> (they have many international sites such as mouser.de, mouser.at, ...)
 * Germany/Austria: Flikto <http://flikto.de>
-* Germany/Internationally: EXP Tech https://www.exp-tech.de/
+* Germany/Internationally: EXP Tech <https://www.exp-tech.de/>
 
 ## Electronics partlist
 * 1x [Adafruit Huzzah ESP8266 breakoutboard](https://www.adafruit.com/products/2471) 
