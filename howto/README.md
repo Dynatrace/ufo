@@ -43,7 +43,7 @@ Cut off one end of the USB cable and use the 5V line (red) and ground (black) wi
 ![Power through USB cable](power%20through%20usb%20cable.jpg)
 
 ## Prepare LED strips
-Cut the LED strip into 2 strips of 15 LEDs each and 2 strips of 2 LEDs each. Be sure to cut exactly in the middle of the soldering tabs because you will need to solder cables together here later. 
+Cut the LED strip into 2 strips of 15 LEDs each and 2 strips of 2 LEDs each. Be sure to cut exactly in the middle of the soldering tabs because you will need to solder cables together here later.
 ![Cut the LED strip in pieces](cut%20a%20strip%20of%2015%20LEDs%20off%20and%20remove%20protective%20hull.jpg)
 ![15 LEDs per long strip](15%20LEDs%20per%20strip.jpg)
 
@@ -71,10 +71,10 @@ The yellow cable is the clock signal for the LED strips
 
 The blue wifi reset cables:
 * Pin 15 - Mini-button-switch for wifi reset, to switch the UFO into Access Point mode; triggers when 3V are on pin 15
-* Pin 3V (next to pin 15) - Goes to the other contact of the mini-button-switch. 
+* Pin 3V (next to pin 15) - Goes to the other contact of the mini-button-switch.
 
 ![](wired.jpg)
- 
+
 Note that the LEDs need to be powered directly from the USB cable, and not from the 3V pin. So all the red 5V cables and separately all the black ground cables must be soldered together.
 
 ## Putting it all together
@@ -82,16 +82,16 @@ The Huzzah ESP8266 microcontroller is mounted on top of the downlight inlay and 
 ![clip-in microcontroller](mounted%20microcontroller.jpg)
 
 ## Firmware
-The initial firmware needs to be programmed using the Serial-USB (FTDI) cable. 
+The initial firmware needs to be programmed using the Serial-USB (FTDI) cable.
 You might need to install a driver on your PC for that cable.
-Once you have that completed, you can use the UFO web UI to upload the firmware. 
+Once you have that completed, you can use the UFO web UI to upload the firmware.
 
 ### Upload firmware available on github
 1. Connect the ESP8266 to the FTDI cable and via USB to your computer
 1. Place the ESP8266 in firmware programming mode by pressing the buttons in the following sequence:
-  * Press and hold Reset 
+  * Press and hold Reset
   * Press GPIO0. You should see the red LED turn on
-  * Release reset 
+  * Release reset
   * Release GPIO0 and make sure the red LED is still lit, as it's signaling that the ESP8266 expects a firmware download
 
 ![esp8266 upload](esp8266%20upload.jpg)
@@ -104,12 +104,12 @@ Once you have that completed, you can use the UFO web UI to upload the firmware.
 ![Arduino IDE preferences](arduino%20preferences.png) Make sure to restart the IDE afterwards.
 1. Install the ESP8266 board using Arduino IDE Board Manager under the Tools menu.
 ![Arduino board manager](install%20esp8266%20board.png)
-1. Configure the microcontroller in IDE 
+1. Configure the microcontroller in IDE
   * Adafruit Huzzah ESP8266 board
-  * 3MB SPIFFS 
+  * 3MB SPIFFS
   * serial port that's connected to the FTDI serial cable
   * USBtinyISP as Programmer
-  * 115200bps 
+  * 115200bps
 ![board config](board%20config.png)
 1. Add *Adafruit DotStar* library, needed to control the LED strips
 ![dotstar library](install%20dotstar%20library.png)
@@ -117,22 +117,23 @@ Once you have that completed, you can use the UFO web UI to upload the firmware.
 ![JSON library](arduino_library_json.png)
 1. Use *Tools->Serial Monitor* to see the output of the ESP8266
 ![serial monitor](serial%20monitor.png)
+1. Open ufo.ino in Arduino IDE
 1. Place the ESP8266 in firmware programming mode by pressing the buttons in the following sequence:
   * Press and hold Reset
   * Press GPIO0. You should see the red LED turn on
-  * Release Reset 
+  * Release Reset
   * Release GPIO0 and make sure the red LED is still lit, as it's signaling that the ESP8266 expects a firmware download
-1. Menu *Sketch->Upload CTRL-U* will compile and upload the sketch (firmware) via the serial interface. 
+1. Menu *Sketch->Upload CTRL-U* will compile and upload the sketch (firmware) via the serial interface.
 Read more here: [compile and upload firmware through serial](https://learn.adafruit.com/adafruit-huzzah-esp8266-breakout/using-arduino-ide)
-1. Upload the Website files to the SPIFFS filesystem. There are two variants to do this:
-  * Option 1: Put the ESP8266 into programming mode again and upload the entire content set of the data folder through an Arduino IDE plug-in via the serial interface. 
- Note that the serial monitor must be closed when using the *ESP8266 Sketch Data Upload* function from the Adruino IDE tools menu. 
- Also you do need an Arduino IDE plug-in from here: 
-[upload file system and web site](https://github.com/esp8266/Arduino/blob/master/doc/filesystem.md#uploading-files-to-file-system) (SPIFFS)
+1. Upload the Website files to the SPIFFS file system. There are two variants to do this:
+  * Option 1: Put the ESP8266 into programming mode again and upload the entire content set of the data folder through an Arduino IDE plug-in via the serial interface. To do that you have to have the ufo.ino file opened in Arduino IDE as the plugin will use the data folder relative to the opened file.
+ Note that the serial monitor must be closed when using the *ESP8266 Sketch Data Upload* function from the Arduino IDE tools menu.
+ Also you do need an Arduino IDE plug-in from here:
+[upload file system and web site](https://github.com/esp8266/Arduino/blob/master/doc/filesystem.rst#uploading-files-to-file-system) (SPIFFS)
 
-  * Option 2 (requireds option 1 executed once to format the file system): 
+  * Option 2 (requires option 1 executed once to format the file system):
  (TODO: Format the ESP8266 filesystem using the WebUI or api call `/api?formatfilesystem=true`)
- and upload the all files (*.html, *.css, font.*, ...) that are contained in the `data` folder through the Web UI using the firmware upload form. 
+ and upload the all files (*.html, *.css, font.*, ...) that are contained in the `data` folder through the Web UI using the firmware upload form.
  those files will be automatically put on the ESP8266 file system.
 
  Note: if you want to modify the contents of the webpage, you need to regenerate WebContent.h using Convert_bin2c.py .
