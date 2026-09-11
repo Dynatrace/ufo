@@ -1,3 +1,5 @@
+> ⚠️ This repository is archived. For the current ESP32-based UFO, see [ufo-esp32](https://github.com/Dynatrace/ufo-esp32).
+
 # UFO
 ### Visual alert/status display for builds, CI, continuous delivery, operations, and more 
 ![printed ufo](printed%20ufo.jpg)
